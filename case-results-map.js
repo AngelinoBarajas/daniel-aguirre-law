@@ -92,9 +92,9 @@
 
     function resize() {
       dpr = window.devicePixelRatio || 1;
-      W   = wrap.clientWidth;
-      const ratio = isMobile() ? 0.62 : 0.525;
-      H   = Math.round(W * ratio);
+      // Fill the wrap's actual box (it's now an absolute bg layer, not a ratio-sized card).
+      W = wrap.clientWidth || 1;
+      H = wrap.clientHeight || Math.round(W * 0.6);
       canvas.width = W * dpr; canvas.height = H * dpr;
       canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -145,7 +145,12 @@
     let CLUSTERS = [];
     function buildProjection() {
       projection = d3.geoOrthographic().rotate([96, -38]).clipAngle(90).precision(0.4);
-      projection.fitExtent([[W * 0.05, H * 0.08], [W * 0.95, H * 0.92]], topoNation);
+      // OVERSCAN > 0 makes the US bigger than the canvas so it fills the frame and
+      // bleeds past the edges (the edge-fade mask in CSS dissolves the overflow).
+      // Bump this up for an even bigger default map.
+      var OVERSCAN = 0.16;
+      var ox = W * OVERSCAN, oy = H * OVERSCAN;
+      projection.fitExtent([[-ox, -oy], [W + ox, H + oy]], topoNation);
       const tmpPath = d3.geoPath().projection(projection);
       const c = tmpPath.centroid(topoNation);
       if (c && isFinite(c[0]) && isFinite(c[1])) {
@@ -362,6 +367,15 @@
       if (hit) { if (activeId === hit.id) closePopup(); else openCluster(hit); } else closePopup();
     });
 
+    // Hover-to-open (510 globe behavior): hovering a pin opens its full popup and
+    // marks it active (the pin enlarges + turns red). Leaving the pin closes after a
+    // short delay; moving onto the popup cancels the close so it stays interactive.
+    let hoverCloseTimer = null;
+    function scheduleHoverClose() { clearTimeout(hoverCloseTimer); hoverCloseTimer = setTimeout(closePopup, 240); }
+    function cancelHoverClose() { clearTimeout(hoverCloseTimer); hoverCloseTimer = null; }
+    popup.addEventListener('mouseenter', cancelHoverClose);
+    popup.addEventListener('mouseleave', scheduleHoverClose);
+
     if (!isTouch()) {
       canvas.addEventListener('mousemove', e => {
         if (dragging) return;
@@ -369,11 +383,17 @@
         canvasMouseX = w.x; canvasMouseY = w.y;
         const hit = findHit(w.x, w.y, 24 / zoom);
         canvas.style.cursor = hit ? 'pointer' : (zoom > 1 ? 'grab' : 'default');
-        if (popup.classList.contains('visible')) { if (hoveredId) hideTooltip(); }
-        else if (hit) { if (hit.id !== hoveredId) { hoveredId = hit.id; showTooltip(hit); } else positionTooltip(hit); }
-        else if (hoveredId) hideTooltip();
+        if (hit) {
+          cancelHoverClose();
+          if (hit.id !== activeId) openCluster(hit);   // open full popup on hover
+        } else if (activeId) {
+          scheduleHoverClose();                          // moved off the pin — close shortly
+        }
       });
-      canvas.addEventListener('mouseleave', () => { canvasMouseX = -9999; canvasMouseY = -9999; hideTooltip(); });
+      canvas.addEventListener('mouseleave', () => {
+        canvasMouseX = -9999; canvasMouseY = -9999;
+        if (activeId) scheduleHoverClose();
+      });
     }
 
     canvas.addEventListener('mousedown', e => { dragStart = { x: e.clientX, y: e.clientY, panX, panY }; dragging = true; dragMoved = false; });
