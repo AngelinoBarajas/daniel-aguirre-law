@@ -133,16 +133,28 @@
     // ── Projection (orthographic globe, right-of-canvas) ──
     var projection, geoPath, topoStates, topoNation, dots = [];
     var CLUSTERS = [];
-    var graticule = d3.geoGraticule().step([15, 15])();
     var activeFilter = 'all';
     function clusterMatches(cl) { return activeFilter === 'all' || cl.cases.some(function (c) { return c.type === activeFilter; }); }
 
     function buildProjection() {
+      // Flat, whole-US map fit into the RIGHT region of the (full-section) canvas.
+      // Head-on orthographic reads flat for CONUS. fitExtent guarantees the entire
+      // country is visible; the region is right-biased so the map sits clear of the
+      // left text column at rest, then the side-fade mask handles overlap on zoom.
       var wide = window.matchMedia('(min-width: 992px)').matches;
-      var scale = W * 0.63;
-      var tx = wide ? W * 0.75 : W * 0.5;
-      var ty = H * 0.5;
-      projection = d3.geoOrthographic().rotate([98.58, -39.83]).clipAngle(90).precision(0.4).scale(scale).translate([tx, ty]);
+      projection = d3.geoOrthographic().rotate([96, -38]).clipAngle(90).precision(0.4);
+      var x0 = wide ? W * 0.46 : W * 0.06;
+      var x1 = wide ? W * 0.94 : W * 0.94;
+      var y0 = H * 0.20, y1 = H * 0.80;
+      projection.fitExtent([[x0, y0], [x1, y1]], topoNation);
+      // Re-centre on the projected centroid (CONUS visual mass leans east) so the
+      // country sits balanced inside the region rather than shifted right.
+      var tmpPath = d3.geoPath().projection(projection);
+      var c = tmpPath.centroid(topoNation);
+      if (c && isFinite(c[0]) && isFinite(c[1])) {
+        var tr = projection.translate();
+        projection.translate([tr[0] + ((x0 + x1) / 2 - c[0]), tr[1] + ((y0 + y1) / 2 - c[1])]);
+      }
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
     function buildDots() {
@@ -187,14 +199,6 @@
 
       ctx.save();
       ctx.translate(W/2 + panX + pX, H/2 + panY + pY); ctx.scale(zoom, zoom); ctx.translate(-W/2, -H/2);
-
-      // Globe sphere shading + outline + graticule
-      var tr = projection.translate(), sphereR = projection.scale();
-      var sg = ctx.createRadialGradient(tr[0], tr[1], 0, tr[0], tr[1], sphereR);
-      sg.addColorStop(0, 'rgba(245,237,217,0.42)'); sg.addColorStop(0.65, 'rgba(245,237,217,0.18)'); sg.addColorStop(1, 'rgba(245,237,217,0)');
-      ctx.fillStyle = sg; ctx.beginPath(); geoPath({ type: 'Sphere' }); ctx.fill();
-      ctx.beginPath(); geoPath({ type: 'Sphere' }); ctx.strokeStyle = 'rgba(168,139,92,0.30)'; ctx.lineWidth = 1.0 / zoom; ctx.stroke();
-      ctx.strokeStyle = 'rgba(168,139,92,0.26)'; ctx.lineWidth = 0.55 / zoom; ctx.beginPath(); geoPath(graticule); ctx.stroke();
 
       // Dotted territory
       var BASE_R = 0.85, BASE_A = 0.32;
