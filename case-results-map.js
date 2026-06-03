@@ -46,6 +46,8 @@
 
     function byId(id) { return document.getElementById(id); }
     function setText(id, t) { var el = byId(id); if (el) el.textContent = t; }
+    // No "Loading map…" text — the map zooms + fades in on its own (entrance animation in draw()).
+    setText('loadingMsg', ''); setText('loading-msg', '');
 
     // ── Case data (CMS-ready) ──────────────────────────────
     var INLINE_CASES = [
@@ -156,7 +158,9 @@
       var c = tmpPath.centroid(topoNation);
       if (c && isFinite(c[0]) && isFinite(c[1])) {
         var tr = projection.translate();
-        projection.translate([tr[0] + (W / 2 - c[0]), tr[1] + (H / 2 - c[1])]);
+        // Vertical centre biased UP (0.37 instead of 0.5) so the map sits higher and
+        // doesn't overlap the filter chips on load. Lower this number to raise it more.
+        projection.translate([tr[0] + (W / 2 - c[0]), tr[1] + (H * 0.37 - c[1])]);
       }
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
@@ -215,9 +219,14 @@
     function curvatureScale(x, y) { var cx = W*0.5, cy = H*0.5, Rx = W*0.62, Ry = H*0.85, nx = (x-cx)/Rx, ny = (y-cy)/Ry, d2 = nx*nx+ny*ny; if (d2 >= 1) return 0.78; return 0.78 + 0.22 * Math.sqrt(1 - d2); }
 
     // ── Render ──
-    var tick = 0, animId = null, activeId = null;
+    var tick = 0, animId = null, activeId = null, animStart = 0;
     function draw() {
       ctx.clearRect(0, 0, W, H); tick += 0.016;
+      // Entrance animation — the map zooms in (0.90→1) and fades in (0→1) once on first render.
+      var nowT = (window.performance && performance.now) ? performance.now() : Date.now();
+      if (!animStart) animStart = nowT;
+      var ease = 1 - Math.pow(1 - Math.min(1, (nowT - animStart) / 1100), 3); // easeOutCubic
+      var escale = 0.90 + 0.10 * ease;
       if (canvasMouseX !== -9999) { if (canvasMouseSmoothX === -9999) { canvasMouseSmoothX = canvasMouseX; canvasMouseSmoothY = canvasMouseY; } else { canvasMouseSmoothX += (canvasMouseX - canvasMouseSmoothX) * CURSOR_LERP; canvasMouseSmoothY += (canvasMouseY - canvasMouseSmoothY) * CURSOR_LERP; } }
       else { canvasMouseSmoothX = -9999; canvasMouseSmoothY = -9999; }
       if (zoom <= 1.01 && panX === 0 && panY === 0) { pX += (((mouseX - 0.5) * PAR) - pX) * SMOOTH; pY += (((mouseY - 0.5) * PAR) - pY) * SMOOTH; } else { pX *= 0.9; pY *= 0.9; }
@@ -228,7 +237,8 @@
       ctx.fillStyle = cg; ctx.fillRect(0, 0, W, H);
 
       ctx.save();
-      ctx.translate(W/2 + panX + pX, H/2 + panY + pY); ctx.scale(zoom, zoom); ctx.translate(-W/2, -H/2);
+      ctx.translate(W/2 + panX + pX, H/2 + panY + pY); ctx.scale(zoom * escale, zoom * escale); ctx.translate(-W/2, -H/2);
+      ctx.globalAlpha = ease; // fade the map content in during entrance
 
       // Dotted territory
       var BASE_R = 0.85, BASE_A = 0.32;
@@ -246,9 +256,9 @@
       ctx.strokeStyle = 'rgba(168,139,92,0.38)'; ctx.lineWidth = 0.5 / zoom;
       topoStates.features.forEach(function (f) { ctx.beginPath(); geoPath(f); ctx.stroke(); });
 
-      for (var s = 0; s < CLUSTERS.length; s++) { ctx.globalAlpha = clusterMatches(CLUSTERS[s]) ? 1.0 : 0.18; drawSpotlight(CLUSTERS[s].x, CLUSTERS[s].y, tick + CLUSTERS[s].cases[0].id * 0.5, CLUSTERS[s].id === activeId); }
+      for (var s = 0; s < CLUSTERS.length; s++) { ctx.globalAlpha = ease * (clusterMatches(CLUSTERS[s]) ? 1.0 : 0.18); drawSpotlight(CLUSTERS[s].x, CLUSTERS[s].y, tick + CLUSTERS[s].cases[0].id * 0.5, CLUSTERS[s].id === activeId); }
       ctx.globalAlpha = 1.0;
-      for (var p = 0; p < CLUSTERS.length; p++) { ctx.globalAlpha = clusterMatches(CLUSTERS[p]) ? 1.0 : 0.22; drawPin(CLUSTERS[p].x, CLUSTERS[p].y, CLUSTERS[p].id === activeId, tick + CLUSTERS[p].cases[0].id * 0.5, CLUSTERS[p].cases.length); }
+      for (var p = 0; p < CLUSTERS.length; p++) { ctx.globalAlpha = ease * (clusterMatches(CLUSTERS[p]) ? 1.0 : 0.22); drawPin(CLUSTERS[p].x, CLUSTERS[p].y, CLUSTERS[p].id === activeId, tick + CLUSTERS[p].cases[0].id * 0.5, CLUSTERS[p].cases.length); }
       ctx.globalAlpha = 1.0;
 
       ctx.restore();
@@ -300,7 +310,7 @@
 
     // Hover-open popup
     var hoverCloseTimer = null, popupIsHovered = false;
-    function scheduleHoverClose() { clearTimeout(hoverCloseTimer); hoverCloseTimer = setTimeout(function () { if (!popupIsHovered) closePopup(); }, 220); }
+    function scheduleHoverClose() { clearTimeout(hoverCloseTimer); hoverCloseTimer = setTimeout(function () { if (!popupIsHovered) closePopup(); }, 120); }
     function cancelHoverClose() { clearTimeout(hoverCloseTimer); }
 
     canvas.addEventListener('click', function (e) {
