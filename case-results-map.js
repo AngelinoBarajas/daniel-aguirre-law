@@ -162,7 +162,8 @@
     }
     function buildDots() {
       dots = [];
-      var latStep = 0.22, lngStep = 0.30, minLat = 24.4, maxLat = 49.6, minLng = -125.0, maxLng = -66.8;
+      // Dot density — bigger steps = fewer dots = faster render. Tune to taste.
+      var latStep = 0.30, lngStep = 0.42, minLat = 24.4, maxLat = 49.6, minLng = -125.0, maxLng = -66.8;
 
       // FAST inside-test: rasterize the nation once to an offscreen canvas (equirectangular
       // over the bbox) and read pixel alpha — ~7ms vs ~12s for ~22k d3.geoContains calls.
@@ -189,7 +190,11 @@
         for (var j = 0; j < lngCount; j++) {
           var lng = minLng + j * lngStep;
           if (!insideAt(lng, lat)) continue;
-          dots.push({ lat: lat, lng: lng, phase: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.008, slowPhase: Math.random() * Math.PI * 2, slowSpd: 0.0006 + Math.random() * 0.0018 });
+          // Precompute the projected position ONCE — zoom/pan/parallax are ctx transforms
+          // applied at draw time, so the base projected point is constant. Avoids ~thousands
+          // of projection() calls every animation frame.
+          var pp = projection([lng, lat]);
+          dots.push({ lat: lat, lng: lng, pt: pp, phase: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.008, slowPhase: Math.random() * Math.PI * 2, slowSpd: 0.0006 + Math.random() * 0.0018 });
         }
       }
     }
@@ -229,7 +234,7 @@
       var BASE_R = 0.85, BASE_A = 0.32;
       for (var k = 0; k < dots.length; k++) {
         var d = dots[k]; d.phase += d.spd; d.slowPhase += d.slowSpd;
-        var pt = projection([d.lng, d.lat]); if (!pt) continue;
+        var pt = d.pt; if (!pt) continue;   // precomputed in buildDots (no per-frame projection)
         var prox = 0, cdx = pt[0] - canvasMouseSmoothX, cdy = pt[1] - canvasMouseSmoothY, cd2 = cdx*cdx + cdy*cdy;
         if (cd2 < PROX_R_SQ) { var u = 1 - Math.sqrt(cd2) / PROX_R; prox = u * u * (3 - 2 * u); }
         var pulse = 0.5 + 0.5 * Math.sin(d.phase), slowMod = 0.78 + 0.22 * Math.sin(d.slowPhase), cs = curvatureScale(pt[0], pt[1]);
