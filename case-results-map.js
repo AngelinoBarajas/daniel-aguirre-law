@@ -111,8 +111,10 @@
     var zoom = 1, panX = 0, panY = 0;
     var MIN_ZOOM = 1, MAX_ZOOM = 4;
     function clampPan() {
-      if (zoom <= 1.005) { panX = 0; panY = 0; return; }
-      var maxX = W, maxY = H;
+      // Draggable at ANY zoom — the map overscans past the canvas, so there's always room
+      // to pan. Bounds grow with zoom.
+      var maxX = W * (0.30 + (zoom - 1) * 0.6);
+      var maxY = H * (0.22 + (zoom - 1) * 0.6);
       panX = Math.max(-maxX, Math.min(maxX, panX));
       panY = Math.max(-maxY, Math.min(maxY, panY));
     }
@@ -144,7 +146,7 @@
       // OVERSCAN: negative fit margins scale the US UP so it fills the canvas and bleeds
       // past the edges (the radial mask in CSS softens the bleed). This is the reliable
       // size lever. Bigger ox/oy = bigger map. ox = width fill, oy = height fill.
-      var ox = W * 0.14, oy = H * 0.06;
+      var ox = W * 0.18, oy = H * 0.08;
       projection.fitExtent([[-ox, -oy], [W + ox, H + oy]], topoNation);
       // Re-centre on the projected centroid (CONUS visual mass leans east) so it sits
       // balanced in the canvas.
@@ -189,7 +191,7 @@
       ctx.clearRect(0, 0, W, H); tick += 0.016;
       if (canvasMouseX !== -9999) { if (canvasMouseSmoothX === -9999) { canvasMouseSmoothX = canvasMouseX; canvasMouseSmoothY = canvasMouseY; } else { canvasMouseSmoothX += (canvasMouseX - canvasMouseSmoothX) * CURSOR_LERP; canvasMouseSmoothY += (canvasMouseY - canvasMouseSmoothY) * CURSOR_LERP; } }
       else { canvasMouseSmoothX = -9999; canvasMouseSmoothY = -9999; }
-      if (zoom <= 1.01) { pX += (((mouseX - 0.5) * PAR) - pX) * SMOOTH; pY += (((mouseY - 0.5) * PAR) - pY) * SMOOTH; } else { pX *= 0.9; pY *= 0.9; }
+      if (zoom <= 1.01 && panX === 0 && panY === 0) { pX += (((mouseX - 0.5) * PAR) - pX) * SMOOTH; pY += (((mouseY - 0.5) * PAR) - pY) * SMOOTH; } else { pX *= 0.9; pY *= 0.9; }
 
       ctx.fillStyle = '#FCF6EC'; ctx.fillRect(0, 0, W, H);
       var cg = ctx.createRadialGradient(W*0.5+pX*0.12, H*0.50+pY*0.12, 0, W*0.5, H*0.50, W*0.55);
@@ -283,7 +285,7 @@
         var s = canvasCoords(e.clientX, e.clientY), w = screenToWorld(s.x, s.y);
         canvasMouseX = w.x; canvasMouseY = w.y;
         var hit = findHit(w.x, w.y, 24 / zoom);
-        canvas.style.cursor = hit ? 'pointer' : (zoom > 1 ? 'grab' : 'default');
+        canvas.style.cursor = hit ? 'pointer' : 'grab';
         if (hit) { cancelHoverClose(); if (hit.id !== activeId) openCluster(hit); }
         else if (activeId && !popupIsHovered) scheduleHoverClose();
       });
@@ -299,9 +301,9 @@
       if (!dragging) return;
       var dx = e.clientX - dragStart.x, dy = e.clientY - dragStart.y;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
-      if (dragMoved && zoom > 1) { closePopup(); var r = canvas.getBoundingClientRect(); panX = dragStart.panX + dx * (W / r.width); panY = dragStart.panY + dy * (H / r.height); clampPan(); canvas.style.cursor = 'grabbing'; }
+      if (dragMoved) { closePopup(); var r = canvas.getBoundingClientRect(); panX = dragStart.panX + dx * (W / r.width); panY = dragStart.panY + dy * (H / r.height); clampPan(); canvas.style.cursor = 'grabbing'; }
     });
-    window.addEventListener('mouseup', function () { if (!dragging) return; dragging = false; if (dragMoved) setTimeout(function () { dragMoved = false; }, 60); canvas.style.cursor = zoom > 1 ? 'grab' : 'default'; });
+    window.addEventListener('mouseup', function () { if (!dragging) return; dragging = false; if (dragMoved) setTimeout(function () { dragMoved = false; }, 60); canvas.style.cursor = 'grab'; });
 
     // Wheel zoom gated to Ctrl/⌘ so the page still scrolls over the hero
     canvas.addEventListener('wheel', function (e) {
@@ -321,7 +323,7 @@
         var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY, dist = Math.sqrt(dx*dx + dy*dy);
         var newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStart.zoom * (dist / pinchStart.dist))), s = canvasCoords(pinchStart.midX, pinchStart.midY), r = newZoom / pinchStart.zoom;
         panX = pinchStart.panX * r + (s.x - W/2) * (1 - r); panY = pinchStart.panY * r + (s.y - H/2) * (1 - r); zoom = newZoom; clampPan(); if (zoomResetBtn) zoomResetBtn.classList.toggle('is-visible', zoom > 1.01);
-      } else if (e.touches.length === 1 && dragging && zoom > 1) {
+      } else if (e.touches.length === 1 && dragging) {
         e.preventDefault(); var dx2 = e.touches[0].clientX - dragStart.x, dy2 = e.touches[0].clientY - dragStart.y;
         if (Math.abs(dx2) > 3 || Math.abs(dy2) > 3) { dragMoved = true; closePopup(); var r2 = canvas.getBoundingClientRect(); panX = dragStart.panX + dx2 * (W / r2.width); panY = dragStart.panY + dy2 * (H / r2.height); clampPan(); }
       }
@@ -388,7 +390,7 @@
     // ── Boot ──
     (async function boot() {
       try {
-        var us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
+        var us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-110m.json');
         var allStates = topojson.feature(us, us.objects.states);
         topoStates = { type: 'FeatureCollection', features: allStates.features.filter(function (f) { return f.id !== '02' && f.id !== '15'; }) };
         topoNation = topojson.merge(us, us.objects.states.geometries.filter(function (g) { return g.id !== '02' && g.id !== '15'; }));
