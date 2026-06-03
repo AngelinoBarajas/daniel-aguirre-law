@@ -141,15 +141,18 @@
       // column now). Head-on orthographic reads flat for CONUS; fitExtent guarantees
       // the entire country is visible with a small margin all around.
       projection = d3.geoOrthographic().rotate([96, -38]).clipAngle(90).precision(0.4);
-      var x0 = W * 0.08, x1 = W * 0.92, y0 = H * 0.10, y1 = H * 0.90;
-      projection.fitExtent([[x0, y0], [x1, y1]], topoNation);
-      // Re-centre on the projected centroid (CONUS visual mass leans east) so the
-      // country sits balanced in the box rather than shifted.
+      // OVERSCAN: negative fit margins scale the US UP so it fills the canvas and bleeds
+      // past the edges (the radial mask in CSS softens the bleed). This is the reliable
+      // size lever. Bigger ox/oy = bigger map. ox = width fill, oy = height fill.
+      var ox = W * 0.14, oy = H * 0.06;
+      projection.fitExtent([[-ox, -oy], [W + ox, H + oy]], topoNation);
+      // Re-centre on the projected centroid (CONUS visual mass leans east) so it sits
+      // balanced in the canvas.
       var tmpPath = d3.geoPath().projection(projection);
       var c = tmpPath.centroid(topoNation);
       if (c && isFinite(c[0]) && isFinite(c[1])) {
         var tr = projection.translate();
-        projection.translate([tr[0] + ((x0 + x1) / 2 - c[0]), tr[1] + ((y0 + y1) / 2 - c[1])]);
+        projection.translate([tr[0] + (W / 2 - c[0]), tr[1] + (H / 2 - c[1])]);
       }
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
