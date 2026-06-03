@@ -262,6 +262,21 @@
       ctx.globalAlpha = 1.0;
 
       ctx.restore();
+
+      // Edge vignette — drawn in SCREEN space (after restore) so it fades the map into the
+      // cream page on ALL sides at ANY zoom level (no hard rectangular cut). Robust: it's
+      // painted pixels, not a CSS mask, so it can't be defeated by a selector/cache issue.
+      ctx.save();
+      ctx.translate(W * 0.5, H * 0.5);
+      ctx.scale(W, H);
+      var vg = ctx.createRadialGradient(0, 0, 0, 0, 0, 0.62);
+      vg.addColorStop(0.00, 'rgba(252,246,236,0)');
+      vg.addColorStop(0.55, 'rgba(252,246,236,0)');
+      vg.addColorStop(1.00, 'rgba(252,246,236,1)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(-0.6, -0.6, 1.2, 1.2);
+      ctx.restore();
+
       animId = requestAnimationFrame(draw);
     }
 
