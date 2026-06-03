@@ -7,7 +7,9 @@
    Loading model (510 Visuals method):
      - Lazy-loaded by site init.js via lazyOn('.section_hero', <jsDelivr URL>).
      - Self-loads its deps (D3 v7 + topojson-client v3) from jsDelivr if absent.
-     - Runtime fetch: us-atlas@3 states-10m.json (CDN).
+     - Runtime fetch: us-atlas@3 states-10m.json (CDN, ~114KB). The dot-grid inside-test
+       rasterizes the nation once and reads pixels (~7ms) instead of ~22k d3.geoContains
+       calls (~12s) — that was the slow-load cause.
    Host: cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/case-results-map.js
    (use @main while iterating; pin @<sha> in init.js's lazyOn() before publish).
 
@@ -161,12 +163,34 @@
     function buildDots() {
       dots = [];
       var latStep = 0.22, lngStep = 0.30, minLat = 24.4, maxLat = 49.6, minLng = -125.0, maxLng = -66.8;
+
+      // FAST inside-test: rasterize the nation once to an offscreen canvas (equirectangular
+      // over the bbox) and read pixel alpha — ~7ms vs ~12s for ~22k d3.geoContains calls.
+      var RW = 700, RH = Math.max(1, Math.round(RW * (maxLat - minLat) / (maxLng - minLng)));
+      var oc = document.createElement('canvas'); oc.width = RW; oc.height = RH;
+      var octx = oc.getContext('2d');
+      function toRX(lng) { return (lng - minLng) / (maxLng - minLng) * RW; }
+      function toRY(lat) { return (maxLat - lat) / (maxLat - minLat) * RH; }
+      octx.fillStyle = '#000'; octx.beginPath();
+      function addRing(r) { for (var k = 0; k < r.length; k++) { var x = toRX(r[k][0]), y = toRY(r[k][1]); if (k === 0) octx.moveTo(x, y); else octx.lineTo(x, y); } octx.closePath(); }
+      if (topoNation.type === 'Polygon') topoNation.coordinates.forEach(addRing);
+      else if (topoNation.type === 'MultiPolygon') topoNation.coordinates.forEach(function (poly) { poly.forEach(addRing); });
+      octx.fill('evenodd');
+      var px = octx.getImageData(0, 0, RW, RH).data;
+      function insideAt(lng, lat) {
+        var x = Math.floor(toRX(lng)), y = Math.floor(toRY(lat));
+        if (x < 0 || y < 0 || x >= RW || y >= RH) return false;
+        return px[(y * RW + x) * 4 + 3] > 128;
+      }
+
       var latCount = Math.ceil((maxLat - minLat) / latStep) + 1, lngCount = Math.ceil((maxLng - minLng) / lngStep) + 1;
-      var inside = new Uint8Array(latCount * lngCount);
-      for (var i = 0; i < latCount; i++) { var lat = minLat + i * latStep; for (var j = 0; j < lngCount; j++) { var lng = minLng + j * lngStep; if (d3.geoContains(topoNation, [lng, lat])) inside[i * lngCount + j] = 1; } }
-      for (var i2 = 0; i2 < latCount; i2++) for (var j2 = 0; j2 < lngCount; j2++) {
-        if (!inside[i2 * lngCount + j2]) continue;
-        dots.push({ lat: minLat + i2 * latStep, lng: minLng + j2 * lngStep, phase: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.008, slowPhase: Math.random() * Math.PI * 2, slowSpd: 0.0006 + Math.random() * 0.0018 });
+      for (var i = 0; i < latCount; i++) {
+        var lat = minLat + i * latStep;
+        for (var j = 0; j < lngCount; j++) {
+          var lng = minLng + j * lngStep;
+          if (!insideAt(lng, lat)) continue;
+          dots.push({ lat: lat, lng: lng, phase: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.008, slowPhase: Math.random() * Math.PI * 2, slowSpd: 0.0006 + Math.random() * 0.0018 });
+        }
       }
     }
     function reprojectCases() { CASES.forEach(function (c) { var pt = projection([c.lng, c.lat]); c.px = pt ? { x: pt[0], y: pt[1] } : null; }); }
@@ -390,7 +414,7 @@
     // ── Boot ──
     (async function boot() {
       try {
-        var us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-110m.json');
+        var us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
         var allStates = topojson.feature(us, us.objects.states);
         topoStates = { type: 'FeatureCollection', features: allStates.features.filter(function (f) { return f.id !== '02' && f.id !== '15'; }) };
         topoNation = topojson.merge(us, us.objects.states.geometries.filter(function (g) { return g.id !== '02' && g.id !== '15'; }));
