@@ -137,18 +137,14 @@
     function clusterMatches(cl) { return activeFilter === 'all' || cl.cases.some(function (c) { return c.type === activeFilter; }); }
 
     function buildProjection() {
-      // Flat, whole-US map fit into the RIGHT region of the (full-section) canvas.
-      // Head-on orthographic reads flat for CONUS. fitExtent guarantees the entire
-      // country is visible; the region is right-biased so the map sits clear of the
-      // left text column at rest, then the side-fade mask handles overlap on zoom.
-      var wide = window.matchMedia('(min-width: 992px)').matches;
+      // Flat whole-US map, centred inside the component box (the map IS the right
+      // column now). Head-on orthographic reads flat for CONUS; fitExtent guarantees
+      // the entire country is visible with a small margin all around.
       projection = d3.geoOrthographic().rotate([96, -38]).clipAngle(90).precision(0.4);
-      var x0 = wide ? W * 0.46 : W * 0.06;
-      var x1 = wide ? W * 0.94 : W * 0.94;
-      var y0 = H * 0.20, y1 = H * 0.80;
+      var x0 = W * 0.08, x1 = W * 0.92, y0 = H * 0.10, y1 = H * 0.90;
       projection.fitExtent([[x0, y0], [x1, y1]], topoNation);
       // Re-centre on the projected centroid (CONUS visual mass leans east) so the
-      // country sits balanced inside the region rather than shifted right.
+      // country sits balanced in the box rather than shifted.
       var tmpPath = d3.geoPath().projection(projection);
       var c = tmpPath.centroid(topoNation);
       if (c && isFinite(c[0]) && isFinite(c[1])) {
