@@ -439,11 +439,23 @@
     function positionPopup(worldX, worldY) {
       if (isMobile() || worldX == null || !popup) return;
       var sp = worldToScreen(worldX, worldY), cR = canvas.getBoundingClientRect(), sx = cR.width / W, sy = cR.height / H;
+      // Pin position in VIEWPORT coords. We position the popup against the viewport (not the map
+      // cell) so a tall popup (e.g. the cluster card) never clips at the cell/section edge — it
+      // flips above the pin and, if still too tall, clamps inside the viewport.
       var vx = sp.x * sx + cR.left, vy = sp.y * sy + cR.top, parent = popup.parentElement, pR = parent.getBoundingClientRect();
-      var pinX = vx - pR.left, pinY = vy - pR.top, pw = popup.offsetWidth || 290; popup.style.opacity = '0';
-      var ph = popup.offsetHeight || 240, left = pinX - pw / 2, top = pinY - ph - 22, wW = parent.offsetWidth;
-      if (left < 6) left = 6; if (left + pw > wW - 6) left = wW - pw - 6; if (top < 6) top = pinY + 22;
-      popup.style.left = left + 'px'; popup.style.top = top + 'px'; popup.style.opacity = '';
+      var pw = popup.offsetWidth || 290, ph = popup.offsetHeight || 240;
+      var Mtop = 80, Mbot = 14, Mside = 10, vh = window.innerHeight, vw = window.innerWidth; // Mtop clears the navbar
+      var vTop = vy - ph - 22;                              // prefer ABOVE the pin
+      if (vTop < Mtop) vTop = vy + 22;                      // not enough room above -> go below
+      if (vTop + ph > vh - Mbot) vTop = vh - Mbot - ph;     // clamp so the bottom stays on-screen
+      if (vTop < Mtop) vTop = Mtop;                         // ...but never under the navbar
+      var vLeft = vx - pw / 2;                              // centre on the pin, clamp horizontally
+      if (vLeft < Mside) vLeft = Mside;
+      if (vLeft + pw > vw - Mside) vLeft = vw - pw - Mside;
+      popup.style.opacity = '0';
+      popup.style.left = (vLeft - pR.left) + 'px';          // back to offset-parent–relative (absolute)
+      popup.style.top = (vTop - pR.top) + 'px';
+      popup.style.opacity = '';
     }
     function closePopup() { if (!popup) return; popup.classList.remove('visible'); activeId = null; currentCluster = null; }
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (zoom > 1) resetView(); else closePopup(); } });
