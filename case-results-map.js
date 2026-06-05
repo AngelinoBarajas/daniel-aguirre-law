@@ -1,17 +1,19 @@
 /* ============================================================
-   Daniel Aguirre Law — Case Results Globe (homepage hero)
-   Ported from hero-mockup.html. Orthographic globe (sphere + graticule)
-   sitting right-of-canvas, dotted CONUS territory, case pins w/ clusters,
-   hover-to-open glass popups, case-type filter chips, zoom/pan/parallax.
+   Daniel Aguirre Law — Case Results Map (homepage hero)
+   Ported from hero-mockup.html. Orthographic projection, dotted CONUS territory,
+   case pins w/ clusters, hover-to-open glass popups, case-type filter chips, zoom/pan/parallax.
 
-   Loading model (510 Visuals method):
-     - Lazy-loaded by site init.js via lazyOn('.section_hero', <jsDelivr URL>).
+   Loading model (2026-06-05): GitHub-hosted engine, loaded by the HOMEPAGE page-code.
+     - This file is RAW JS (NO <script> tags) — jsDelivr serves it from GitHub
+       (AngelinoBarajas/daniel-aguirre-law), pinned @<sha>.
+     - The homepage loads it with ONE tag in Page Settings -> Before </body>:
+         <script src="https://cdn.jsdelivr.net/gh/AngelinoBarajas/daniel-aguirre-law@<sha>/case-results-map.js"></script>
+     - Pairs with case-results-map.css — pasted inline (<style>) in Homepage -> Inside <head>.
      - Self-loads its deps (D3 v7 + topojson-client v3) from jsDelivr if absent.
+     - Self-boots on DOM ready: boot() finds #mapCanvas, then ensureDeps() -> init().
      - Runtime fetch: us-atlas@3 states-10m.json (CDN, ~114KB). The dot-grid inside-test
-       rasterizes the nation once and reads pixels (~7ms) instead of ~22k d3.geoContains
-       calls (~12s) — that was the slow-load cause.
-   Host: cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/case-results-map.js
-   (use @main while iterating; pin @<sha> in init.js's lazyOn() before publish).
+       rasterizes the nation once and reads pixels (~7ms) instead of ~22k d3.geoContains.
+   Update: edit -> push to GitHub -> new @<sha> -> bump the SHA in the homepage <script src> tag.
 
    Adaptations vs the standalone mockup:
      - IIFE + init guard; self-loads deps; boots on DOM ready or on injection.
