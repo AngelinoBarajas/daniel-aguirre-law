@@ -315,6 +315,20 @@
 
     // ── Interaction ──
     var popup = byId('popup'), pinTooltip = byId('pinTooltip'), pinTooltipType = byId('pinTooltipType'), pinTooltipOut = byId('pinTooltipOutcome');
+    // PORTAL the popup + tooltip to the top level (a fixed, full-viewport layer on <body>) so NO
+    // map container can clip them. Their direct parent .case-map_canvas-wrap is overflow:hidden
+    // (it must be — it clips the map canvas), which was cutting off tall popups at the canvas edge.
+    // The portal carries the .case-map class so every `.case-map .popup-*` / `.pin-tooltip-*` rule
+    // + CSS var still applies. position{Popup,Tooltip}() already work unchanged because the portal
+    // sits at viewport 0,0 (its rect left/top = 0, offsetWidth = viewport), so their parent-relative
+    // math resolves to viewport coords.
+    (function () {
+      var portal = document.createElement('div');
+      portal.className = 'case-map da-popup-portal';
+      document.body.appendChild(portal);
+      if (popup) portal.appendChild(popup);
+      if (pinTooltip) portal.appendChild(pinTooltip);
+    })();
     var dragging = false, dragStart = null, dragMoved = false, pinchStart = null, currentCluster = null, hoveredId = null;
     function shortOutcome(s) { var parts = String(s).trim().split(/\s+/); return parts[parts.length - 1]; }
     function canvasCoords(clientX, clientY) { var r = canvas.getBoundingClientRect(); return { x: (clientX - r.left) * (W / r.width), y: (clientY - r.top) * (H / r.height) }; }
