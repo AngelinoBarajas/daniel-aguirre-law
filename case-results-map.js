@@ -152,15 +152,21 @@
       // size lever. Bigger ox/oy = bigger map. ox = width fill, oy = height fill.
       var ox = W * 0.18, oy = H * 0.08;
       projection.fitExtent([[-ox, -oy], [W + ox, H + oy]], topoNation);
-      // Re-centre on the projected centroid (CONUS visual mass leans east) so it sits
-      // balanced in the canvas.
+      // FILL: the dots sit inset from the coastline, so a plain fit leaves the dotted US filling
+      // only ~66% of the (wide 8-col) canvas width — small + floaty. Overscale the whole
+      // projection so the dots fill the column edge-to-edge; the CSS radial mask feathers the
+      // few dots that bleed past the canvas. MAP_FILL is the master size lever — raise to grow.
+      var MAP_FILL = 1.38;
+      projection.scale(projection.scale() * MAP_FILL);
+      // Re-centre on the projected centroid (CONUS visual mass leans east) so it sits balanced.
+      // Runs AFTER the FILL scale so the bigger map is centred correctly.
       var tmpPath = d3.geoPath().projection(projection);
       var c = tmpPath.centroid(topoNation);
       if (c && isFinite(c[0]) && isFinite(c[1])) {
         var tr = projection.translate();
-        // Vertical centre biased UP (0.37 instead of 0.5) so the map sits higher and
-        // doesn't overlap the filter chips on load. Lower this number to raise it more.
-        projection.translate([tr[0] + (W / 2 - c[0]), tr[1] + (H * 0.37 - c[1])]);
+        // Vertical centre (0.44 ≈ middle, a hair up) so the bigger map fills top-to-bottom
+        // without crowding the bottom hint. Lower this number to raise the map.
+        projection.translate([tr[0] + (W / 2 - c[0]), tr[1] + (H * 0.44 - c[1])]);
       }
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
