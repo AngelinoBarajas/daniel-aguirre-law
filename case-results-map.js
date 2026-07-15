@@ -107,7 +107,9 @@
 
     // ── Parallax ──
     var mouseX = 0.5, mouseY = 0.5, pX = 0, pY = 0;
-    var PAR = 8, SMOOTH = 0.055;
+    // PAR = 0 → parallax disabled (2026-07-15): the map is LOCKED in place, so it no longer
+    // drifts with the cursor. Restore the gentle mouse-follow by setting PAR back to 8.
+    var PAR = 0, SMOOTH = 0.055;
     if (!isTouch()) document.addEventListener('mousemove', function (e) { mouseX = e.clientX / window.innerWidth; mouseY = e.clientY / window.innerHeight; });
 
     var canvasMouseX = -9999, canvasMouseY = -9999, canvasMouseSmoothX = -9999, canvasMouseSmoothY = -9999;
@@ -145,31 +147,17 @@
     function clusterMatches(cl) { return activeFilter === 'all' || cl.cases.some(function (c) { return c.type === activeFilter; }); }
 
     function buildProjection() {
-      // Flat whole-US map, centred inside the component box (the map IS the right
-      // column now). Head-on orthographic reads flat for CONUS; fitExtent guarantees
-      // the entire country is visible with a small margin all around.
+      // LOCKED whole-US view (2026-07-15). The map no longer zooms/pans, so it's framed once
+      // to show the ENTIRE country + every pin inside the component box. Plain fitExtent with an
+      // even margin is the textbook fit: it maxes the scale that still fits the whole nation and
+      // centres it (width is the binding constraint at this 1.63 box, so there's a little slack
+      // top/bottom — that's the correct, uncropped full-US framing).
+      // Replaces the old overscan (ox/oy negative margins) + MAP_FILL 1.28 + centroid recentre,
+      // which deliberately oversized the map so coasts bled off-canvas behind the CSS edge fade.
       projection = d3.geoOrthographic().rotate([96, -38]).clipAngle(90).precision(0.4);
-      // OVERSCAN: negative fit margins scale the US UP so it fills the canvas and bleeds
-      // past the edges (the radial mask in CSS softens the bleed). This is the reliable
-      // size lever. Bigger ox/oy = bigger map. ox = width fill, oy = height fill.
-      var ox = W * 0.18, oy = H * 0.08;
-      projection.fitExtent([[-ox, -oy], [W + ox, H + oy]], topoNation);
-      // FILL: the dots sit inset from the coastline, so a plain fit leaves the dotted US filling
-      // only ~66% of the (wide 8-col) canvas width — small + floaty. Overscale the whole
-      // projection so the dots fill the column edge-to-edge; the CSS radial mask feathers the
-      // few dots that bleed past the canvas. MAP_FILL is the master size lever — raise to grow.
-      var MAP_FILL = 1.28;
-      projection.scale(projection.scale() * MAP_FILL);
-      // Re-centre on the projected centroid (CONUS visual mass leans east) so it sits balanced.
-      // Runs AFTER the FILL scale so the bigger map is centred correctly.
-      var tmpPath = d3.geoPath().projection(projection);
-      var c = tmpPath.centroid(topoNation);
-      if (c && isFinite(c[0]) && isFinite(c[1])) {
-        var tr = projection.translate();
-        // Vertical centre (0.44 ≈ middle, a hair up) so the bigger map fills top-to-bottom
-        // without crowding the bottom hint. Lower this number to raise the map.
-        projection.translate([tr[0] + (W / 2 - c[0]), tr[1] + (H * 0.44 - c[1])]);
-      }
+      // PAD is the master framing lever now: bigger pad = smaller map / more breathing room.
+      var padX = W * 0.05, padY = H * 0.06;
+      projection.fitExtent([[padX, padY], [W - padX, H - padY]], topoNation);
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
     function buildDots() {
@@ -209,6 +197,16 @@
           dots.push({ lat: lat, lng: lng, pt: pp, phase: Math.random() * Math.PI * 2, spd: 0.004 + Math.random() * 0.008, slowPhase: Math.random() * Math.PI * 2, slowSpd: 0.0006 + Math.random() * 0.0018 });
         }
       }
+      // Entrance sweep order: west→east by projected x (delay01 = 0 at the left edge → 1 at the
+      // right), plus a little per-dot jitter so the leading edge of the populate wave isn't a
+      // razor-straight vertical line. Consumed by the DOT_* window in draw().
+      var xMin = Infinity, xMax = -Infinity;
+      for (var a = 0; a < dots.length; a++) { var dx0 = dots[a].pt ? dots[a].pt[0] : 0; if (dx0 < xMin) xMin = dx0; if (dx0 > xMax) xMax = dx0; }
+      var xRange = (xMax - xMin) || 1;
+      for (var b = 0; b < dots.length; b++) {
+        var base = dots[b].pt ? (dots[b].pt[0] - xMin) / xRange : 0;
+        dots[b].delay01 = clamp01(base + (Math.random() - 0.5) * 0.10);
+      }
     }
     function reprojectCases() { CASES.forEach(function (c) { var pt = projection([c.lng, c.lat]); c.px = pt ? { x: pt[0], y: pt[1] } : null; }); }
     function buildClusters() {
@@ -223,18 +221,45 @@
         var cy = group.reduce(function (s, g) { return s + g.px.y; }, 0) / group.length;
         CLUSTERS.push({ x: cx, y: cy, cases: group, id: 'c' + group.map(function (g) { return g.id; }).join('-') });
       }
+      // Pins pop in west→east too (delay01 by cluster x), so the finale flows with the dot sweep.
+      var pxMin = Infinity, pxMax = -Infinity;
+      for (var q = 0; q < CLUSTERS.length; q++) { var cxv = CLUSTERS[q].x; if (cxv < pxMin) pxMin = cxv; if (cxv > pxMax) pxMax = cxv; }
+      var pxRange = (pxMax - pxMin) || 1;
+      for (var w = 0; w < CLUSTERS.length; w++) { CLUSTERS[w].delay01 = clamp01((CLUSTERS[w].x - pxMin) / pxRange); }
     }
     function curvatureScale(x, y) { var cx = W*0.5, cy = H*0.5, Rx = W*0.62, Ry = H*0.85, nx = (x-cx)/Rx, ny = (y-cy)/Ry, d2 = nx*nx+ny*ny; if (d2 >= 1) return 0.78; return 0.78 + 0.22 * Math.sqrt(1 - d2); }
 
     // ── Render ──
     var tick = 0, animId = null, activeId = null, animStart = 0;
+
+    // ── Cinematic entrance (one-shot on first render) ───────────────────────
+    // Three beats: (1) the whole map pushes in (escale) while the state outlines
+    // fade up — structure first; (2) the dots POPULATE in a staggered west→east
+    // sweep, each with a small pop; (3) the case pins pop in as the finale.
+    // Per-element timing is keyed off `elapsed` (ms since first frame). All windows
+    // clamp to their final state, so after ~1.7s it's a normal static render forever.
+    // Honors prefers-reduced-motion → everything snaps to final, no motion.
+    var REDUCE_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var EN = {
+      MAP_DUR:   700,                          // whole-group push-in (escale) settle
+      OUT_START: 100, OUT_DUR: 520,            // state outlines fade (the structural first beat)
+      DOT_START: 240, DOT_SWEEP: 600, DOT_DUR: 360,  // dots: start + x-spread window + each dot's own fade/pop
+      PIN_START: 820, PIN_SWEEP: 400, PIN_DUR: 440   // pins: start + x-spread window + each pin's own pop
+    };
+    function clamp01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    function easeOutCubic(t) { t = clamp01(t); return 1 - Math.pow(1 - t, 3); }
+    // easeOutBack overshoots just past 1 then settles exactly to 1 → the "pop".
+    function easeOutBack(t) { t = clamp01(t); var c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+
     function draw() {
       ctx.clearRect(0, 0, W, H); tick += 0.016;
-      // Entrance animation — the map zooms in (0.90→1) and fades in (0→1) once on first render.
+      // Entrance timing — see the EN config + easing helpers above. `elapsed` = ms since the first
+      // frame; REDUCE_MOTION jumps it far past the end so everything renders in its final state.
       var nowT = (window.performance && performance.now) ? performance.now() : Date.now();
       if (!animStart) animStart = nowT;
-      var ease = 1 - Math.pow(1 - Math.min(1, (nowT - animStart) / 1100), 3); // easeOutCubic
-      var escale = 0.90 + 0.10 * ease;
+      var elapsed = REDUCE_MOTION ? 1e9 : (nowT - animStart);
+      var escale = 0.94 + 0.06 * easeOutCubic(elapsed / EN.MAP_DUR);   // quick, subtle push-in for depth
+      var outlineEase = easeOutCubic((elapsed - EN.OUT_START) / EN.OUT_DUR);
       if (canvasMouseX !== -9999) { if (canvasMouseSmoothX === -9999) { canvasMouseSmoothX = canvasMouseX; canvasMouseSmoothY = canvasMouseY; } else { canvasMouseSmoothX += (canvasMouseX - canvasMouseSmoothX) * CURSOR_LERP; canvasMouseSmoothY += (canvasMouseY - canvasMouseSmoothY) * CURSOR_LERP; } }
       else { canvasMouseSmoothX = -9999; canvasMouseSmoothY = -9999; }
       if (zoom <= 1.01 && panX === 0 && panY === 0) { pX += (((mouseX - 0.5) * PAR) - pX) * SMOOTH; pY += (((mouseY - 0.5) * PAR) - pY) * SMOOTH; } else { pX *= 0.9; pY *= 0.9; }
@@ -246,44 +271,55 @@
 
       ctx.save();
       ctx.translate(W/2 + panX + pX, H/2 + panY + pY); ctx.scale(zoom * escale, zoom * escale); ctx.translate(-W/2, -H/2);
-      ctx.globalAlpha = ease; // fade the map content in during entrance
 
-      // Dotted territory
+      // ── Beat 2: dotted territory populates in a staggered west→east sweep ──
+      // Each dot gates on its own window (DOT_START + delay01*DOT_SWEEP); dOn fades it in,
+      // dPop gives it a small overshoot pop as it lands.
       var BASE_R = 0.85, BASE_A = 0.32;
       for (var k = 0; k < dots.length; k++) {
         var d = dots[k]; d.phase += d.spd; d.slowPhase += d.slowSpd;
         var pt = d.pt; if (!pt) continue;   // precomputed in buildDots (no per-frame projection)
+        var dT = (elapsed - (EN.DOT_START + d.delay01 * EN.DOT_SWEEP)) / EN.DOT_DUR;
+        var dOn = easeOutCubic(dT); if (dOn <= 0) continue;   // not yet populated → skip drawing
+        var dPop = easeOutBack(dT);
         var prox = 0, cdx = pt[0] - canvasMouseSmoothX, cdy = pt[1] - canvasMouseSmoothY, cd2 = cdx*cdx + cdy*cdy;
         if (cd2 < PROX_R_SQ) { var u = 1 - Math.sqrt(cd2) / PROX_R; prox = u * u * (3 - 2 * u); }
         var pulse = 0.5 + 0.5 * Math.sin(d.phase), slowMod = 0.78 + 0.22 * Math.sin(d.slowPhase), cs = curvatureScale(pt[0], pt[1]);
-        var r = BASE_R * cs * ((0.85 + pulse * 0.30) * (1 + prox * 0.35)) * (W / 950);
-        var alpha = Math.min(0.72, BASE_A * cs * ((0.78 + pulse * 0.22) * slowMod * (1 + prox * 0.85)));
+        var r = BASE_R * cs * ((0.85 + pulse * 0.30) * (1 + prox * 0.35)) * (W / 950) * dPop;
+        var alpha = Math.min(0.72, BASE_A * cs * ((0.78 + pulse * 0.22) * slowMod * (1 + prox * 0.85))) * dOn;
         ctx.beginPath(); ctx.arc(pt[0], pt[1], r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(105,80,32,' + alpha + ')'; ctx.fill();
       }
-      // State outlines
+      // ── Beat 1: state outlines fade up first (structure before the dots fill in) ──
+      ctx.globalAlpha = clamp01(outlineEase);
       ctx.strokeStyle = 'rgba(168,139,92,0.38)'; ctx.lineWidth = 0.5 / zoom;
       topoStates.features.forEach(function (f) { ctx.beginPath(); geoPath(f); ctx.stroke(); });
-
-      for (var s = 0; s < CLUSTERS.length; s++) { ctx.globalAlpha = ease * (clusterMatches(CLUSTERS[s]) ? 1.0 : 0.18); drawSpotlight(CLUSTERS[s].x, CLUSTERS[s].y, tick + CLUSTERS[s].cases[0].id * 0.5, CLUSTERS[s].id === activeId); }
       ctx.globalAlpha = 1.0;
-      for (var p = 0; p < CLUSTERS.length; p++) { ctx.globalAlpha = ease * (clusterMatches(CLUSTERS[p]) ? 1.0 : 0.22); drawPin(CLUSTERS[p].x, CLUSTERS[p].y, CLUSTERS[p].id === activeId, tick + CLUSTERS[p].cases[0].id * 0.5, CLUSTERS[p].cases.length); }
+
+      // ── Beat 3: spotlights + pins pop in last, staggered west→east ──
+      for (var s = 0; s < CLUSTERS.length; s++) {
+        var clS = CLUSTERS[s], sA = easeOutCubic((elapsed - (EN.PIN_START + clS.delay01 * EN.PIN_SWEEP)) / EN.PIN_DUR);
+        if (sA <= 0) continue;
+        ctx.globalAlpha = sA * (clusterMatches(clS) ? 1.0 : 0.18);
+        drawSpotlight(clS.x, clS.y, tick + clS.cases[0].id * 0.5, clS.id === activeId);
+      }
+      ctx.globalAlpha = 1.0;
+      for (var p = 0; p < CLUSTERS.length; p++) {
+        var clP = CLUSTERS[p], pT = (elapsed - (EN.PIN_START + clP.delay01 * EN.PIN_SWEEP)) / EN.PIN_DUR;
+        var pA = easeOutCubic(pT); if (pA <= 0) continue;
+        var pScale = easeOutBack(pT);
+        ctx.save();
+        ctx.globalAlpha = pA * (clusterMatches(clP) ? 1.0 : 0.22);
+        ctx.translate(clP.x, clP.y); ctx.scale(pScale, pScale); ctx.translate(-clP.x, -clP.y);   // pop around the pin center
+        drawPin(clP.x, clP.y, clP.id === activeId, tick + clP.cases[0].id * 0.5, clP.cases.length);
+        ctx.restore();
+      }
       ctx.globalAlpha = 1.0;
 
       ctx.restore();
 
-      // Edge vignette — drawn in SCREEN space (after restore) so it fades the map into the
-      // cream page on ALL sides at ANY zoom level (no hard rectangular cut). Robust: it's
-      // painted pixels, not a CSS mask, so it can't be defeated by a selector/cache issue.
-      ctx.save();
-      ctx.translate(W * 0.5, H * 0.5);
-      ctx.scale(W, H);
-      var vg = ctx.createRadialGradient(0, 0, 0, 0, 0, 0.62);
-      vg.addColorStop(0.00, 'rgba(252,246,236,0)');
-      vg.addColorStop(0.55, 'rgba(252,246,236,0)');
-      vg.addColorStop(1.00, 'rgba(252,246,236,1)');
-      ctx.fillStyle = vg;
-      ctx.fillRect(-0.6, -0.6, 1.2, 1.2);
-      ctx.restore();
+      // Edge vignette REMOVED (2026-07-15). The locked whole-US fitExtent keeps the entire
+      // country inside the frame, so there's no overscan bleed to fade — the map now has crisp
+      // edges. (Previously a screen-space radial gradient feathered the coasts that overspilled.)
 
       animId = requestAnimationFrame(draw);
     }
@@ -361,7 +397,7 @@
         var s = canvasCoords(e.clientX, e.clientY), w = screenToWorld(s.x, s.y);
         canvasMouseX = w.x; canvasMouseY = w.y;
         var hit = findHit(w.x, w.y, 24 / zoom);
-        canvas.style.cursor = hit ? 'pointer' : 'grab';
+        canvas.style.cursor = hit ? 'pointer' : 'default';
         if (hit) { cancelHoverClose(); if (hit.id !== activeId) openCluster(hit); }
         else if (activeId && !popupIsHovered) scheduleHoverClose();
       });
@@ -372,41 +408,12 @@
       }
     }
 
-    canvas.addEventListener('mousedown', function (e) { dragStart = { x: e.clientX, y: e.clientY, panX: panX, panY: panY }; dragging = true; dragMoved = false; });
-    window.addEventListener('mousemove', function (e) {
-      if (!dragging) return;
-      var dx = e.clientX - dragStart.x, dy = e.clientY - dragStart.y;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
-      if (dragMoved) { closePopup(); var r = canvas.getBoundingClientRect(); panX = dragStart.panX + dx * (W / r.width); panY = dragStart.panY + dy * (H / r.height); clampPan(); canvas.style.cursor = 'grabbing'; }
-    });
-    window.addEventListener('mouseup', function () { if (!dragging) return; dragging = false; if (dragMoved) setTimeout(function () { dragMoved = false; }, 60); canvas.style.cursor = 'grab'; });
-
-    // Wheel zoom gated to Ctrl/⌘ so the page still scrolls over the hero
-    canvas.addEventListener('wheel', function (e) {
-      if (!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault(); closePopup();
-      var s = canvasCoords(e.clientX, e.clientY), factor = e.deltaY < 0 ? 1.14 : 1 / 1.14;
-      setZoomAt(zoom * factor, s.x, s.y);
-    }, { passive: false });
-
-    canvas.addEventListener('touchstart', function (e) {
-      if (e.touches.length === 2) { closePopup(); var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY; pinchStart = { dist: Math.sqrt(dx*dx + dy*dy), zoom: zoom, midX: (e.touches[0].clientX + e.touches[1].clientX) / 2, midY: (e.touches[0].clientY + e.touches[1].clientY) / 2, panX: panX, panY: panY }; }
-      else if (e.touches.length === 1) { dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, panX: panX, panY: panY }; dragging = true; dragMoved = false; }
-    }, { passive: true });
-    canvas.addEventListener('touchmove', function (e) {
-      if (e.touches.length === 2 && pinchStart) {
-        e.preventDefault();
-        var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY, dist = Math.sqrt(dx*dx + dy*dy);
-        var newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStart.zoom * (dist / pinchStart.dist))), s = canvasCoords(pinchStart.midX, pinchStart.midY), r = newZoom / pinchStart.zoom;
-        panX = pinchStart.panX * r + (s.x - W/2) * (1 - r); panY = pinchStart.panY * r + (s.y - H/2) * (1 - r); zoom = newZoom; clampPan(); if (zoomResetBtn) zoomResetBtn.classList.toggle('is-visible', zoom > 1.01);
-      } else if (e.touches.length === 1 && dragging) {
-        e.preventDefault(); var dx2 = e.touches[0].clientX - dragStart.x, dy2 = e.touches[0].clientY - dragStart.y;
-        if (Math.abs(dx2) > 3 || Math.abs(dy2) > 3) { dragMoved = true; closePopup(); var r2 = canvas.getBoundingClientRect(); panX = dragStart.panX + dx2 * (W / r2.width); panY = dragStart.panY + dy2 * (H / r2.height); clampPan(); }
-      }
-    }, { passive: false });
-    canvas.addEventListener('touchend', function (e) { if (e.touches.length < 2) pinchStart = null; if (e.touches.length === 0) { dragging = false; if (dragMoved) setTimeout(function () { dragMoved = false; }, 60); } });
-    canvas.addEventListener('dblclick', function (e) { e.preventDefault(); resetView(); });
-    if (zoomResetBtn) zoomResetBtn.addEventListener('click', resetView);
+    // Zoom + pan + pinch + dbl-click-reset handlers REMOVED (2026-07-15). The map is LOCKED to a
+    // static whole-US view — no wheel-zoom, no drag-pan, no pinch, no page-scroll interception.
+    // Pins stay fully interactive: hover-preview + click-for-details fire through the canvas
+    // 'mousemove'/'click' listeners above (a mobile tap still dispatches a click, so tapping a pin
+    // opens its popup). `zoom` stays 1 and `panX/panY` stay 0, so all worldToScreen/hit-test math
+    // is an identity transform. (setZoomAt/clampPan/resetView remain defined but idle.)
 
     // Filter chips
     var chips = document.querySelectorAll('.filter_chip');
