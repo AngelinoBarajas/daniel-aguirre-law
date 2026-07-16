@@ -233,7 +233,7 @@
     function curvatureScale(x, y) { var cx = W*0.5, cy = H*0.5, Rx = W*0.62, Ry = H*0.85, nx = (x-cx)/Rx, ny = (y-cy)/Ry, d2 = nx*nx+ny*ny; if (d2 >= 1) return 0.78; return 0.78 + 0.22 * Math.sqrt(1 - d2); }
 
     // ── Render ──
-    var tick = 0, animId = null, activeId = null, animStart = 0;
+    var tick = 0, animId = null, activeId = null, animStart = 0, mapPaused = false;
 
     // ── Cinematic entrance (one-shot on first render) ───────────────────────
     // Three beats: (1) the whole map pushes in (escale) while the state outlines
@@ -324,7 +324,11 @@
       // country inside the frame, so there's no overscan bleed to fade — the map now has crisp
       // edges. (Previously a screen-space radial gradient feathered the coasts that overspilled.)
 
-      animId = requestAnimationFrame(draw);
+      // Stop rendering when the map is scrolled out of view. The full-canvas redraw
+      // (per-dot trig + breathing spotlights) is a constant main-thread cost that
+      // competes with Lenis's scroll rAF — pointless while the map isn't visible.
+      // IO (below) flips mapPaused and restarts the loop on re-entry.
+      animId = mapPaused ? null : requestAnimationFrame(draw);
     }
 
     function drawSpotlight(x, y, t, active) {
@@ -506,6 +510,17 @@
         var msg = byId('loadingMsg') || byId('loading-msg'); if (msg) { msg.style.opacity = '0'; setTimeout(function () { msg.style.display = 'none'; }, 400); }
         if (animId) cancelAnimationFrame(animId);
         draw();
+        // Pause the render loop while the map is off-screen (frees the main thread for
+        // smooth scrolling elsewhere on the page). rootMargin keeps it warm just before
+        // it scrolls back in so there's no visible cold-start.
+        if (typeof IntersectionObserver !== 'undefined') {
+          var visIO = new IntersectionObserver(function (entries) {
+            var vis = entries[0].isIntersecting;
+            if (vis && mapPaused) { mapPaused = false; if (!animId) draw(); }
+            else if (!vis && !mapPaused) { mapPaused = true; if (animId) { cancelAnimationFrame(animId); animId = null; } }
+          }, { rootMargin: '200px 0px 200px 0px', threshold: 0 });
+          visIO.observe(wrap);
+        }
       } catch (err) {
         console.error('Case map load error:', err);
         var m = byId('loadingMsg') || byId('loading-msg'); if (m) m.textContent = 'Map unavailable — check connection.';
