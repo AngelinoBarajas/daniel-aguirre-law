@@ -155,8 +155,11 @@
       // Replaces the old overscan (ox/oy negative margins) + MAP_FILL 1.28 + centroid recentre,
       // which deliberately oversized the map so coasts bled off-canvas behind the CSS edge fade.
       projection = d3.geoOrthographic().rotate([96, -38]).clipAngle(90).precision(0.4);
-      // PAD is the master framing lever now: bigger pad = smaller map / more breathing room.
-      var padX = W * 0.05, padY = H * 0.06;
+      // With CONUS-only geometry (territories removed), the continental US projects at aspect ~1.56,
+      // so it nearly fills BOTH axes of the matched box (aspect 1.55 in case-results-map.css) — both
+      // bind, unlike before. Small even pad (~3%) → CONUS fills ~91% × 91% of the frame, centred.
+      // Bigger pad = smaller map / more breathing room.
+      var padX = W * 0.03, padY = H * 0.03;
       projection.fitExtent([[padX, padY], [W - padX, H - padY]], topoNation);
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
@@ -487,8 +490,16 @@
       try {
         var us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
         var allStates = topojson.feature(us, us.objects.states);
-        topoStates = { type: 'FeatureCollection', features: allStates.features.filter(function (f) { return f.id !== '02' && f.id !== '15'; }) };
-        topoNation = topojson.merge(us, us.objects.states.geometries.filter(function (g) { return g.id !== '02' && g.id !== '15'; }));
+        // CONUS + DC ONLY (2026-07-15). us-atlas ships 56 features: 50 states + DC + 5 territories
+        // (Puerto Rico, USVI, Guam, American Samoa, N. Mariana Is.). Keep FIPS ≤ 56 and drop AK(02)
+        // + HI(15) → the 48 contiguous states + DC. CRITICAL: the territories were being merged into
+        // the "nation" that fitExtent frames — American Samoa (lng −170) / Guam (+145) blew the
+        // projected bounds wide open, shrinking CONUS to ~44% width and shoving it right; Puerto
+        // Rico/USVI also rendered as stray dots SE of Florida. Excluding them makes CONUS ~2× bigger,
+        // re-centres it, and removes the stray marks.
+        var isConus = function (id) { return +id <= 56 && id !== '02' && id !== '15'; };
+        topoStates = { type: 'FeatureCollection', features: allStates.features.filter(function (f) { return isConus(f.id); }) };
+        topoNation = topojson.merge(us, us.objects.states.geometries.filter(function (g) { return isConus(g.id); }));
         resize(); buildProjection(); buildDots(); reprojectCases(); buildClusters();
         var resizeTimer;
         window.addEventListener('resize', function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(function () { resize(); buildProjection(); buildDots(); reprojectCases(); buildClusters(); clampPan(); }, 120); });
