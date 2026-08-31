@@ -1,0 +1,790 @@
+/* CODE-CSS-VERSION: 2026-08-31.4  (nav two-tier + pill-width mega menu) */
+/* ===== Relume variable shim =====
+   Pasted Relume components bind to vars this project doesn't define; Webflow emits them
+   as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
+   AND future Relume paste with zero Designer re-pointing. Designer canvas still shows
+   "Unknown variable" (expected) — resolves on publish.
+   Webflow's Variables panel canNOT fix this (binds by internal ID). See lesson_relume-unknown-var-css-shim. */
+:root{--\<unknown\|relume-variable-color-scheme-1-background\>:#FCF6EC;--\<unknown\|relume-variable-color-scheme-1-foreground\>:#FFF;--\<unknown\|relume-variable-color-scheme-1-text\>:#1A2840;--\<unknown\|relume-variable-color-scheme-1-border\>:rgba(26,40,64,.12);--\<unknown\|relume-variable-neutral-white\>:#FFF;--\<unknown\|relume-variable-neutral-shade-1\>:#EFEDE6;--\<unknown\|relume-variable-neutral-shade-7\>:#2C3D5C;--\<unknown\|relume-variable-transparent\>:rgba(0,0,0,0);--\<unknown\|relume-variable-border-width\>:1px;--\<unknown\|relume-variable-divider-width\>:1px;--\<unknown\|relume-variable-radius-medium\>:8px;--\<unknown\|relume-variable-radius-large\>:12px}
+
+/* ===== Design tokens — REFERENCE ONLY =====
+   Define these in the Webflow Variables panel (they compile to :root CSS vars with
+   these exact names). Listed here so .frame-card etc. have something to bind to and
+   so the token contract is visible in-file. See _design-system-inventory.md for the
+   full table. Do NOT uncomment a competing :root block — let Webflow Variables own it.
+
+   This project uses CLIENT-FIRST variable names (from the Webflow style guide).
+   Brand:   --base-color-brand--{blue-dark #1a2840, blue #1a325c, blue-light,
+                                  red #891e2d, red-light, red-dark}
+   Neutral: --base-color-neutral--{black, white, neutral-lightest #eee ... neutral-darkest}
+   Semantic: --background-color--background-{primary|secondary|tertiary|alternate}
+             --text-color--text-{primary|secondary|alternate}
+             --link-color--link-{primary|secondary|alternate}
+             --border-color--border-{primary|secondary|alternate}
+   No radius scale exists (buttons are square). See builds/_design-system-inventory.md.
+*/
+
+/* ===== Global ===== */
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html { scrollbar-gutter: stable; }              /* reserve gutter = no layout shift, but only ONE scrollbar */
+body { overflow-x: clip; }                      /* clip horizontal overflow WITHOUT making body a 2nd scroll container (Lenis-safe; keeps sticky) */
+.heading-style-h1 span { display: inline-block; white-space: nowrap; }
+
+/* ===== Lenis smooth scroll — REQUIRED stylesheet =====
+   Lenis writes scrollTop every frame; without `scroll-behavior:auto !important` the
+   browser's native smooth-scroll (incl. the mobile `html{scroll-behavior:smooth}` below)
+   fights it → double-smoothing lag. `height:auto` avoids the html/body height trap that
+   stutters long pages. Keep this in sync with the Lenis version in init.js. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* ===== Utility: designer-only hide =====
+   Add `is-designer-hidden` as a COMBO class to any element while editing in
+   Designer so it gets out of your way. REMOVE the combo before publishing. */
+.is-designer-hidden { display: none !important; }
+
+/* ===== Frame / card utility =====
+   "Card with the standard border" — ONE class instead of duplicating border+bg per
+   component. Bound to this project's Client-First tokens. Square by default (matches
+   the square-button aesthetic); no radius token exists yet. */
+.frame-card {
+  border: 1px solid var(--border-color--border-primary, #eee);
+  background: var(--background-color--background-alternate, #fff);
+  border-radius: 0;
+  overflow: hidden;
+}
+.frame-card.is-dark {
+  border-color: var(--border-color--border-alternate, #222);
+  background: var(--background-color--background-primary, #000);
+  color: var(--text-color--text-alternate, #fff);
+}
+
+/* ===== Reveal / fade-in pattern (.is-ready) =====
+   Authored in CSS, NOT Designer Effects opacity — so if the JS that adds .is-ready
+   ever fails to run, the element is still visible (never stuck invisible forever).
+   Add your hero/embed selectors to BOTH lists below to enroll them in the fade.
+   IMPORTANT: leave Designer Effects Opacity at 100% on these elements. */
+[data-fade],
+.is-hero-fade {
+  opacity: 0;
+  transition: opacity 700ms ease-out 50ms;
+}
+[data-fade].is-ready,
+.is-hero-fade.is-ready {
+  opacity: 1;
+}
+
+/* IO-driven entrance attributes (gsap-animator skill writes the JS; these are the
+   resting states so content is never invisible if JS is slow/absent). */
+[data-animate="fade-up"] { opacity: 1; }
+
+/* ===== Unicorn Studio embeds — generic reset =====
+   Scope embed fills with the [data-us-project] attribute so generic class names
+   never leak onto non-embed elements. */
+[data-us-project] { position: relative; }
+[data-us-project] canvas { display: block; }
+
+/* ===== Lightbox hardening (Webflow native) ===== */
+.w-lightbox-backdrop, .w-lightbox-container, .w-lightbox-frame { z-index: 2147483646 !important; }
+.w-lightbox-close { z-index: 2147483647 !important; pointer-events: auto !important; }
+.w-lightbox-backdrop { pointer-events: auto !important; }
+.w-lightbox-view,
+.w-lightbox-figure { max-width: 100vw !important; max-height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+.w-lightbox-backdrop img,
+.w-lightbox-view img,
+.w-lightbox-figure img,
+.w-lightbox-img {
+  max-width: calc(100vw - 40px) !important;
+  max-height: calc(100vh - 80px) !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  margin: auto !important;
+}
+
+/* ===== Mouse trail (desktop only) — generic Unicorn trail container =====
+   init.js physically removes the embed on ≤991px / FX-off before SDK init. */
+.unicorn-mouse-trail_component { position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; z-index: 9998; pointer-events: none; overflow: hidden; mix-blend-mode: screen; }
+.unicorn-mouse-trail_component > div { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; }
+.unicorn-mouse-trail_component canvas { pointer-events: none; }
+@media (max-width: 991px) { .unicorn-mouse-trail_component { display: none !important; } }
+
+/* ===== Back to top — matches the case-results map (cream glass + maroon) =====
+   Rest: cream glass w/ maroon border + maroon arrow (mirrors the map popups).
+   Hover: solid maroon fill + cream arrow (mirrors active pins / the .button sweep).
+   currentColor drives arrow + label so the hover color flip cascades to both.
+   Injected body-level by init.js (class .back-to-top); hidden until scrollY > 400. */
+.back-to-top { position: fixed; bottom: 2rem; right: 2rem; width: 56px; height: 56px; border-radius: 50%; background: rgba(252,246,236,0.72); border: 1px solid rgba(137,30,45,0.28); color: #891E2D; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease; backdrop-filter: blur(10px) saturate(1.4); -webkit-backdrop-filter: blur(10px) saturate(1.4); box-shadow: 0 6px 20px rgba(26,40,64,0.14); text-decoration: none; }
+.back-to-top.is-visible { opacity: 1; pointer-events: auto; }
+.back-to-top:hover { background: #891E2D; border-color: #891E2D; color: #FCF6EC; transform: translateY(-2px); box-shadow: 0 10px 26px rgba(137,30,45,0.30); }
+.back-to-top_arrow { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.back-to-top_label { font-size: 7px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: currentColor; line-height: 1; }
+@media (max-width: 478px) { .back-to-top { width: 48px; height: 48px; bottom: 1.5rem; right: 1.5rem; } .back-to-top_arrow { width: 13px; height: 13px; } .back-to-top_label { font-size: 6px; } }
+
+/* ===== Cursor FX toggle — desktop only, sits above back-to-top =====
+   Only meaningful if the project uses a Unicorn mouse trail. Harmless otherwise
+   (init.js only injects the button when a trail container exists — see init.js). */
+.fx-toggle { position: fixed; bottom: calc(2rem + 60px + 12px); right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: rgba(55,83,90,0.35); border: 1px solid rgba(55,83,90,0.5); color: #d0e0e3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, background 0.25s ease, border-color 0.25s ease; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 0; font-family: inherit; -webkit-appearance: none; appearance: none; }
+.fx-toggle.is-visible { opacity: 1; pointer-events: auto; }
+.fx-toggle:hover { background: rgba(55,83,90,0.55); border-color: rgba(55,83,90,0.8); }
+.fx-toggle_icon { width: 18px; height: 18px; stroke: #d0e0e3; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; overflow: visible; transition: stroke 0.25s ease, opacity 0.25s ease; }
+.fx-toggle_label { font-size: 6px; text-transform: uppercase; letter-spacing: 1.2px; color: #d0e0e3; line-height: 1; }
+.fx-toggle .fx-toggle_strike { opacity: 0; transition: opacity 0.25s ease; }
+.fx-toggle.is-off .fx-toggle_icon { opacity: 0.55; }
+.fx-toggle.is-off .fx-toggle_strike { opacity: 1; }
+@media (max-width: 991px) { .fx-toggle { display: none !important; } }
+
+/* ===== Global button hover — fill sweep =====
+   Solid buttons only. A darker-maroon (#6f1824) fill wipes in from the left on hover
+   and exits to the right, sitting under the white label via a ::before. Ghost variants
+   (.is-text, .is-secondary, .is-brand) are excluded — a maroon fill would sit under
+   their dark text. #6f1824 mirrors the landing-form submit hover → one shared token. */
+.button:not(.is-text):not(.is-secondary):not(.is-brand):not(.is-link) {
+  position: relative;
+  isolation: isolate;      /* stacking context so ::before paints under the label */
+  overflow: hidden;        /* keep the square corners clean while the fill scales */
+}
+.button:not(.is-text):not(.is-secondary):not(.is-brand):not(.is-link)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;             /* above the maroon base bg, below the label */
+  background-color: #6f1824;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.button:not(.is-text):not(.is-secondary):not(.is-brand):not(.is-link):hover::before,
+.button:not(.is-text):not(.is-secondary):not(.is-brand):not(.is-link):focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .button:not(.is-text):not(.is-secondary):not(.is-brand):not(.is-link)::before { transition: none; }
+}
+
+/* ===== Button variants — navy outline/text + on-dark (light) options =====
+   Reusable combos on top of the style-guide buttons so you don't need one-off custom classes.
+   Base (style guide): .button solid maroon (+ is-small/is-large sizes), .is-icon solid+arrow,
+   .is-form-submit. These add:
+
+   .is-secondary → OUTLINE (light bg): navy text + navy border, transparent. Hover: fills navy + white.
+   .is-text      → TEXT (light bg): navy text, transparent. Hover: fills navy + white.
+   .is-link      → clean TEXT-LINK: transparent, maroon text + arrow, no box. Hover: darker maroon.
+   .is-light     → add on ANY of the above on a DARK background → cream text + arrow (currentColor),
+                   cream outline border, cream/tan hovers. */
+
+/* --- Light-bg OUTLINE + TEXT: navy, hover fills navy + white --- */
+.button.is-secondary,
+.button.is-text {
+  color: #1A2840;                                   /* navy (was black — undefined-var fallback) */
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.button.is-secondary { border-color: #1A2840; }     /* navy outline */
+.button.is-secondary:hover,
+.button.is-text:hover {
+  background-color: #1A2840;                         /* fill navy */
+  border-color: #1A2840;
+  color: #FFFFFF;                                    /* white text */
+}
+
+/* --- Text-link (.is-link): transparent, maroon text + arrow, no box/fill --- */
+.button.is-link {
+  background: transparent;
+  border-color: transparent;
+  color: #891E2D;
+}
+.button.is-link:hover { color: #6f1824; }
+
+/* --- .is-light: any of the above on a DARK background → cream (0,3,0 beats the navy/maroon base) --- */
+.button.is-light { color: #FCF6EC; }
+.button.is-secondary.is-light,
+.button.is-text.is-light,
+.button.is-link.is-light { color: #FCF6EC; }
+.button.is-secondary.is-light { border-color: rgba(252,246,236,0.55); background-color: transparent; }
+.button.is-secondary.is-light:hover { background-color: rgba(252,246,236,0.12); border-color: #FCF6EC; color: #FCF6EC; }
+.button.is-text.is-light:hover,
+.button.is-link.is-light:hover { background-color: transparent; color: #A88B5C; }   /* tan, no fill on dark */
+
+/* Arrow micro-interaction — on ANY .is-icon button the arrow slides right on hover, so
+   text-link CTAs (esp. .is-link.is-icon.is-light) have an obvious hover, not just a colour shift.
+   Targets the icon's .w-embed wrapper (both .icon-1x1-* and .icon-embed-* arrows are .w-embed). */
+.button.is-icon .w-embed { transition: transform 0.2s ease; }
+.button.is-icon:hover .w-embed { transform: translateX(4px); }
+
+/* ===== Navbar8 — SOLID cream bar (was cream glass; see the continuity note) =====
+   ⚠️ 2026-08-30: the bar, the pill, the mega-menu panel and the mobile sheet were all
+   converted from translucent glass to SOLID #FCF6EC. Reason: backdrop-filter samples
+   whatever is behind it, so over dark sections the nav shifted colour and stopped
+   matching itself from page to page — it broke the continuity of the nav. Solid cream
+   looks identical everywhere. Side benefit: four fewer backdrop-filter layers, which
+   were the most expensive paint on the page. The navy utility strip above it is the
+   deliberate contrast; the tan accent rule on the mega panel is unchanged.
+   Everything is SCOPED to .navbar8_component so specificity beats Relume's base
+   classes (no !important needed). Designer owns structure (position, layout, the
+   button); this block owns the glass — backdrop-filter, the ::before accent rule,
+   and the scrollbar are things Designer can't express, and keeping all the glass
+   in one place matches how the popups + landing form are authored (one glass, one
+   source). See daniel-aguirre-context + lesson_relume-undefined-color-scheme-vars. */
+
+/* --- The bar: a FLOATING GLASS PILL (rounded card, echoes the popup shape) ---
+   The component becomes a transparent sticky wrapper whose padding is the gap around
+   the pill; the glass (bg, blur, FULL border, 14px radius, popup shadow) lives on the
+   bar's inner container. `> .navbar8_container` = DIRECT child so ONLY the bar row is
+   glassed — the mega-menu reuses `.navbar8_container` deeper in the tree and must NOT
+   get the pill bg (verified on live DOM: it stays transparent).
+   `.w-nav` chain clears Relume's `.navbar8_component.color-scheme-4 { background-color:
+   var(--base-color-brand--cream) }` (0,2,0) so the wrapper actually goes transparent. */
+.navbar8_component.w-nav {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom: none;
+  box-shadow: none;
+  /* SCROLL MORPH — the wrapper padding is the float gap. EXPANDED (over the hero) = 0 so the
+     bar sits flush + full-width; init.js adds .nav-condensed past the hero → a top float gap
+     (the pill lifts off the edge). The side inset in the expanded state lives on the container
+     (content align to the hero), so the bar itself is edge-to-edge. */
+  padding: 0;
+  /* Sticky so the glass frosts on scroll AND the auto-hide (init.js) can slide it away. */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.55s cubic-bezier(0.5, 0, 0.2, 1);
+  will-change: transform;
+}
+.navbar8_component.w-nav.nav-condensed { padding-top: 1rem; }   /* CONDENSED: float gap above the pill */
+/* Auto-hide state — init.js adds .nav-hidden while actively scrolling; -180% clears the
+   nav + its soft shadow fully off the top edge. Coexists with the morph (pill can be hidden). */
+.navbar8_component.w-nav.nav-hidden { transform: translateY(-180%); }
+@media (prefers-reduced-motion: reduce) {
+  .navbar8_component.w-nav,
+  .navbar8_component > .navbar8_container { transition: none; }
+  .navbar8_component.w-nav.nav-hidden { transform: none; }   /* never hide under reduced-motion */
+}
+/* THE BAR / PILL. Default = EXPANDED (full-width edge-to-edge, flat, hairline bottom, content
+   inset 2.5rem to align with the hero). .nav-condensed morphs it to the 80rem centred pill.
+   `> .navbar8_container` = DIRECT child so the mega-menu's own .navbar8_container is untouched. */
+.navbar8_component > .navbar8_container {
+  max-width: 100%;
+  margin-left: auto; margin-right: auto;
+  padding-left: 2.5rem; padding-right: 2.5rem;     /* EXPANDED content inset = hero global inset */
+  background: #FCF6EC;                             /* SOLID cream, not glass — see note above */
+  border: 1px solid transparent;                   /* flat: only a hairline bottom in expanded */
+  border-bottom-color: rgba(26,40,64,0.10);
+  border-radius: 0;
+  box-shadow: 0 1px 0 rgba(26,40,64,0.06), 0 6px 18px rgba(26,40,64,0.06);
+  transition: max-width 0.55s cubic-bezier(0.5, 0, 0.2, 1),
+              padding 0.55s cubic-bezier(0.5, 0, 0.2, 1),
+              border-radius 0.55s cubic-bezier(0.5, 0, 0.2, 1),
+              border-color 0.55s ease,
+              box-shadow 0.55s ease;
+}
+/* CONDENSED — the floating 80rem glass pill (matches the rest of the site). */
+.navbar8_component.nav-condensed > .navbar8_container {
+  max-width: 80rem;
+  padding-left: 1.75rem; padding-right: 1.75rem;   /* content inset INSIDE the pill */
+  border-color: rgba(26,40,64,0.10);              /* full hairline all sides */
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(26,40,64,0.18), 0 4px 12px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.60);
+}
+/* Top links + toggles: ANIMATED UNDERLINE on hover + persistent underline on the current
+   page. No fill chip. The underline is a maroon ::after that scales from the centre; inset
+   L/R 16px = the link's own side padding so it spans the text. Active page = Webflow's
+   automatic `.w--current` on the matching nav link (works only from custom CSS, not Designer). */
+.navbar8_component .navbar8_link,
+.navbar8_component .navbar8_dropdown-toggle {
+  position: relative;
+  color: #1A2840;
+  background: none;
+  transition: color 0.2s ease;
+}
+.navbar8_component .navbar8_link::after,
+.navbar8_component .navbar8_dropdown-toggle::after {
+  content: "";
+  position: absolute; left: 14px; right: 14px; bottom: 0.85rem;   /* tracks .navbar8_link padding
+                                                       (0.875rem sides / 1.25rem vertical) — retune
+                                                       BOTH if that padding ever changes again */
+  height: 2.5px; border-radius: 2px; background: #891E2D;
+  transform: scaleX(0); transform-origin: center;
+  transition: transform 0.28s cubic-bezier(0.5, 0, 0.2, 1);
+}
+.navbar8_component .navbar8_link:hover,
+.navbar8_component .navbar8_dropdown-toggle:hover,
+.navbar8_component .navbar8_menu-dropdown.w--open .navbar8_dropdown-toggle,
+.navbar8_component .navbar8_link.w--current { color: #891E2D; }
+.navbar8_component .navbar8_link:hover::after,
+.navbar8_component .navbar8_dropdown-toggle:hover::after,
+.navbar8_component .navbar8_menu-dropdown.w--open .navbar8_dropdown-toggle::after,
+.navbar8_component .navbar8_link.w--current::after { transform: scaleX(1); }
+.navbar8_component .dropdown-chevron { transition: transform 0.2s ease; }
+.navbar8_component .navbar8_menu-dropdown.w--open .dropdown-chevron { transform: rotate(180deg); }
+
+/* (The hover bridge that keeps the menu open across the gap is now on the PANEL itself
+   — see .navbar8_dropdown-list::after below — so it spans the full panel width.) */
+
+/* --- The mega-menu: a floating cream-glass CARD (echoes the popups) --- */
+.navbar8_component .navbar8_dropdown-list {
+  background: #FCF6EC;                  /* SOLID — was 0.94 cream + blur; over a dark section the
+                                           tint shifted and the panel stopped matching the bar */
+  border: 1px solid rgba(26,40,64,0.10);
+  border-radius: 0 0 14px 14px;   /* FLUSH to the bar: square top, rounded bottom */
+  border-top-color: transparent;  /* no seam line where it meets the bar */
+  box-shadow: 0 18px 48px rgba(26,40,64,0.22), 0 4px 12px rgba(26,40,64,0.08);
+  overflow: visible;
+  margin-top: 0;                  /* was 14px — the panel now grows straight out of the bar */
+}
+/* Tan gradient accent rule across the top — identical to .popup-rule.
+   Inset L/R 14px so it stays inside the rounded corners now that overflow is visible. */
+.navbar8_component .navbar8_dropdown-list::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #A88B5C, #c9ad7d, #A88B5C, transparent);
+  opacity: 0.7; z-index: 2;
+}
+/* Hover bridge — the fix for "menu closes before I reach the links". The navbar8
+   dropdown is hover-open (data-hover, 300ms close); the 14px gap between the pill and
+   the panel is a dead zone that trips the close. This transparent strip is the PANEL's
+   own ::after, so it spans the FULL panel width (verified: 499→1682) and overlaps the
+   toggle bottom — the pointer stays over a descendant of .w-dropdown across the whole
+   gap, no matter how diagonally you move toward the columns. (A toggle-anchored bridge
+   only covered the strip under the toggle, so diagonal moves still fell through.)
+   Only renders while open (the list is display:none when closed). */
+.navbar8_component .navbar8_dropdown-list::after { display: none; }
+/* DOCKED: Relume opens the mega at `width:100vw; left:0; right:0` off .navbar8_component, so it
+   stayed full-bleed even after the bar shrank to the 80rem pill — a 1280 pill with an edge-to-edge
+   panel hanging off it. Re-anchor it to the pill. Selector carries .w--open because Relume's own
+   width/left/right live on `.navbar8_dropdown-list.w--open` (0,2,0). */
+.navbar8_component.nav-condensed .navbar8_dropdown-list.w--open {
+  width: 80rem;
+  min-width: 0;        /* REQUIRED: Webflow's base .w-dropdown-list sets min-width:100%, which is
+                          100% of .navbar8_component (the full viewport) and floors `width` — the
+                          panel stayed full-bleed while left/transform were already applying. */
+  max-width: 100%;
+  left: 50%; right: auto;
+  transform: translateX(-50%);
+  padding-left: 1.75rem; padding-right: 1.75rem;   /* match the pill's inner inset, not Relume's 5% */
+  border-radius: 0 0 14px 14px;
+}   /* bridge retired: the panel
+   is flush with the bar now, so there is no dead zone to cross. Leaving it would have extended an
+   invisible 18px strip UP over the bar and stolen hover from the top-level links. */
+/* Section eyebrows inside the mega-menu (the .margin-bottom h4 heads).
+   Font forced to Inter (UI sans) — h4 defaults to Lora (serif) globally. */
+.navbar8_component .navbar8_dropdown-column .margin-bottom h4,
+.navbar8_component .navbar8_dropdown-small-link-list h4 {
+  font-family: "Inter", sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #891E2D; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(168,139,92,0.30);
+}
+/* Left-column links: PADDED all sides (icon no longer hugs the edge) + a 3D pop (lift +
+   shadow) on hover with a translucent GLASS DARK-BLUE highlight. :active = touch feedback. */
+.navbar8_component .navbar8_dropdown-link {
+  padding: 0.65rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  align-items: center;   /* centre the icon tile against the text block (was flex-start) */
+  transition: transform 0.2s cubic-bezier(0.34, 1.25, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+/* Default (resting) link text = navy body colour (was maroon). Hover flips it to cream below. */
+.navbar8_component .navbar8_dropdown-link .navbar8_item-text .text-weight-semibold,
+.navbar8_component .navbar8_dropdown-link .navbar8_item-text p {
+  color: #1A2840;
+}
+.navbar8_component .navbar8_dropdown-link:hover,
+.navbar8_component .navbar8_dropdown-link:active {
+  background: rgba(26,40,64,0.90);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(26,40,64,0.30), inset 0 1px 0 rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.12);
+}
+/* flip the title + subtitle to cream on hover (high specificity beats Relume text colors) */
+.navbar8_component .navbar8_dropdown-link:hover .navbar8_item-text,
+.navbar8_component .navbar8_dropdown-link:active .navbar8_item-text,
+.navbar8_component .navbar8_dropdown-link:hover .navbar8_item-text .text-weight-semibold,
+.navbar8_component .navbar8_dropdown-link:active .navbar8_item-text .text-weight-semibold,
+.navbar8_component .navbar8_dropdown-link:hover .navbar8_item-text p,
+.navbar8_component .navbar8_dropdown-link:active .navbar8_item-text p {
+  color: #FCF6EC;
+}
+/* icon tile adapts so it reads on navy: translucent cream tile + cream glyph */
+.navbar8_component .navbar8_dropdown-link:hover .navbar8_icon-holder,
+.navbar8_component .navbar8_dropdown-link:active .navbar8_icon-holder {
+  background: rgba(252,246,236,0.14);
+  border-color: rgba(252,246,236,0.32);
+  color: #FCF6EC;
+}
+/* Icon tile — RAISED 3D chip (mirrors the layout253 value-card icons, tuned for the
+   LIGHT navbar): cream gradient sheen + soft navy drop shadow + white inset highlight so
+   it reads as embossed/floating above the glass bar. Maroon glyph kept as a brand accent. */
+.navbar8_component .navbar8_icon-holder {
+  width: 32px; height: 32px; flex: 0 0 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  background: linear-gradient(155deg, rgba(255,255,255,0.92), rgba(255,255,255,0.55));
+  border: 1px solid rgba(168,139,92,0.30); color: #891E2D;
+  box-shadow: 0 4px 10px rgba(26,40,64,0.18), 0 1px 2px rgba(26,40,64,0.12), inset 0 1px 0 rgba(255,255,255,0.85);
+}
+.navbar8_component .navbar8_icon-holder svg { width: 15px; height: 15px; }
+/* Right feature column: inset tinted panel (the background-layer) + small links */
+.navbar8_component .navbar8_dropdown-background-layer {
+  background: linear-gradient(155deg, rgba(26,40,64,0.06), rgba(168,139,92,0.11));
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 10px;
+}
+.navbar8_component .navbar8_dropdown-link-small {
+  color: #1A2840; padding: 0.55rem 0.7rem; border-radius: 8px;   /* padded so the highlight isn't cramped */
+  transition: transform 0.18s cubic-bezier(0.34, 1.25, 0.64, 1), box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+.navbar8_component .navbar8_dropdown-link-small:hover,
+.navbar8_component .navbar8_dropdown-link-small:active {
+  background: rgba(26,40,64,0.90); color: #FCF6EC;   /* glass dark-blue */
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(26,40,64,0.26);
+}
+
+/* Ultrawide (≥1921px): expanded content inset tracks the hero's global padding clamp.
+   (Condensed pill keeps its 1.75rem inner padding via higher specificity.) */
+@media (min-width: 1921px) {
+  .navbar8_component > .navbar8_container { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
+}
+
+/* --- Tablet + mobile (≤991, hamburger): open menu = cream-glass sheet; top links become
+   full-width rows with a glass-blue tap highlight + a maroon active bar (no underline);
+   hamburger recoloured to navy → maroon when open; sub-nav padding/pop comes from the base
+   rules above. --- */
+@media (max-width: 991px) {
+  /* Bar is FULL-WIDTH + FLUSH in BOTH states on mobile/tablet — no pill, no float gap.
+     The desktop morph is neutralised here: the condensed selector is reset to the expanded
+     look, and the extra vertical padding gives the logo breathing room. */
+  .navbar8_component.w-nav,
+  .navbar8_component.w-nav.nav-condensed { padding-top: 0; }
+  .navbar8_component > .navbar8_container,
+  .navbar8_component.nav-condensed > .navbar8_container {
+    max-width: 100%;
+    min-height: 66px;                              /* taller bar = breathing room around the logo
+                                                      (the 48px hamburger pins the height, so vertical
+                                                      PADDING gets absorbed — min-height is reliable) */
+    padding: 0 1.5rem;
+    border-radius: 0;
+    border-color: transparent;
+    border-bottom-color: rgba(26,40,64,0.10);
+    box-shadow: 0 1px 0 rgba(26,40,64,0.06), 0 6px 18px rgba(26,40,64,0.06);
+  }
+
+  /* Hamburger → X. Relume ships this icon with transparent lines + NO working animation,
+     and rotating its flex line-divs makes them redistribute in the flex column (rotated
+     bbox grows → siblings pushed apart → broken/offset X). So we DRAW our own instead:
+     hide Relume's top/bottom line divs, keep the middle div as the centre bar, and render
+     the two animating arms as ::before/::after on .menu-icon5. Pseudo-elements are immune
+     to flex layout AND to Webflow IX, and both arms rotate around the SAME centre.
+     Verified deterministically (side-by-side closed/open harness): clean 3-line hamburger
+     → clean maroon X. */
+  .navbar8_component .navbar8_menu-button {
+    display: flex; align-items: center; justify-content: center; background: transparent;
+  }
+  .navbar8_component .menu-icon5 { position: relative; width: 24px; height: 16px; }
+  .navbar8_component .menu-icon1_line-top,
+  .navbar8_component .menu-icon1_line-bottom { display: none; }
+  .navbar8_component .menu-icon1_line-middle {
+    position: absolute; top: 50%; left: 50%; width: 24px; height: 2px; margin: -1px 0 0 -12px;
+    border-radius: 2px; background-color: #1A2840; transition: opacity 0.2s ease;
+  }
+  .navbar8_component .menu-icon1_line-middle-inner { display: none; }
+  .navbar8_component .menu-icon5::before,
+  .navbar8_component .menu-icon5::after {
+    content: ""; position: absolute; top: 50%; left: 50%; width: 24px; height: 2px; margin: -1px 0 0 -12px;
+    border-radius: 2px; background-color: #1A2840; transform-origin: center;
+    transition: transform 0.3s cubic-bezier(0.5, 0, 0.2, 1), background-color 0.2s ease;
+  }
+  .navbar8_component .menu-icon5::before { transform: translateY(-7px); }   /* resting top arm */
+  .navbar8_component .menu-icon5::after  { transform: translateY(7px); }    /* resting bottom arm */
+  .navbar8_component .navbar8_menu-button.w--open .menu-icon5::before { transform: rotate(45deg); background-color: #891E2D; }
+  .navbar8_component .navbar8_menu-button.w--open .menu-icon5::after  { transform: rotate(-45deg); background-color: #891E2D; }
+  .navbar8_component .navbar8_menu-button.w--open .menu-icon1_line-middle { opacity: 0; }
+
+  /* Open menu = glass sheet */
+  .navbar8_component .navbar8_menu {
+    background: #FCF6EC;
+    border: 1px solid rgba(26,40,64,0.10);
+    border-radius: 14px;
+    box-shadow: 0 24px 50px rgba(26,40,64,0.20), inset 0 1px 0 rgba(255,255,255,0.85);
+    padding: 0.5rem;
+    margin: 0.5rem;
+  }
+
+  /* Top links become rows: NO underline; glass-blue tap highlight; active = maroon + left bar */
+  .navbar8_component .navbar8_link::after,
+  .navbar8_component .navbar8_dropdown-toggle::after { display: none; }
+  .navbar8_component .navbar8_link,
+  .navbar8_component .navbar8_dropdown-toggle {
+    padding: 0.8rem 0.9rem !important;   /* override Relume's tall 24px link padding for rows */
+    border-radius: 10px;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .navbar8_component .navbar8_link:hover,
+  .navbar8_component .navbar8_link:active,
+  .navbar8_component .navbar8_dropdown-toggle:hover,
+  .navbar8_component .navbar8_dropdown-toggle:active {
+    background: rgba(26,40,64,0.90); color: #FCF6EC;
+  }
+  .navbar8_component .navbar8_link.w--current::before {
+    content: ""; position: absolute; left: 2px; top: 24%; bottom: 24%;
+    width: 3px; border-radius: 2px; background: #891E2D;   /* active-page bar */
+  }
+
+  /* Accordion panel (the mega, flattened) */
+  .navbar8_component .navbar8_dropdown-list {
+    margin-top: 0; border-radius: 0; box-shadow: none; overflow: hidden;
+    background: rgba(255,255,255,0.30); backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  .navbar8_component .navbar8_dropdown-list::before,
+  .navbar8_component .navbar8_dropdown-list::after { display: none; }   /* no accent rule / hover bridge on the tap accordion */
+}
+/* Small phones: expanded content inset = hero global padding (1rem ≤478) */
+@media (max-width: 478px) {
+  .navbar8_component > .navbar8_container { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ===== TWO-TIER NAV — secondary strip + call button ================================
+   The 7 attorney-approved top-level items do not fit one 80rem row (807px needed, 687 available).
+   So the nav is two tiers, each with a clear job:
+
+     tier 1  .nav-utility   navy strip — the OVERFLOW SHELF for links the main bar can't hold
+                            (Case Results / Reviews / Resources), right-aligned.
+     tier 2  .navbar8_container  the main bar — logo, primary links, and BOTH actions:
+                            .nav_call-button (outlined maroon) + the solid maroon CTA.
+
+   The call button lives in `.navbar8_menu-right`, NOT in the strip. A bordered button inside a
+   47px text strip had only ~5px of clearance above and below and read as cramped; a utility strip
+   is a text bar, and no padding value fixes that. In the main bar it gets full button height
+   beside the CTA. Bonus: `.navbar8_menu-right` IS the mobile sheet, and Relume already sets it to
+   `flex-direction: column; align-items: stretch` there — so on mobile the same element becomes a
+   full-width call bar at the bottom of the open menu, with no duplicate element.
+
+   On scroll the strip DOCKS rather than collapsing: narrows to 80rem, takes a rounded top, and the
+   pill drops its top rounding so the two read as one card — the overflow links stay reachable.
+   Below 992 the strip is hidden entirely (its links are in the hamburger sheet already). */
+.navbar8_component .nav-utility {
+  max-width: 100%;
+  margin-left: auto; margin-right: auto;
+  transition: max-width .55s cubic-bezier(0.5,0,0.2,1),
+              border-color .55s ease, border-radius .55s cubic-bezier(0.5,0,0.2,1), box-shadow .55s ease;
+}
+.navbar8_component .nav-utility_inner {
+  transition: min-height .55s cubic-bezier(0.5,0,0.2,1), padding .55s cubic-bezier(0.5,0,0.2,1);
+}
+.navbar8_component .nav-utility_link { transition: color .2s ease; }
+.navbar8_component .nav-utility_link:hover { color: #FCF6EC; }
+
+/* --- CONDENSED: dock onto the pill as its top row (one card, two rows) --- */
+.navbar8_component.nav-condensed .nav-utility {
+  max-width: 80rem;
+  /* Tan hairline, NOT navy: docked, this strip floats over whatever section is behind it, and a
+     navy edge vanished completely against the navy `.section-dark` bands. Tan reads on both cream
+     and navy. The inset cream highlight draws the top edge, and the shadow is cool-dark so the
+     card still lifts off a dark ground. */
+  border: 1px solid rgba(168,139,92,0.45);
+  border-bottom-color: rgba(168,139,92,0.30);   /* divides the two rows */
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -6px 22px rgba(6,12,28,0.30), inset 0 1px 0 rgba(252,246,236,0.16);
+}
+.navbar8_component.nav-condensed .nav-utility_inner {
+  min-height: 34px;
+  padding-left: 1.75rem; padding-right: 1.75rem;   /* match the pill's inner inset */
+}
+.navbar8_component.nav-condensed .nav-utility_link { font-size: 0.75rem; }
+.navbar8_component.nav-condensed > .navbar8_container {
+  border-top-left-radius: 0; border-top-right-radius: 0;
+  border-top-color: transparent;
+}
+
+/* --- The two actions, sized as a pair. The CTA is `.button.is-small`, used site-wide, so it is
+       scoped here rather than restyled globally. --- */
+.navbar8_component .navbar8_menu-right > .button {
+  font-size: 0.8125rem;
+  padding: 0.55rem 1.1rem;
+}
+
+/* --- CALL BUTTON (main bar; becomes the mobile sheet's call bar) --- */
+.navbar8_component .nav_call-button {
+  position: relative;
+  isolation: isolate;      /* stacking context so the sweep paints under the label */
+  overflow: hidden;        /* clips the sweep to the 100px pill */
+  transition: color .25s ease, border-color .25s ease;
+}
+/* Fill sweep, same gesture as the primary .button so the two actions feel like a family.
+   The sweep is on ::after because ::before is already the handset glyph. */
+.navbar8_component .nav_call-button::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background-color: #891E2D;
+  transform: scaleX(0); transform-origin: right center;
+  transition: transform .4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.navbar8_component .nav_call-button:hover,
+.navbar8_component .nav_call-button:focus-visible { color: #FCF6EC; border-color: #891E2D; }
+.navbar8_component .nav_call-button:hover::after,
+.navbar8_component .nav_call-button:focus-visible::after {
+  transform: scaleX(1); transform-origin: left center;
+}
+/* handset glyph as a mask so it inherits currentColor, including the cream hover state */
+.navbar8_component .nav_call-button::before {
+  --tel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z'/%3E%3C/svg%3E");
+  content: ""; display: inline-block; width: 13px; height: 13px; margin-right: .5rem;
+  flex: 0 0 13px; background: currentColor;
+  -webkit-mask: var(--tel) center/contain no-repeat;
+          mask: var(--tel) center/contain no-repeat;
+}
+@media (min-width: 1921px) {
+  .navbar8_component .nav-utility_inner { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
+  .navbar8_component.nav-condensed .nav-utility_inner { padding-left: 1.75rem; padding-right: 1.75rem; }
+}
+@media (max-width: 991px) {
+  /* The strip is hidden here (class-level) — its links are already rows in the sheet. Both actions
+     become full-width bars at the bottom of the open menu, call first.
+     `align-items: stretch` is REQUIRED: the desktop rule below sets `center` on .navbar8_menu-right
+     to align the language toggle, and that inherits into the sheet, leaving the CTA at content
+     width and centred while the call button (width:100%) filled — a mismatched pair. */
+  .navbar8_component .navbar8_menu-right {
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.25rem 0.5rem 0.75rem;
+  }
+  .navbar8_component .nav_call-button { order: 1; }
+  .navbar8_component .navbar8_menu-right > .button {
+    order: 2;
+    min-height: 48px;            /* match the call bar so the two read as a pair */
+    display: flex; align-items: center; justify-content: center;
+  }
+  .navbar8_component .navbar8_menu-right > .w-embed { order: 0; justify-content: center; }
+}
+/* Desktop: the three secondary links live in the strip, so their duplicates inside
+   .navbar8_menu-left are suppressed. They stay in the DOM purely so the ≤991 hamburger sheet
+   still lists all 7 approved items. Attribute-based, not nth-child, so reordering is safe. */
+@media (min-width: 992px) { .navbar8_component [data-nav-secondary] { display: none !important; } }
+@media (max-width: 478px) { .navbar8_component .nav-utility_inner { padding: 0 1rem; } }
+@media (prefers-reduced-motion: reduce) {
+  .navbar8_component .nav-utility,
+  .navbar8_component .nav-utility_inner,
+  .navbar8_component .nav-utility_link,
+  .navbar8_component .nav_call-button,
+  .navbar8_component .nav_call-button::after { transition: none; }
+}
+
+/* ===== Navbar language toggle — Elfsight translator (light-DOM: .es-embed-root) =====
+   The widget renders in the LIGHT DOM (no shadow root), so these rules reach it. Placement:
+   an HTML Embed in .navbar8_menu-right, BEFORE the CTA button. Scoped to the navbar. The
+   flag/dropdown INTERNALS need the widget's real selectors (couldn't capture in the headless
+   pane); this frames + aligns the toggle and tints its text. */
+/* Centre the toggle (and the CTA) vertically — menu-right was align:stretch */
+.navbar8_component .navbar8_menu-right { align-items: center; }
+.navbar8_component .navbar8_menu-right > .w-embed { display: flex; align-items: center; }
+/* Match the nav: Inter + navy text (cascades to the light-DOM toggle text) */
+.navbar8_component .es-embed-root { display: inline-flex; align-items: center; line-height: 1; font-family: "Inter", sans-serif; color: #1A2840; }
+.navbar8_component .es-embed-root * { font-family: inherit; }
+/* Subtle cream-glass pill to match the bar — DELETE this rule for a plain (no-frame) toggle */
+.navbar8_component .es-embed-root { background: rgba(255,255,255,0.55); border: 1px solid rgba(168,139,92,0.30); border-radius: 100px; padding: 0.3rem 0.6rem; transition: background 0.15s ease, border-color 0.15s ease; }
+.navbar8_component .es-embed-root:hover { background: rgba(255,255,255,0.85); border-color: rgba(168,139,92,0.55); }
+
+/* ===== Footer15 — dark navy (site-wide) =====
+   Relume footer15 ships transparent + black/maroon text (reads light on the cream page).
+   Make it a dark band matching the layout408 navy panels. Scoped to .footer15_component so
+   it beats Relume base classes with no !important. Designer does: dark bg on the BASE (flat
+   navy fallback), swap .footer15_logo to the LIGHT svg, delete the .footer15_image placeholder,
+   real content. CSS does the on-dark recolor, link hovers, divider fix, gradient + hairline. */
+.footer15_component {
+  position: relative;
+  background: linear-gradient(160deg, #1E2C46, #16223A);   /* same opaque navy as layout408 (nothing behind to blur → not glass) */
+  color: #FCF6EC;
+}
+/* Top separator hairline — reads as its own band under the section above */
+.footer15_component::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(168,139,92,0.35), transparent);
+}
+/* On-dark body text → cream */
+.footer15_component .footer15_details-wrapper,
+.footer15_component .footer15_credit-text { color: rgba(252,246,236,0.80); }
+/* The "Address:" / "Contact:" semibold labels → tan eyebrows */
+.footer15_component .footer15_details-wrapper .text-weight-semibold { color: #A88B5C; letter-spacing: 0.02em; }
+
+/* Links: cream → tan on hover (replaces the maroon Relume default, unreadable on navy) */
+.footer15_component a,
+.footer15_component .footer15_link,
+.footer15_component .footer15_legal-link {
+  color: #FCF6EC; text-decoration: none; transition: color 0.2s ease;
+}
+.footer15_component a:hover,
+.footer15_component .footer15_link:hover,
+.footer15_component .footer15_legal-link:hover { color: #A88B5C; }
+
+/* Main menu links get a tan underline reveal (navbar language, left-origin for the footer list) */
+.footer15_component .footer15_link { position: relative; display: inline-block; padding-bottom: 2px; }
+.footer15_component .footer15_link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: #A88B5C; transform: scaleX(0); transform-origin: left; transition: transform 0.28s ease;
+}
+.footer15_component .footer15_link:hover::after { transform: scaleX(1); }
+
+/* Fix Relume's broken divider (undefined color-scheme var → 0 height / transparent) */
+.footer15_component .divider-horizontal {
+  height: 1px; border: 0;
+  background: linear-gradient(90deg, transparent, rgba(168,139,92,0.30), rgba(252,246,236,0.14), rgba(168,139,92,0.30), transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer15_component .footer15_link::after { transition: none; }
+}
+
+/* ===== 4K / ultrawide scaling (≥1921px) =====
+   Tune the per-section overrides per project; the html font-size + container/padding
+   scaling is the reusable base. */
+@media (min-width: 1921px) {
+  html { font-size: clamp(16px, 0.835vw, 28px); }
+  .container-large { max-width: 1600px; }
+  .padding-global { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
+  .padding-section-large { padding-top: clamp(5rem, 6vw, 10rem); padding-bottom: clamp(5rem, 6vw, 10rem); }
+  .padding-section-medium { padding-top: clamp(3rem, 4vw, 7rem); padding-bottom: clamp(3rem, 4vw, 7rem); }
+}
+@media (min-width: 2560px) {
+  .container-large { max-width: 1920px; }
+}
+
+/* ===== Mobile / tablet polish ===== */
+@media (max-width: 991px) {
+  .heading-style-h1 { font-size: clamp(2.5rem, 7vw, 4rem); }
+  .heading-style-h2 { font-size: clamp(1.75rem, 5vw, 2.5rem); }
+  .heading-style-h3 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  .heading-style-h4 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
+  .heading-style-h5 { font-size: clamp(1rem, 3vw, 1.25rem); }
+  .text-size-medium { font-size: clamp(0.9rem, 2.5vw, 1.1rem); }
+  .text-size-large { font-size: clamp(1rem, 3vw, 1.35rem); }
+  .padding-global { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .padding-section-large { padding-top: 4rem; padding-bottom: 4rem; }
+  .padding-section-medium { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  .spacer-xxlarge { height: 4rem; }
+  .spacer-large { height: 2.5rem; }
+  .spacer-medium { height: 1.5rem; }
+  img { max-width: 100%; height: auto; }
+  body { overflow-x: clip; }
+  .button { padding: 0.75rem 1.5rem; font-size: 0.9rem; min-height: 44px; }
+  .button.is-small { padding: 0.5rem 1rem; font-size: 0.82rem; min-height: 40px; }
+  .max-width-medium, .max-width-large, .max-width-xlarge { max-width: 100%; }
+  .text-style-tagline { font-size: 0.75rem; letter-spacing: 0.1em; }
+  html { scroll-behavior: smooth; }
+  a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+}
+@media (max-width: 478px) {
+  .heading-style-h1 { font-size: clamp(2rem, 9vw, 3rem); }
+  .heading-style-h2 { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .padding-global { padding-left: 1rem; padding-right: 1rem; }
+  .padding-section-large { padding-top: 3rem; padding-bottom: 3rem; }
+  .padding-section-medium { padding-top: 2rem; padding-bottom: 2rem; }
+  .spacer-xxlarge { height: 3rem; }
+  .spacer-large { height: 2rem; }
+  .spacer-medium { height: 1rem; }
+  .spacer-small { height: 0.5rem; }
+}
