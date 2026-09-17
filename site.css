@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-08-31.4  (nav two-tier + pill-width mega menu) */
+/* CODE-CSS-VERSION: 2026-09-17.1  (site-wide kickers + Values component skin) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -735,6 +735,82 @@ html.lenis, html.lenis body { height: auto; }
   height: 1px; border: 0;
   background: linear-gradient(90deg, transparent, rgba(168,139,92,0.30), rgba(252,246,236,0.14), rgba(168,139,92,0.30), transparent);
 }
+
+/* ===== Kickers / taglines — SITE-WIDE =====
+   One system for both kicker classes: ALWAYS uppercase, NAVY on light grounds,
+   TAN/gold on dark. Relume's `.text-style-tagline` shipped black + sentence case;
+   our `.eyebrow` was tan everywhere, including on light sections where it was too
+   pale. Dark grounds are addressed by section, so no markup needs new classes. */
+.eyebrow,
+.text-style-tagline {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #1A2840;
+}
+.section-dark .eyebrow,
+.section-dark .text-style-tagline,
+.section_layout253 .eyebrow,
+.section_layout253 .text-style-tagline,
+.section_layout408 .text-style-tagline,
+.section_contact2 .text-style-tagline,
+.section_about-quote .eyebrow,
+.text-color-alternate.text-style-tagline {
+  color: #A88B5C;
+}
+
+/* ===== Values component (section_layout253) — SITE-WIDE =====
+   MOVED here from homepage-sections.css on 2026-09-17. `section_layout253` became the
+   shared `Values` COMPONENT (homepage + /about), so its skin can no longer live in one
+   page's custom code — About rendered the DOM with no card glass and no icon chip.
+   DESIGNER still owns the bg image + card padding; this owns the glass and text colours.
+   homepage-sections.css keeps its copy: page CSS loads after this, values are identical,
+   so the homepage is unchanged. Delete the page-level copy on the next paste of that file. */
+.section_layout253 { position: relative; background-color: #14203a; }
+
+.section_layout253 .layout253_item {
+  position: relative;
+  background: rgba(26,40,64,0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px;
+  box-shadow: 0 12px 34px rgba(6,12,28,0.45), inset 0 1px 0 rgba(255,255,255,0.10);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .section_layout253 .layout253_item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 48px rgba(6,12,28,0.55), inset 0 1px 0 rgba(255,255,255,0.16);
+    background: rgba(26,40,64,0.66);
+    border-color: rgba(168,139,92,0.45);
+  }
+}
+.section_layout253 .layout253_item-icon-wrapper {
+  width: 54px;
+  height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: linear-gradient(155deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(6,12,28,0.50), 0 2px 5px rgba(6,12,28,0.40), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.section_layout253 .layout253_item-icon-wrapper img { filter: brightness(0) invert(1); opacity: 0.92; }
+
+.section_layout253 .heading-style-h2 { color: #FCF6EC; }
+.section_layout253 .layout253_content-left .text-size-medium { color: rgba(252,246,236,0.82); }
+.section_layout253 .layout253_item .heading-style-h4 { color: #FCF6EC; }
+.section_layout253 .layout253_item p { color: rgba(252,246,236,0.80); }
+.section_layout253 .button.is-secondary { color: #FCF6EC; border-color: rgba(252,246,236,0.5); }
+.section_layout253 .button.is-link { color: #FCF6EC; }
+.section_layout253 .button.is-link::before { display: none; }
+.section_layout253 .button.is-link:hover { color: #A88B5C; }
+
 @media (prefers-reduced-motion: reduce) {
   .footer15_component .footer15_link::after { transition: none; }
 }
