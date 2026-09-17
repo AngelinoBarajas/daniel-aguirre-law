@@ -1096,7 +1096,7 @@ html.lenis, html.lenis body { height: auto; }
    About pull quote. Section is overflow:hidden, so it is positioned to sit
    fully inside. */
 .section_reviews-lead::before {
-  content: "C";
+  content: "“";
   position: absolute;
   top: 1.25rem; left: 50%;
   transform: translateX(-50%);
@@ -1107,12 +1107,12 @@ html.lenis, html.lenis body { height: auto; }
   z-index: 0;
 }
 .reviews-lead_inner { z-index: 1; }
-.reviews-lead_name::before { content: "4 a0"; }
+.reviews-lead_name::before { content: "— "; }
 
 /* Grid cards — real quotation marks around the quote, em dash on the credit. */
-.review_quote::before { content: "C"; }
-.review_quote::after  { content: "D"; }
-.review_name::before  { content: "4 a0"; }
+.review_quote::before { content: "“"; }
+.review_quote::after  { content: "”"; }
+.review_name::before  { content: "— "; }
 
 .review_card:hover {
   transform: translateY(-4px);
