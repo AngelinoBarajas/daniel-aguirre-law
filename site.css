@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-17.2  (reviews page + shared map/CTA component skins) */
+/* CODE-CSS-VERSION: 2026-09-18.1  (expertise hub in nav + 992-1199 nav-fit band) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -667,6 +667,31 @@ html.lenis, html.lenis body { height: auto; }
    .navbar8_menu-left are suppressed. They stay in the DOM purely so the ≤991 hamburger sheet
    still lists all 7 approved items. Attribute-based, not nth-child, so reordering is safe. */
 @media (min-width: 992px) { .navbar8_component [data-nav-secondary] { display: none !important; } }
+
+/* --- NAV FIT BAND: 992-1199 --------------------------------------------------------
+   The main bar carries 5 primary items since Case Results moved up from the strip and
+   was renamed "Results" (2026-09-18). Measured at 1100px the row needs
+   logo 205 + links 511 + actions 335 = 1051 against 1053 of content width, so it
+   wrapped to two rows and the nav grew 106 -> 168px.
+   NOTE: this band was ALREADY wrapping at <=1060 with only 4 items; the 5th item widened
+   the broken range rather than creating it. Both are fixed here.
+   Fix is graduated so the full design survives as long as possible:
+     992-1199  tighten link padding 14->8px and cap the logo (buys ~60px)
+     992-1099  the call button goes ICON-ONLY (buys ~100px more)
+   The call button is NOT moved into the strip: a bordered button in a 47px text strip
+   reads cramped, which is why it lives in the main bar in the first place (see above).
+   font-size:0 hides the label while ::before keeps the glyph, and the tel: href is
+   untouched, so tap-to-call still works at tablet widths. */
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .navbar8_component .navbar8_link { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .navbar8_component .navbar8_dropdown-toggle { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .navbar8_component .navbar8_logo { max-width: 168px; }
+}
+@media screen and (min-width: 992px) and (max-width: 1099px) {
+  .navbar8_component .nav_call-button { font-size: 0; padding-left: 0.7rem; padding-right: 0.7rem; }
+  .navbar8_component .nav_call-button::before { font-size: 1rem; }
+  .navbar8_component .nav_call-button::after { display: none; }
+}
 @media (max-width: 478px) { .navbar8_component .nav-utility_inner { padding: 0 1rem; } }
 @media (prefers-reduced-motion: reduce) {
   .navbar8_component .nav-utility,
