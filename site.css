@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-18.1  (expertise hub in nav + 992-1199 nav-fit band) */
+/* CODE-CSS-VERSION: 2026-09-18.2  (expertise hub in nav + 992-1199 nav-fit band w/ Results overflow) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -669,19 +669,33 @@ html.lenis, html.lenis body { height: auto; }
 @media (min-width: 992px) { .navbar8_component [data-nav-secondary] { display: none !important; } }
 
 /* --- NAV FIT BAND: 992-1199 --------------------------------------------------------
-   The main bar carries 5 primary items since Case Results moved up from the strip and
-   was renamed "Results" (2026-09-18). Measured at 1100px the row needs
-   logo 205 + links 511 + actions 335 = 1051 against 1053 of content width, so it
-   wrapped to two rows and the nav grew 106 -> 168px.
-   NOTE: this band was ALREADY wrapping at <=1060 with only 4 items; the 5th item widened
-   the broken range rather than creating it. Both are fixed here.
-   Fix is graduated so the full design survives as long as possible:
-     992-1199  tighten link padding 14->8px and cap the logo (buys ~60px)
-     992-1099  the call button goes ICON-ONLY (buys ~100px more)
-   The call button is NOT moved into the strip: a bordered button in a 47px text strip
-   reads cramped, which is why it lives in the main bar in the first place (see above).
-   font-size:0 hides the label while ::before keeps the glyph, and the tel: href is
-   untouched, so tap-to-call still works at tablet widths. */
+   The main bar carries 5 primary items since Case Results moved up from the strip and was
+   renamed "Results" (2026-09-18). It does not fit below ~1200.
+
+   MEASURED, not guessed. `.navbar8_menu-left` is display:BLOCK with inline-block children,
+   so the links WRAP when their combined width exceeds whatever space is left after the logo
+   and the two actions. At 992 the five items need 451px and only 442px remains -> two rows,
+   and the nav grows 106 -> 168px.
+   This band was ALREADY wrapping at <=1060 with only 4 items; the 5th widened the broken
+   range rather than creating it. Both are fixed here.
+
+   Graduated so the full design survives as long as possible:
+     1200+      untouched - the approved design.
+     992-1199   link padding 14->8px, logo capped 168px.
+     992-1099   the call button goes ICON-ONLY, and Results drops back into the strip.
+
+   Why Results moves rather than something being cut: the strip is the documented OVERFLOW
+   SHELF for links the main bar cannot hold, so this is that mechanism working as designed.
+   Padding alone was tried and rejected - it only ever reached ~0px of slack, because
+   menu-left shrink-wraps to the space available, so "it fits" was always one glyph away from
+   breaking again.
+   The call button is NOT moved into the strip: a bordered button in a 47px text strip reads
+   cramped, which is why it lives in the main bar (see the block above). font-size:0 hides the
+   label while ::before keeps the glyph and the tel: href is untouched, so tap-to-call still
+   works at tablet widths. Restoring the full label was tested and does NOT fit even with
+   Results moved out. */
+.navbar8_component [data-nav-overflow] { display: none; }
+
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .navbar8_component .navbar8_link { padding-left: 0.5rem; padding-right: 0.5rem; }
   .navbar8_component .navbar8_dropdown-toggle { padding-left: 0.5rem; padding-right: 0.5rem; }
@@ -691,6 +705,9 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component .nav_call-button { font-size: 0; padding-left: 0.7rem; padding-right: 0.7rem; }
   .navbar8_component .nav_call-button::before { font-size: 1rem; }
   .navbar8_component .nav_call-button::after { display: none; }
+  /* Results returns to the overflow shelf; the main-bar copy stands down. */
+  .navbar8_component [data-nav-overflow="results"] { display: inline-block; }
+  .navbar8_component [data-nav-primary="results"] { display: none !important; }
 }
 @media (max-width: 478px) { .navbar8_component .nav-utility_inner { padding: 0 1rem; } }
 @media (prefers-reduced-motion: reduce) {
