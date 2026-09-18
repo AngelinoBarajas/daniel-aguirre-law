@@ -69,21 +69,40 @@
       { id:13, lat:39.74, lng:-104.99, title:"TPS Extension — Venezuelan Designation",           type:"Humanitarian",       city:"Denver",      state:"CO", outcome:"TPS Extended",         year:2024, summary:"Re-registered TPS protection plus EAD extension for a family of three under the Venezuela 2023 designation.",                                              slug:"/cases/tps-denver" },
       { id:14, lat:44.98, lng:-93.27,  title:"Refugee Family Reunification — Form I-730",        type:"Humanitarian",       city:"Minneapolis", state:"MN", outcome:"Family Reunited",      year:2023, summary:"Spouse and three minor children of a Somali refugee approved for derivative status and travel after 4 years of separation.",                               slug:"/cases/i730-minneapolis" },
     ];
-    // Future CMS: render a hidden list of .case-map_item elements with data-* attrs
-    // inside a .case-map_source div; this reader will pick them up automatically.
+    // CMS source (wired 2026-09-18). A hidden Collection List renders one
+    // .case-map_item per case inside a .case-map_source / .case-map_source-cms div.
+    // TWO shapes are supported, because the Webflow MCP can bind CMS values to an
+    // element's TEXT but NOT to an attribute's value:
+    //   a) data-* attributes on the item itself      (hand-authored / original shape)
+    //   b) child elements carrying data-field="<key>" (CMS-bound text, the live shape)
+    // Attributes win when both are present. Falls back to INLINE_CASES if the list is
+    // absent or yields nothing usable, so the map never renders empty.
+    function readField(el, data, key) {
+      var v = data[key];
+      if (v != null && v !== '') return String(v).trim();
+      var node = el.querySelector('[data-field="' + key + '"]');
+      return node ? node.textContent.trim() : '';
+    }
     function getCases() {
-      var src = document.querySelectorAll('.case-map_source .case-map_item');
+      var src = document.querySelectorAll('[class*="case-map_source"] .case-map_item');
       if (!src.length) return INLINE_CASES;
       var out = [];
       for (var i = 0; i < src.length; i++) {
         var el = src[i], d = el.dataset;
+        var lat = parseFloat(readField(el, d, 'lat'));
+        var lng = parseFloat(readField(el, d, 'lng'));
+        // A case with no usable coordinates cannot be plotted. Skip it rather than
+        // letting NaN reach the projection, which silently drops the pin anyway.
+        if (!isFinite(lat) || !isFinite(lng)) continue;
         out.push({
-          id: i, lat: parseFloat(d.lat), lng: parseFloat(d.lng),
-          title: d.title || '', type: d.type || '', city: d.city || '', state: d.state || '',
-          outcome: d.outcome || '', year: d.year || '', summary: d.summary || '', slug: d.slug || '#'
+          id: out.length, lat: lat, lng: lng,
+          title: readField(el, d, 'title'), type: readField(el, d, 'type'),
+          city: readField(el, d, 'city'), state: readField(el, d, 'state'),
+          outcome: readField(el, d, 'outcome'), year: readField(el, d, 'year'),
+          summary: readField(el, d, 'summary'), slug: readField(el, d, 'slug') || '#'
         });
       }
-      return out;
+      return out.length ? out : INLINE_CASES;
     }
     var CASES = getCases();
 
@@ -91,13 +110,19 @@
     setText('metricStates', new Set(CASES.map(function (c) { return c.state; })).size);
 
     // ── Canvas + sizing ────────────────────────────────────
-    var ctx = canvas.getContext('2d');
+    // alpha:false — draw() always lays down an opaque cream base, so the alpha channel was
+    // dead weight in the compositor. Must stay paired with that opaque fill.
+    var ctx = canvas.getContext('2d', { alpha: false });
     var zoomResetBtn = byId('zoomReset');
     var isMobile = function () { return window.matchMedia('(max-width: 991px)').matches; };
     var isTouch  = function () { return window.matchMedia('(hover: none)').matches; };
     var W, H, dpr;
+    // Cap the backing store. Uncapped, a 3x phone allocated 3840x2478 = 9.5M pixels and every
+    // full-canvas fill paid for all of them. This is a decorative map of dots and hairlines —
+    // nobody can see the difference between 2x and 3x here, and it is a ~2.25x pixel saving.
+    var MAX_DPR_DESKTOP = 2, MAX_DPR_MOBILE = 1.5;
     function resize() {
-      dpr = window.devicePixelRatio || 1;
+      dpr = Math.min(window.devicePixelRatio || 1, isMobile() ? MAX_DPR_MOBILE : MAX_DPR_DESKTOP);
       W = wrap.clientWidth; H = wrap.clientHeight;
       canvas.width = W * dpr; canvas.height = H * dpr;
       canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
@@ -163,10 +188,47 @@
       projection.fitExtent([[padX, padY], [W - padX, H - padY]], topoNation);
       geoPath = d3.geoPath().projection(projection).context(ctx);
     }
+
+    // ── Static layer cache (2026-09-18 perf) ────────────────────────────────
+    // The map has been LOCKED since 2026-07-15 — no zoom, no pan, PAR = 0 — so once the entrance
+    // settles (escale hits exactly 1) the transform is the identity and two whole layers are
+    // pixel-identical on every single frame:
+    //   bgLayer      the cream fill + its centre radial gradient
+    //   outlineLayer all 49 CONUS state outlines
+    // Re-tessellating states-10m through geoPath 60 times a second, plus allocating a fresh
+    // gradient object each frame, was the single largest cost in the loop. Bake both once and
+    // blit them. Same trick buildDots() already uses for the inside-test.
+    // Rebuilt whenever the projection is (boot + debounced resize).
+    var bgLayer = null, outlineLayer = null;
+    function buildStaticLayers() {
+      var bw = Math.max(1, Math.round(W * dpr)), bh = Math.max(1, Math.round(H * dpr));
+
+      bgLayer = document.createElement('canvas');
+      bgLayer.width = bw; bgLayer.height = bh;
+      var bctx = bgLayer.getContext('2d', { alpha: false });
+      bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      bctx.fillStyle = '#FCF6EC'; bctx.fillRect(0, 0, W, H);
+      var g = bctx.createRadialGradient(W * 0.5, H * 0.50, 0, W * 0.5, H * 0.50, W * 0.55);
+      g.addColorStop(0, 'rgba(245,237,217,0.65)'); g.addColorStop(0.6, 'rgba(245,237,217,0.20)'); g.addColorStop(1, 'rgba(252,246,236,0)');
+      bctx.fillStyle = g; bctx.fillRect(0, 0, W, H);
+
+      // Kept transparent and blitted AFTER the dots, so the stacking order is unchanged.
+      outlineLayer = document.createElement('canvas');
+      outlineLayer.width = bw; outlineLayer.height = bh;
+      var lctx = outlineLayer.getContext('2d');
+      lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var lpath = d3.geoPath().projection(projection).context(lctx);
+      lctx.strokeStyle = 'rgba(168,139,92,0.38)'; lctx.lineWidth = 0.5;
+      topoStates.features.forEach(function (f) { lctx.beginPath(); lpath(f); lctx.stroke(); });
+    }
     function buildDots() {
       dots = [];
       // Dot density — bigger steps = fewer dots = faster render. Tune to taste.
-      var latStep = 0.30, lngStep = 0.42, minLat = 24.4, maxLat = 49.6, minLng = -125.0, maxLng = -66.8;
+      // The dots are texture, not information, so mobile takes a coarser grid: ~5,000 dots
+      // becomes ~2,500, and each one costs a beginPath/arc/fill every animated frame.
+      var COARSE = isMobile();
+      var latStep = COARSE ? 0.42 : 0.30, lngStep = COARSE ? 0.58 : 0.42;
+      var minLat = 24.4, maxLat = 49.6, minLng = -125.0, maxLng = -66.8;
 
       // FAST inside-test: rasterize the nation once to an offscreen canvas (equirectangular
       // over the bbox) and read pixel alpha — ~7ms vs ~12s for ~22k d3.geoContains calls.
@@ -235,6 +297,33 @@
     // ── Render ──
     var tick = 0, animId = null, activeId = null, animStart = 0, mapPaused = false;
 
+    // ── Idle stop (2026-09-18 perf) ─────────────────────────────────────────
+    // Before this, the loop ran forever at 60fps whenever the map was on screen — ~5,000 dot
+    // arcs + 49 re-tessellated state outlines per frame — competing with Lenis for the main
+    // thread exactly while someone scrolled past. The IntersectionObserver only ever covered
+    // the NOT-visible case, which is not the one that hurt.
+    //
+    // Nothing on this map moves on its own once the entrance finishes: the ambient dot and pin
+    // breathing only reads as motion when a person is actually looking at it. So the loop now
+    // runs while the entrance plays, while the pointer is over the canvas, or while a popup is
+    // open — and otherwise stops dead. Scrolling past therefore costs zero frames, which is why
+    // no separate scroll-pause hook was needed.
+    var pointerOver = false;
+    var EN_TOTAL;   // assigned below, once EN exists
+    function isAnimating() {
+      if (!animStart) return true;                     // first frame not drawn yet
+      // prefers-reduced-motion now means what it says. The old loop still ran the ambient
+      // breathing forever under it — it only skipped the entrance. Now it paints one frame per
+      // state change (filter, active pin) and is otherwise completely still.
+      if (REDUCE_MOTION) return false;
+      var el = ((window.performance && performance.now) ? performance.now() : Date.now()) - animStart;
+      if (el < EN_TOTAL) return true;                  // entrance still playing
+      return pointerOver || activeId !== null;
+    }
+    // Single entry point for waking the loop. Safe to call from any handler, any number of
+    // times — it no-ops if a frame is already queued or the map is scrolled out of view.
+    function requestDraw() { if (!animId && !mapPaused) animId = requestAnimationFrame(draw); }
+
     // ── Cinematic entrance (one-shot on first render) ───────────────────────
     // Three beats: (1) the whole map pushes in (escale) while the state outlines
     // fade up — structure first; (2) the dots POPULATE in a staggered west→east
@@ -249,28 +338,40 @@
       DOT_START: 240, DOT_SWEEP: 600, DOT_DUR: 360,  // dots: start + x-spread window + each dot's own fade/pop
       PIN_START: 820, PIN_SWEEP: 400, PIN_DUR: 440   // pins: start + x-spread window + each pin's own pop
     };
+    EN_TOTAL = EN.PIN_START + EN.PIN_SWEEP + EN.PIN_DUR;   // 1660ms — the last pin has landed
     function clamp01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
     function easeOutCubic(t) { t = clamp01(t); return 1 - Math.pow(1 - t, 3); }
     // easeOutBack overshoots just past 1 then settles exactly to 1 → the "pop".
     function easeOutBack(t) { t = clamp01(t); var c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
 
     function draw() {
-      ctx.clearRect(0, 0, W, H); tick += 0.016;
+      animId = null;
       // Entrance timing — see the EN config + easing helpers above. `elapsed` = ms since the first
       // frame; REDUCE_MOTION jumps it far past the end so everything renders in its final state.
       var nowT = (window.performance && performance.now) ? performance.now() : Date.now();
       if (!animStart) animStart = nowT;
       var elapsed = REDUCE_MOTION ? 1e9 : (nowT - animStart);
+      // tick drives the ambient spotlight/pin breathing. It used to be `tick += 0.016`, which
+      // assumed a locked 60fps and made the animation speed frame-rate dependent — and would
+      // now also stall whenever the idle stop paused the loop. Absolute seconds instead.
+      tick = nowT / 1000;
+      var entranceDone = elapsed >= EN_TOTAL;
       var escale = 0.94 + 0.06 * easeOutCubic(elapsed / EN.MAP_DUR);   // quick, subtle push-in for depth
       var outlineEase = easeOutCubic((elapsed - EN.OUT_START) / EN.OUT_DUR);
       if (canvasMouseX !== -9999) { if (canvasMouseSmoothX === -9999) { canvasMouseSmoothX = canvasMouseX; canvasMouseSmoothY = canvasMouseY; } else { canvasMouseSmoothX += (canvasMouseX - canvasMouseSmoothX) * CURSOR_LERP; canvasMouseSmoothY += (canvasMouseY - canvasMouseSmoothY) * CURSOR_LERP; } }
       else { canvasMouseSmoothX = -9999; canvasMouseSmoothY = -9999; }
       if (zoom <= 1.01 && panX === 0 && panY === 0) { pX += (((mouseX - 0.5) * PAR) - pX) * SMOOTH; pY += (((mouseY - 0.5) * PAR) - pY) * SMOOTH; } else { pX *= 0.9; pY *= 0.9; }
 
-      ctx.fillStyle = '#FCF6EC'; ctx.fillRect(0, 0, W, H);
-      var cg = ctx.createRadialGradient(W*0.5+pX*0.12, H*0.50+pY*0.12, 0, W*0.5, H*0.50, W*0.55);
-      cg.addColorStop(0, 'rgba(245,237,217,0.65)'); cg.addColorStop(0.6, 'rgba(245,237,217,0.20)'); cg.addColorStop(1, 'rgba(252,246,236,0)');
-      ctx.fillStyle = cg; ctx.fillRect(0, 0, W, H);
+      // Post-entrance the gradient's centre no longer moves (PAR = 0), so the baked layer is
+      // exact. During the entrance it is still drawn live — that path runs for ~1.7s, once.
+      if (entranceDone && bgLayer) {
+        ctx.drawImage(bgLayer, 0, 0, W, H);
+      } else {
+        ctx.fillStyle = '#FCF6EC'; ctx.fillRect(0, 0, W, H);
+        var cg = ctx.createRadialGradient(W*0.5+pX*0.12, H*0.50+pY*0.12, 0, W*0.5, H*0.50, W*0.55);
+        cg.addColorStop(0, 'rgba(245,237,217,0.65)'); cg.addColorStop(0.6, 'rgba(245,237,217,0.20)'); cg.addColorStop(1, 'rgba(252,246,236,0)');
+        ctx.fillStyle = cg; ctx.fillRect(0, 0, W, H);
+      }
 
       ctx.save();
       ctx.translate(W/2 + panX + pX, H/2 + panY + pY); ctx.scale(zoom * escale, zoom * escale); ctx.translate(-W/2, -H/2);
@@ -293,10 +394,19 @@
         ctx.beginPath(); ctx.arc(pt[0], pt[1], r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(105,80,32,' + alpha + ')'; ctx.fill();
       }
       // ── Beat 1: state outlines fade up first (structure before the dots fill in) ──
-      ctx.globalAlpha = clamp01(outlineEase);
-      ctx.strokeStyle = 'rgba(168,139,92,0.38)'; ctx.lineWidth = 0.5 / zoom;
-      topoStates.features.forEach(function (f) { ctx.beginPath(); geoPath(f); ctx.stroke(); });
-      ctx.globalAlpha = 1.0;
+      // Once settled this is a single blit of outlineLayer instead of 49 geoPath tessellations
+      // of states-10m geometry per frame. The transform is the identity by then (zoom 1, pan 0,
+      // PAR 0, escale exactly 1), so drawing it in screen space is pixel-exact.
+      if (entranceDone && outlineLayer) {
+        ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.drawImage(outlineLayer, 0, 0, W, H);
+        ctx.restore();
+      } else {
+        ctx.globalAlpha = clamp01(outlineEase);
+        ctx.strokeStyle = 'rgba(168,139,92,0.38)'; ctx.lineWidth = 0.5 / zoom;
+        topoStates.features.forEach(function (f) { ctx.beginPath(); geoPath(f); ctx.stroke(); });
+        ctx.globalAlpha = 1.0;
+      }
 
       // ── Beat 3: spotlights + pins pop in last, staggered west→east ──
       for (var s = 0; s < CLUSTERS.length; s++) {
@@ -324,11 +434,10 @@
       // country inside the frame, so there's no overscan bleed to fade — the map now has crisp
       // edges. (Previously a screen-space radial gradient feathered the coasts that overspilled.)
 
-      // Stop rendering when the map is scrolled out of view. The full-canvas redraw
-      // (per-dot trig + breathing spotlights) is a constant main-thread cost that
-      // competes with Lenis's scroll rAF — pointless while the map isn't visible.
-      // IO (below) flips mapPaused and restarts the loop on re-entry.
-      animId = mapPaused ? null : requestAnimationFrame(draw);
+      // Keep going only while something is actually moving — see the idle-stop note above.
+      // mapPaused (the IntersectionObserver) still wins over everything: scrolled out of view
+      // means no frames regardless.
+      if (!mapPaused && isAnimating()) animId = requestAnimationFrame(draw);
     }
 
     function drawSpotlight(x, y, t, active) {
@@ -397,18 +506,24 @@
       if (dragMoved) return;
       var s = canvasCoords(e.clientX, e.clientY), w = screenToWorld(s.x, s.y), hit = findHit(w.x, w.y, (isTouch() ? 28 : 24) / zoom);
       if (hit) { cancelHoverClose(); if (hit.id !== activeId) openCluster(hit); } else closePopup();
+      requestDraw();
     });
     if (!isTouch()) {
       canvas.addEventListener('mousemove', function (e) {
         if (dragging) return;
         var s = canvasCoords(e.clientX, e.clientY), w = screenToWorld(s.x, s.y);
         canvasMouseX = w.x; canvasMouseY = w.y;
+        pointerOver = true; requestDraw();   // wake the loop: the cursor drives the dot proximity glow
         var hit = findHit(w.x, w.y, 24 / zoom);
         canvas.style.cursor = hit ? 'pointer' : 'default';
         if (hit) { cancelHoverClose(); if (hit.id !== activeId) openCluster(hit); }
         else if (activeId && !popupIsHovered) scheduleHoverClose();
       });
-      canvas.addEventListener('mouseleave', function () { canvasMouseX = -9999; canvasMouseY = -9999; if (activeId && !popupIsHovered) scheduleHoverClose(); });
+      canvas.addEventListener('mouseleave', function () {
+        canvasMouseX = -9999; canvasMouseY = -9999; pointerOver = false;
+        if (activeId && !popupIsHovered) scheduleHoverClose();
+        requestDraw();   // one last frame to clear the proximity glow, then the loop idles out
+      });
       if (popup) {
         popup.addEventListener('mouseenter', function () { popupIsHovered = true; cancelHoverClose(); });
         popup.addEventListener('mouseleave', function () { popupIsHovered = false; scheduleHoverClose(); });
@@ -431,6 +546,7 @@
         this.classList.add('is-active');
         activeFilter = this.dataset.type;
         closePopup();
+        requestDraw();   // the loop may be idle; the filter changes every cluster's alpha
       });
     }
 
@@ -485,9 +601,24 @@
       popup.style.top = (vTop - pR.top) + 'px';
       popup.style.opacity = '';
     }
-    function closePopup() { if (!popup) return; popup.classList.remove('visible'); activeId = null; currentCluster = null; }
+    function closePopup() { if (!popup) return; popup.classList.remove('visible'); activeId = null; currentCluster = null; requestDraw(); }
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (zoom > 1) resetView(); else closePopup(); } });
-    window.__daMap = { closePopup: closePopup, drillIntoCase: drillIntoCase, backToClusterList: backToClusterList };
+    window.__daMap = {
+      closePopup: closePopup, drillIntoCase: drillIntoCase, backToClusterList: backToClusterList,
+      // Health check — the render loop is now idle most of the time by design, so "is it broken
+      // or is it just resting?" needs an answer that does not depend on watching pixels.
+      // A good steady state is: cachedLayers true, frameQueued false, animating false.
+      stats: function () {
+        return {
+          cases: CASES.length, dots: dots.length, clusters: CLUSTERS.length,
+          dpr: dpr, canvas: { w: W, h: H },
+          cachedLayers: !!(bgLayer && outlineLayer),
+          animating: isAnimating(), frameQueued: animId !== null,
+          offscreenPaused: mapPaused, pointerOver: pointerOver,
+          activeCluster: activeId, filter: activeFilter, reduceMotion: REDUCE_MOTION
+        };
+      }
+    };
 
     // ── Boot ──
     (async function boot() {
@@ -504,9 +635,9 @@
         var isConus = function (id) { return +id <= 56 && id !== '02' && id !== '15'; };
         topoStates = { type: 'FeatureCollection', features: allStates.features.filter(function (f) { return isConus(f.id); }) };
         topoNation = topojson.merge(us, us.objects.states.geometries.filter(function (g) { return isConus(g.id); }));
-        resize(); buildProjection(); buildDots(); reprojectCases(); buildClusters();
+        resize(); buildProjection(); buildStaticLayers(); buildDots(); reprojectCases(); buildClusters();
         var resizeTimer;
-        window.addEventListener('resize', function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(function () { resize(); buildProjection(); buildDots(); reprojectCases(); buildClusters(); clampPan(); }, 120); });
+        window.addEventListener('resize', function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(function () { resize(); buildProjection(); buildStaticLayers(); buildDots(); reprojectCases(); buildClusters(); clampPan(); requestDraw(); }, 120); });
         var msg = byId('loadingMsg') || byId('loading-msg'); if (msg) { msg.style.opacity = '0'; setTimeout(function () { msg.style.display = 'none'; }, 400); }
         if (animId) cancelAnimationFrame(animId);
         draw();
@@ -516,7 +647,7 @@
         if (typeof IntersectionObserver !== 'undefined') {
           var visIO = new IntersectionObserver(function (entries) {
             var vis = entries[0].isIntersecting;
-            if (vis && mapPaused) { mapPaused = false; if (!animId) draw(); }
+            if (vis && mapPaused) { mapPaused = false; requestDraw(); }
             else if (!vis && !mapPaused) { mapPaused = true; if (animId) { cancelAnimationFrame(animId); animId = null; } }
           }, { rootMargin: '200px 0px 200px 0px', threshold: 0 });
           visIO.observe(wrap);
