@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-19.4  (practice + resources images become full-width bands) */
+/* CODE-CSS-VERSION: 2026-09-19.5  (article: full-width hero, sticky meta rail, promoted CTA skin) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1286,11 +1286,87 @@ html.lenis, html.lenis body { height: auto; }
 .section_service-hero .framed-image { margin-top: 3.25rem; }
 
 /* Article hero and the three page bands. */
-.section_insight-hero .framed-image { margin-top: 2.25rem; max-width: 44rem; }
+.section_insight-hero .framed-image { margin-top: 2.25rem; }
 .section_resources-hero .framed-image,
 .section_expertise-hero .framed-image,
 .section_reviews-hero .framed-image { margin-top: 2.75rem; }
 
 /* Insights card thumbnail. */
 .topic_read-card .framed-image { margin-bottom: 1.15rem; }
+
+
+/* ===== /insights/[slug] — article layout with a sticky meta rail =============
+   The article used to be three LEFT-aligned columns of different widths inside a
+   1280 container — hero text 800, image 704, body 640 — which left roughly 580px
+   of unresolved space down the right-hand side and read as unfinished. The hero
+   image is now full container width, and the body sits in a two-column spread
+   whose right column carries the article's own metadata and topic tags. */
+.insight_layout {
+  grid-template-columns: minmax(0, 44rem) 18rem;
+  justify-content: space-between;
+}
+/* .insight_body carries max-width:640px as a Webflow class for the old
+   single-column layout; inside its own 44rem column that constraint is now the
+   column's job, not the element's. */
+.insight_layout .insight_body { max-width: 100%; }
+
+/* Collection-List plumbing for the topic chips. .w-dyn-item MUST be included or
+   the item wrapper becomes the flex child and every chip lands on its own row. */
+.insight_rail-chips > .w-dyn-list,
+.insight_rail-chips .w-dyn-items,
+.insight_rail-chips .w-dyn-item { display: contents; }
+
+/* .topic_chip is shared with the practice-area and expertise pages; the rail is
+   a 288px column, so it needs a smaller instance of the same chip. */
+.insight_rail .topic_chip {
+  font-size: 0.72rem;
+  padding: 0.28rem 0.6rem;
+  line-height: 1.3;
+}
+
+/* A rail block whose only value is an unset CMS field would otherwise leave a
+   stranded tan label with nothing under it. */
+.insight_rail-block:has(.insight_rail-value.w-dyn-bind-empty) { display: none; }
+
+@media screen and (max-width: 991px) {
+  /* Below the two-column breakpoint the rail stops being a rail: it unsticks and
+     sits under the article as a plain metadata footer. */
+  .insight_layout { grid-template-columns: minmax(0, 1fr); }
+  .insight_rail { position: static; top: auto; }
+}
+
+/* ===== Closing CTA — PROMOTED from practice-areas-page.css ===================
+   This skin was page-level on the Practice Areas template. The article template
+   now uses the same section, and a section used on more than one page cannot
+   keep its skin in one page's head block (the layout253 lesson, 2026-09-17).
+   The page-level copy is left in place - identical, and page CSS loads second -
+   and should be deleted on the next edit of that file.
+
+   The photo is a real <img> (.cta_bg-image), NOT a CSS background: background
+   images cannot be bound to CMS fields, and an img also gets Webflow's automatic
+   responsive srcset. Layering: img z-0 -> ::before navy scrim z-1 -> content z-2.
+   An empty image just means the scrim reads as a plain navy gradient. */
+.section_service-cta { position: relative; overflow: hidden; }
+.section_service-cta::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(165deg, rgba(24,39,66,0.90) 0%, rgba(17,29,51,0.95) 100%),
+    radial-gradient(900px 500px at 15% 0%, rgba(168,139,92,0.16), transparent 60%);
+  pointer-events: none;
+}
+.section_service-cta > .padding-global { position: relative; z-index: 2; }
+.cta_inner::before {
+  content: "";
+  display: block;
+  width: 56px; height: 2px;
+  margin: 0 auto 1.5rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+}
+@media screen and (max-width: 767px) {
+  .cta_bg-image { object-position: center 35%; }
+  .cta_inner::before { width: 44px; margin-bottom: 1.2rem; }
+}
 
