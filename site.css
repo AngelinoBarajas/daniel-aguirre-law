@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-19.3  (framed-image; practice hero fills its column at 4:3) */
+/* CODE-CSS-VERSION: 2026-09-19.4  (practice + resources images become full-width bands) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1277,10 +1277,13 @@ html.lenis, html.lenis body { height: auto; }
    frame is used on five surfaces now, and a component used on more than one page
    cannot keep its skin in one page's code (the layout253 lesson, 2026-09-17). */
 
-/* Practice-area hero: the image fills the right column so its left and right edges
-   line up with the At a Glance card directly beneath it. It is 4:3 rather than the
-   default 4:5 because a portrait at full column width made the hero 1290px tall. */
-.service-hero_aside .framed-image { width: 100%; }
+/* Practice-area band. The image was tried inside the hero's right column first and it
+   did not work: the column became image + At a Glance stacked ~900px tall, and the
+   grid's align-items:center then floated the left-hand copy down the page, leaving a
+   large void under the breadcrumb. It is now a full-width band BELOW the hero content,
+   which restores the hero to its original proportions and matches the bands on
+   /expertise, /resources and /reviews — every page now has exactly one. */
+.section_service-hero .framed-image { margin-top: 3.25rem; }
 
 /* Article hero and the three page bands. */
 .section_insight-hero .framed-image { margin-top: 2.25rem; max-width: 44rem; }
