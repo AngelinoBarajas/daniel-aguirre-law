@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-18.2  (expertise hub in nav + 992-1199 nav-fit band w/ Results overflow) */
+/* CODE-CSS-VERSION: 2026-09-19.1  (framed-image: site-wide mounted-print image treatment) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1179,4 +1179,114 @@ html.lenis, html.lenis body { height: auto; }
   .review_card { transition: none; }
   .review_card:hover { transform: none; }
 }
+
+
+/* ===== Framed image — the site's one image treatment ("mounted print") ==========
+   Site-wide so every page shares one frame. Built from tokens already in use: the
+   14px radius and tan hairline from .founder_portrait, the layered navy shadow from
+   .layout413_image-wrapper, and the faded tan rule from the glass popups. The one
+   new idea is the offset outline behind the photo, which reads as a mounted print
+   rather than a pasted-in picture.
+
+   Markup:
+     <div class="framed-image" data-frame="landscape">
+       <div class="framed-image_media"><img class="framed-image_img"></div>
+       <p class="framed-image_caption">Wallingford, Connecticut</p>   (optional)
+     </div>
+
+   data-frame        portrait (default) | landscape | wide | square
+   data-frame-mount  flush  -> drop the offset outline (tight columns, CMS thumbs)
+   data-frame-tone   light  -> for placement on a DARK section
+
+   Variants are ATTRIBUTES, not Webflow combo classes, on purpose: aspect-ratio has
+   to land on .framed-image_media, a DESCENDANT, and a combo class on the wrapper
+   cannot reach a descendant from the Style panel. */
+.framed-image { position: relative; display: block; margin: 0; }
+
+/* the offset mount — a tan rule sitting 10px down-right, behind the photo */
+.framed-image::before {
+  content: "";
+  position: absolute; left: 10px; top: 10px; right: -10px; bottom: -10px;
+  border: 1px solid rgba(168,139,92,0.38);
+  border-radius: 14px;
+  pointer-events: none; z-index: 0;
+}
+.framed-image[data-frame-mount="flush"]::before { display: none; }
+
+.framed-image_media {
+  position: relative; z-index: 1;
+  overflow: hidden; border-radius: 14px;
+  background: #F3EADB;                        /* warm hold while the image loads */
+  aspect-ratio: 4 / 5;
+  box-shadow: 0 20px 50px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08);
+}
+.framed-image[data-frame="landscape"] .framed-image_media { aspect-ratio: 4 / 3; }
+.framed-image[data-frame="wide"]      .framed-image_media { aspect-ratio: 21 / 9; }
+.framed-image[data-frame="square"]    .framed-image_media { aspect-ratio: 1 / 1; }
+
+.framed-image_img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* tan hairline drawn OVER the photo edge, plus the faded tan rule on the top edge
+   that ties this to the glass popups. Both are clipped by the media box radius. */
+.framed-image_media::after {
+  content: ""; position: absolute; inset: 0; border-radius: 14px;
+  border: 1px solid rgba(168,139,92,0.30);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
+  pointer-events: none;
+}
+.framed-image_media::before {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 0; height: 2px; z-index: 2;
+  background: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+  pointer-events: none;
+}
+
+/* exhibit label */
+.framed-image_caption {
+  margin: 1.05rem 0 0;
+  font-family: "Inter", sans-serif; font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #A88B5C;
+}
+
+/* on a dark section */
+.framed-image[data-frame-tone="light"]::before { border-color: rgba(252,246,236,0.30); }
+.framed-image[data-frame-tone="light"] .framed-image_media::after { border-color: rgba(252,246,236,0.26); }
+.framed-image[data-frame-tone="light"] .framed-image_caption { color: rgba(252,246,236,0.72); }
+
+/* An unset CMS image gets .w-dyn-bind-empty from Webflow. Without this the frame
+   renders as an empty cream box on any item that has no photograph yet. */
+.framed-image:has(.w-dyn-bind-empty) { display: none; }
+.framed-image_caption.w-dyn-bind-empty { display: none; }
+
+/* hover matches the established card lift exactly (.included_card / .review_card) */
+@media (hover: hover) {
+  .framed-image_media { transition: transform 0.4s cubic-bezier(0.5,0,0.2,1), box-shadow 0.4s ease; }
+  .framed-image:hover .framed-image_media {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 60px rgba(26,40,64,0.22), 0 6px 16px rgba(26,40,64,0.10);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .framed-image_media,
+  .framed-image:hover .framed-image_media { transition: none; transform: none; }
+}
+/* the offset mount is decoration, and it crowds a narrow screen */
+@media (max-width: 479px) { .framed-image::before { display: none; } }
+
+/* --- where the frame sits, per page ---------------------------------------
+   Kept here beside the component rather than in each page's own head block: the
+   frame is used on five surfaces now, and a component used on more than one page
+   cannot keep its skin in one page's code (the layout253 lesson, 2026-09-17). */
+
+/* Practice-area hero: the image shares the right column with the glance card. */
+.service-hero_aside .framed-image { max-width: 22rem; width: 100%; }
+@media (max-width: 991px) { .service-hero_aside .framed-image { max-width: 20rem; } }
+
+/* Article hero and the three page bands. */
+.section_insight-hero .framed-image { margin-top: 2.25rem; max-width: 44rem; }
+.section_resources-hero .framed-image,
+.section_expertise-hero .framed-image,
+.section_reviews-hero .framed-image { margin-top: 2.75rem; }
+
+/* Insights card thumbnail. */
+.topic_read-card .framed-image { margin-bottom: 1.15rem; }
 
