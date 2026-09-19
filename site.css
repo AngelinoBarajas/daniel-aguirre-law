@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-19.1  (framed-image: site-wide mounted-print image treatment) */
+/* CODE-CSS-VERSION: 2026-09-19.2  (framed-image; empty-guard scoped to the img, not the caption) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1254,7 +1254,7 @@ html.lenis, html.lenis body { height: auto; }
 
 /* An unset CMS image gets .w-dyn-bind-empty from Webflow. Without this the frame
    renders as an empty cream box on any item that has no photograph yet. */
-.framed-image:has(.w-dyn-bind-empty) { display: none; }
+.framed-image:has(.framed-image_img.w-dyn-bind-empty) { display: none; }
 .framed-image_caption.w-dyn-bind-empty { display: none; }
 
 /* hover matches the established card lift exactly (.included_card / .review_card) */
