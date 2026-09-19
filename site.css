@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-19.2  (framed-image; empty-guard scoped to the img, not the caption) */
+/* CODE-CSS-VERSION: 2026-09-19.3  (framed-image; practice hero fills its column at 4:3) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1277,9 +1277,10 @@ html.lenis, html.lenis body { height: auto; }
    frame is used on five surfaces now, and a component used on more than one page
    cannot keep its skin in one page's code (the layout253 lesson, 2026-09-17). */
 
-/* Practice-area hero: the image shares the right column with the glance card. */
-.service-hero_aside .framed-image { max-width: 22rem; width: 100%; }
-@media (max-width: 991px) { .service-hero_aside .framed-image { max-width: 20rem; } }
+/* Practice-area hero: the image fills the right column so its left and right edges
+   line up with the At a Glance card directly beneath it. It is 4:3 rather than the
+   default 4:5 because a portrait at full column width made the hero 1290px tall. */
+.service-hero_aside .framed-image { width: 100%; }
 
 /* Article hero and the three page bands. */
 .section_insight-hero .framed-image { margin-top: 2.25rem; max-width: 44rem; }
