@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-19.5  (article: full-width hero, sticky meta rail, promoted CTA skin) */
+/* CODE-CSS-VERSION: 2026-09-20.1  (article rail: On This Page jump list + reading time) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1368,5 +1368,30 @@ html.lenis, html.lenis body { height: auto; }
 @media screen and (max-width: 767px) {
   .cta_bg-image { object-position: center 35%; }
   .cta_inner::before { width: 44px; margin-bottom: 1.2rem; }
+}
+
+
+/* --- article rail: On This Page --------------------------------------------
+   Built by the page-level script on the Insights template from the article's own
+   h2/h3, so it needs no CMS field and cannot drift. Articles here are evergreen
+   explainers of 5-6 sections, which is why the rail leads with navigation rather
+   than a publish date - a fixed date ages content that is not meant to be dated. */
+.insight_toc-link { transition: color .2s ease, border-color .2s ease; }
+.insight_toc-link:hover { color: #1A2840; border-left-color: #A88B5C; }
+.insight_toc-link.is-current {
+  color: #1A2840;
+  font-weight: 600;
+  border-left-color: #891E2D;
+}
+/* the sticky navbar would otherwise sit over a jumped-to heading */
+.insight_body h2,
+.insight_body h3 { scroll-margin-top: 7.5rem; }
+
+@media (max-width: 991px) {
+  /* Once the rail is a footer under the article, jump links point backwards. */
+  [data-insight-toc-block] { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .insight_toc-link { transition: none; }
 }
 
