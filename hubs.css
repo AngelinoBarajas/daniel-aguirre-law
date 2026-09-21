@@ -1,0 +1,311 @@
+
+/* ===== CATEGORY HUBS — /immigration and /humanitarian ====================
+   ONE stylesheet, linked from BOTH hub pages. Edit once, both pages change.
+   Mirrored locally at code backup/daniel-aguirre/hubs-page.css and served
+   from jsDelivr as hubs.css (same file, wrapper stripped, LF endings).
+
+   Deliberately thin: almost every surface on these pages reuses a class that
+   already carries its styling SITE-WIDE from the Webflow stylesheet —
+   .glass / .glass-pad (the cream card), .section-dark (the navy ground),
+   .glance_* (the At a glance component), .framed-image (the mounted print),
+   .faq_item / .faq_question / .faq_answer-inner, .button and its combos.
+   What is below is the hub's own layout, plus two backstops noted inline.
+   ---------------------------------------------------------------------- */
+
+/* --- section rhythm ---------------------------------------------------- */
+.section_hub-hero     { padding-top: 2.75rem; padding-bottom: 1rem; }
+.section_hub-band     { padding-top: 2rem;    padding-bottom: 1rem; }
+.section_hub-services { padding-top: clamp(3rem, 6vw, 5rem); padding-bottom: clamp(3rem, 6vw, 5rem); }
+.section_hub-router   { padding-top: clamp(3rem, 6vw, 5rem); padding-bottom: clamp(3rem, 6vw, 5rem); }
+.section_hub-reading  { padding-top: clamp(3rem, 6vw, 5rem); padding-bottom: clamp(3rem, 6vw, 5rem); }
+.section_hub-faq      { padding-top: clamp(2rem, 4vw, 3rem); padding-bottom: clamp(3rem, 6vw, 4.5rem); }
+
+/* --- breadcrumb -------------------------------------------------------- */
+.hub-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.82rem;
+  color: #4A5470;
+  margin-bottom: 1.6rem;
+}
+.hub-crumb .breadcrumb_link { border-bottom: 1px solid rgba(168,139,92,0.30); }
+.hub-crumb .breadcrumb_link:hover { color: #891E2D; }
+.hub-crumb_sep { color: rgba(26,40,64,0.35); }
+.hub-crumb_current { color: #1A2840; font-weight: 500; }
+
+/* --- hero -------------------------------------------------------------- */
+.hub-hero_grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+.section_hub-hero .heading-style-h1 {
+  font-size: clamp(2.1rem, 4.6vw, 3.4rem);
+  margin: 0 0 1.1rem;
+}
+.section_hub-hero .eyebrow { margin-bottom: 0.85rem; }
+.hub-lead {
+  font-size: clamp(1.02rem, 1.5vw, 1.19rem);
+  color: #4A5470;
+  line-height: 1.62;
+  max-width: 63ch;
+  margin: 0;
+}
+.section_hub-hero .button-row { margin-top: 1.9rem; }
+
+/* BACKSTOP 1 — whtml_builder strips fill / stroke / width / height from an
+   inline SVG and keeps only the viewBox, so the glyphs would render as solid
+   black and scale to fill their chip. The practice-area pages carry the same
+   rule in their own page CSS; these pages need their own copy. */
+.glance_icon svg,
+.hub-svc_chip svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+  flex: none;
+}
+.glance_icon svg { width: 19px; height: 19px; }
+.hub-svc_chip svg { width: 22px; height: 22px; }
+
+/* --- section heads ----------------------------------------------------- */
+.hub-head { max-width: 60ch; margin-bottom: 2.5rem; }
+.hub-head.is-center { margin-left: auto; margin-right: auto; text-align: center; }
+.hub-head .heading-style-h2 { margin: 0 0 0.8rem; }
+.hub-rule {
+  width: 56px;
+  height: 2px;
+  margin-bottom: 1.5rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+}
+.hub-head.is-center .hub-rule { margin-left: auto; margin-right: auto; }
+.hub-head.is-center .hub-lead { margin-left: auto; margin-right: auto; }
+
+/* --- the service cards ------------------------------------------------- */
+.hub-svc_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 1.25rem;
+}
+.hub-svc_card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.6rem;
+  text-decoration: none;
+  border-radius: 14px;
+  background-image: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.28);
+  border-top-color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 28px rgba(26,40,64,0.10), 0 2px 6px rgba(26,40,64,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: transform 0.4s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hub-svc_card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 44px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.95);
+    border-color: rgba(168,139,92,0.55);
+  }
+}
+.hub-svc_chip {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: #FCF6EC;
+  background-image: linear-gradient(150deg, #22324E 0%, #16223A 100%);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 4px 10px rgba(26,40,64,0.18), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.hub-svc_name {
+  font-size: 1.24rem;
+  line-height: 1.25;
+  color: #1A2840;
+  margin: 0;
+}
+.hub-svc_sum { font-size: 0.93rem; color: #4A5470; line-height: 1.58; margin: 0; }
+.hub-svc_meta {
+  margin-top: auto;
+  padding-top: 0.95rem;
+  border-top: 1px solid rgba(168,139,92,0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.hub-svc_row { display: flex; gap: 0.6rem; font-size: 0.82rem; line-height: 1.45; }
+.hub-svc_k {
+  flex: none;
+  width: 5.4rem;
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #A88B5C;
+  padding-top: 0.18rem;
+}
+.hub-svc_v { color: #2C3D5C; }
+.hub-svc_go {
+  margin-top: 0.3rem;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: #891E2D;
+  transition: transform 0.3s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hub-svc_card:hover .hub-svc_go { transform: translateX(4px); }
+}
+
+/* --- the situation router (dark) --------------------------------------- */
+.section_hub-router .hub-lead { color: rgba(252,246,236,0.78); }
+.hub-router_list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 0.9rem;
+}
+.hub-router_item {
+  display: block;
+  text-decoration: none;
+  padding: 1.15rem 1.25rem;
+  border-radius: 12px;
+  background-color: rgba(252,246,236,0.055);
+  border: 1px solid rgba(252,246,236,0.14);
+  transition: background-color 0.35s ease, border-color 0.35s ease, transform 0.35s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hub-router_item:hover {
+    background-color: rgba(252,246,236,0.10);
+    border-color: rgba(168,139,92,0.50);
+    transform: translateY(-2px);
+  }
+}
+.hub-router_q {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #FCF6EC;
+  margin-bottom: 0.35rem;
+}
+.hub-router_a { font-size: 0.81rem; font-weight: 600; color: #A88B5C; letter-spacing: 0.02em; }
+
+/* --- related reading --------------------------------------------------- */
+.hub-read_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+.hub-read_card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.4rem 1.5rem 1.6rem;
+  text-decoration: none;
+  border-radius: 14px;
+  background-image: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.28);
+  border-top-color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 28px rgba(26,40,64,0.10), 0 2px 6px rgba(26,40,64,0.05);
+  transition: transform 0.4s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hub-read_card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 44px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08);
+    border-color: rgba(168,139,92,0.55);
+  }
+}
+.hub-read_kicker {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #A88B5C;
+}
+.hub-read_title { font-size: 1.06rem; line-height: 1.3; color: #1A2840; margin: 0; }
+.hub-read_deck { font-size: 0.88rem; color: #4A5470; line-height: 1.55; margin: 0; }
+.hub-read_go { margin-top: auto; padding-top: 0.7rem; font-size: 0.85rem; font-weight: 600; color: #891E2D; }
+
+/* --- the resources strip ----------------------------------------------- */
+.hub-res_row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.hub-res_item {
+  display: block;
+  text-decoration: none;
+  padding: 1.25rem 1.35rem;
+  border-radius: 12px;
+  background-color: rgba(255,255,255,0.42);
+  border: 1px solid rgba(168,139,92,0.28);
+  transition: background-color 0.35s ease, border-color 0.35s ease, transform 0.35s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hub-res_item:hover {
+    background-color: rgba(255,255,255,0.68);
+    border-color: rgba(168,139,92,0.60);
+    transform: translateY(-2px);
+  }
+}
+.hub-res_t { font-family: "Lora", serif; font-weight: 600; color: #1A2840; font-size: 1.02rem; margin-bottom: 0.3rem; }
+.hub-res_d { font-size: 0.85rem; color: #4A5470; line-height: 1.5; }
+
+/* --- FAQ ---------------------------------------------------------------
+   BACKSTOP 2 — a native <details>, so there is no JS to conflict with Lenis
+   or GSAP and it is keyboard accessible for free. .faq_item / .faq_question /
+   .faq_answer-inner carry their box styling site-wide from the Webflow
+   stylesheet; the marker handling and the +/- affordance are page-level on
+   the practice-area template, so these pages need their own copy.
+   The glyphs are LITERAL characters, never CSS unicode escapes — an escape
+   written through a script becomes an octal escape and emits garbage. */
+.hub-faq_list { max-width: 46rem; margin-inline: auto; }
+.hub-faq_list .faq_item { margin-bottom: 0.7rem; transition: border-color 0.3s ease; }
+.hub-faq_list .faq_item[open] { border-color: rgba(168,139,92,0.50); }
+.hub-faq_list .faq_question {
+  list-style: none;
+  font-family: "Lora", serif;
+  font-weight: 600;
+  color: #1A2840;
+  font-size: 1rem;
+  line-height: 1.45;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hub-faq_list .faq_question::-webkit-details-marker { display: none; }
+.hub-faq_list .faq_question::after {
+  content: "+";
+  flex: none;
+  margin-left: auto;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: #A88B5C;
+}
+.hub-faq_list .faq_item[open] .faq_question::after { content: "−"; }
+.hub-faq_list .faq_question:hover { color: #891E2D; }
+.hub-faq_list .faq_question:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
+
+/* --- responsive --------------------------------------------------------- */
+@media screen and (max-width: 991px) {
+  .hub-hero_grid { grid-template-columns: minmax(0, 1fr); }
+  .section_hub-hero { padding-top: 2rem; }
+}
+@media screen and (max-width: 767px) {
+  .hub-svc_card { padding: 1.35rem; }
+  .hub-svc_k { width: 4.6rem; }
+  .section_hub-band { padding-top: 1.25rem; }
+}
+@media screen and (max-width: 479px) {
+  /* the key/value rows stack rather than squeezing the value into a sliver */
+  .hub-svc_row { flex-direction: column; gap: 0.15rem; }
+  .hub-svc_k { width: auto; padding-top: 0; }
+}
