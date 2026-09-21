@@ -618,3 +618,39 @@
 @media (prefers-reduced-motion: reduce) {
   .section_contact2 .done_link { transition: none; }
 }
+
+/* --- success-state ENTRANCE ---------------------------------------------------
+   Webflow only flips display:none -> block on submit, so the panel used to appear
+   with no transition at all. A CSS animation fires the moment an element is first
+   rendered, so switching display is enough to trigger these — no JS needed.
+
+   Motion matches the site's section reveal (12px rise, same easing), with the tan
+   rule wiping out from the centre and the four content blocks stepping in behind
+   it. Deliberately quick: this is a confirmation, not a performance. */
+@keyframes da-done-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes da-done-rule {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.section_contact2 .w-form-done {
+  animation: da-done-in 0.55s cubic-bezier(0.22,0.61,0.36,1) both;
+}
+.section_contact2 .w-form-done::before {
+  transform-origin: center;
+  animation: da-done-rule 0.7s cubic-bezier(0.22,0.61,0.36,1) 0.18s both;
+}
+.section_contact2 .w-form-done > * {
+  animation: da-done-in 0.5s cubic-bezier(0.22,0.61,0.36,1) both;
+}
+.section_contact2 .w-form-done > *:nth-child(1) { animation-delay: 0.16s; }
+.section_contact2 .w-form-done > *:nth-child(2) { animation-delay: 0.26s; }
+.section_contact2 .w-form-done > *:nth-child(3) { animation-delay: 0.34s; }
+.section_contact2 .w-form-done > *:nth-child(4) { animation-delay: 0.42s; }
+@media (prefers-reduced-motion: reduce) {
+  .section_contact2 .w-form-done,
+  .section_contact2 .w-form-done::before,
+  .section_contact2 .w-form-done > * { animation: none; }
+}
