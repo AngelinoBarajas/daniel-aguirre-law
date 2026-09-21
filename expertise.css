@@ -1,0 +1,140 @@
+
+/* ===== /expertise — Expertise hub =====================================
+   Page-level CSS ONLY. Box styling lives in real Webflow classes
+   (section_expertise-*, facet-*, chip-row, expertise_*, topic_chip).
+   This file carries pseudo-elements, <details> behavior and breakpoints.
+   Mirrored locally at code backup/daniel-aguirre/expertise-page.css
+   ---------------------------------------------------------------------- */
+
+/* --- Collection List plumbing -----------------------------------------
+   Six lists feed the chip rows. The wrappers must vanish so the chips are
+   direct flex children of .chip-row. .w-dyn-item MUST be included — without
+   it the item wrapper stays a block and every chip lands on its own line. */
+.chip-row .w-dyn-list,
+.chip-row .w-dyn-items,
+.chip-row .w-dyn-item { display: contents; }
+
+/* Every category has terms today. If one is ever emptied, show nothing
+   rather than Webflow's "No items found." */
+.chip-row .w-dyn-empty { display: none; }
+
+/* --- the expandable term ---------------------------------------------
+   A native <details>. No JS, so nothing to conflict with Lenis/GSAP,
+   and it is keyboard accessible for free. */
+.expertise_term > summary {
+  /* inline-flex, NOT topic_chip's inline-block: the CMS-bound label is a
+     block-level <div>, so on an inline-block summary the ::after caret was
+     pushed onto a second line and every chip rendered two lines tall. */
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.expertise_term > summary::-webkit-details-marker { display: none; }
+
+/* Caret affordance. LITERAL glyph, never a CSS unicode escape — an escape
+   written through a script becomes an octal escape + a control character.
+   Verify with getComputedStyle(el,'::after').content on the live page. */
+.expertise_term > summary::after {
+  content: "▾";
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-size: 0.8em;
+  opacity: 0.45;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.expertise_term[open] > summary::after {
+  transform: rotate(180deg);
+  opacity: 0.85;
+}
+
+/* An open term claims its own full-width row, so revealing a definition
+   never reflows the chip cloud sideways. Beats .expertise_term (0,1,0). */
+.expertise_term[open] { flex: 1 0 100%; }
+.expertise_term[open] > summary {
+  border-color: rgba(168,139,92,0.55);
+  background-color: rgba(26,40,64,0.05);
+}
+
+/* --- hover / focus ---------------------------------------------------- */
+.expertise_term > summary:hover,
+.expertise-jump_link:hover {
+  border-color: rgba(168,139,92,0.60);
+  background-color: rgba(255,255,255,0.85);
+}
+.topic_chip.is-linked:hover {
+  border-color: rgba(137,30,45,0.55);
+  background-color: rgba(137,30,45,0.06);
+  color: #6f1824;
+}
+.facet-col.glass:hover { border-color: rgba(168,139,92,0.45); }
+
+.expertise_term > summary:focus-visible,
+.expertise-jump_link:focus-visible,
+.topic_chip:focus-visible {
+  outline: 2px solid #A88B5C;
+  outline-offset: 2px;
+}
+
+/* A long term name must never spill its card. .expertise_term sets
+   flex-shrink: 0, so without a max-width the chip keeps its content width:
+   "Deportation Defense in Immigration Court" overflowed its card by 57px at
+   393px wide. max-width clamps the used size after flexing; min-width: 0 lets
+   the label wrap inside the inline-flex summary. */
+.expertise_term,
+.chip-row .topic_chip { max-width: 100%; }
+.expertise_term > summary > div { min-width: 0; }
+
+/* Jumped-to card must clear the sticky navbar. */
+.facet-col { scroll-margin-top: 8rem; }
+
+/* --- STACKED CATEGORY ROWS (2026-09-20) --------------------------------
+   Was a 2-column grid of six cards. The six categories hold 9, 11, 15, 10, 7
+   and 6 terms, so in two columns the cards were wildly uneven and the page
+   read as ragged — the "boxes are all different lengths" complaint.
+
+   Now one category per full-width row: the name and its descriptor sit in a
+   fixed label column on the left, the chips flow in the right column. Each
+   row is exactly as tall as its own content, so there is no dead space and
+   nothing to align. Same inline-label pattern already chosen for the grouped
+   chip rows on the practice-area pages, so the two read as one system.
+
+   Deliberately NOT adding a per-category term count: that was rejected on
+   2026-09-18 because a hardcoded number drifts the moment a term is cut. */
+.facet-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.facet-col {
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 2.25rem;
+  align-items: start;
+}
+.facet-col_title { grid-column: 1; grid-row: 1; }
+.facet-col_count { grid-column: 1; grid-row: 2; }
+/* Spans both label rows so the chips start level with the category name. */
+.chip-row { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+
+/* --- responsive ------------------------------------------------------- */
+@media screen and (max-width: 991px) {
+  /* Below the two-column breakpoint the label stops being a rail and sits
+     above its chips, which is the same behaviour as the article rail. */
+  .facet-col {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+  }
+  .facet-col_title,
+  .facet-col_count { grid-column: 1; }
+  .chip-row { grid-column: 1; grid-row: 3; margin-top: 1.35rem; }
+  .section_expertise-hero { padding-top: 6.5rem; }
+}
+@media screen and (max-width: 767px) {
+  .facet-col { padding: 1.4rem; }
+  .expertise-hero_lead { font-size: 1.125rem; }
+  .expertise-jump { margin-top: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expertise_term > summary::after { transition: none; }
+}
