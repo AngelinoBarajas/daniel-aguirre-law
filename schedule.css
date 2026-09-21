@@ -1,4 +1,4 @@
-/* SCHEDULE-CSS-VERSION: 2026-09-21.4 */
+/* SCHEDULE-CSS-VERSION: 2026-09-21.5 */
 /* ===========================================================================
    /schedule-consultation — page stylesheet
    Deployed via jsDelivr as schedule.css, linked from the page's Inside <head>.
@@ -352,14 +352,27 @@
 }
 
 /* ----- 2f · success + error states --------------------------------------- */
-/* Webflow's default success block is a single line, so without a minimum the
-   panel would collapse from full height to almost nothing on submit. */
+/* 🚩 NEVER set `display` on .w-form-done. Webflow's own base rule is
+   `.w-form-done { display: none }` and its JS flips the element to block on a
+   successful submit. Any rule here is more specific (0,2,0 beats 0,1,0), so
+   declaring `display: flex` to centre the message silently defeated the base
+   rule and the success panel rendered permanently, stacked under the live form.
+   It shipped that way and the user caught it in the browser.
+
+   The layout therefore lives on .sched_done, the inner wrapper, which Webflow
+   never touches — it inherits visibility from the parent and centres its
+   content only once the parent is shown. This rule carries the SKIN only.
+
+   Webflow's default success block is also a single line, so the min-height on
+   .sched_done keeps the panel from collapsing from full height on submit. */
 .sched_panel .w-form-done {
   padding: 2.5rem 1.75rem;
   text-align: center;
   border-radius: 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.12);
+}
+.sched_panel .sched_done {
   min-height: 420px;
   display: flex;
   flex-direction: column;
@@ -571,7 +584,8 @@
 @media (max-width: 767px) {
   .sched_grid { grid-template-columns: 1fr; }
   .sched_panel { padding: 1.5rem 1.25rem; }
-  .sched_panel .w-form-done { min-height: 340px; padding: 2rem 1.25rem; }
+  .sched_panel .w-form-done { padding: 2rem 1.25rem; }
+  .sched_panel .sched_done { min-height: 340px; }
   .section_schedule-form { padding-top: 3rem; padding-bottom: 3rem; }
   .section_schedule-next { padding-top: 3.25rem; padding-bottom: 3.25rem; }
   .section_schedule-help { padding-bottom: 4rem; }
