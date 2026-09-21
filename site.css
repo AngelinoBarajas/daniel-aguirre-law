@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-20.3  (headings on .section-dark bands forced cream) */
+/* CODE-CSS-VERSION: 2026-09-20.4  (Team Teaser component skin) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1409,3 +1409,68 @@ html.lenis, html.lenis body { height: auto; }
 .section-dark h4,
 .section-dark h5,
 .section-dark h6 { color: #FCF6EC; }
+
+/* ===== Team Teaser component (2026-09-20) ================================
+   A meet-the-team signpost: the team photograph, the five names, and a link
+   through to /about. Instanced on Case Results and Reviews.
+
+   The skin lives HERE, site-wide, and not in either page's CSS — a component
+   carries its DOM but not the page's stylesheet, which is the lesson from
+   layout253 becoming the Values component in September: /about rendered the
+   markup with no card glass at all until the skin was promoted.
+
+   The photograph reuses .framed-image[data-frame="wide"], already site-wide,
+   so nothing here restyles the image itself. */
+.section_team-teaser {
+  padding-top: clamp(3rem, 6vw, 5rem);
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+.team-teaser_head {
+  max-width: 54ch;
+  margin: 0 auto 2.25rem;
+  text-align: center;
+}
+.team-teaser_head .eyebrow { margin-bottom: 0.8rem; }
+.team-teaser_head .heading-style-h2 { margin: 0 0 0.8rem; }
+.team-teaser_lead {
+  color: #4A5470;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Five people. auto-fit rather than a fixed five-up so the row rewraps
+   cleanly if someone joins or leaves, instead of stranding one name. */
+.team-teaser_names {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.5rem 1.25rem;
+  margin-top: 2.25rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(168,139,92,0.28);
+}
+.team-teaser_person { text-align: center; }
+.team-teaser_name {
+  font-family: "Lora", Georgia, serif;
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.3;
+  color: #1A2840;
+  margin-bottom: 0.3rem;
+}
+.team-teaser_role {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #4A5470;
+}
+.section_team-teaser .button-row { margin-top: 2.25rem; }
+
+@media screen and (max-width: 767px) {
+  .team-teaser_names {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+  }
+  .team-teaser_head { margin-bottom: 1.75rem; }
+}
