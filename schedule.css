@@ -1,4 +1,4 @@
-/* SCHEDULE-CSS-VERSION: 2026-09-21.5 */
+/* SCHEDULE-CSS-VERSION: 2026-09-21.6 */
 /* ===========================================================================
    /schedule-consultation — page stylesheet
    Deployed via jsDelivr as schedule.css, linked from the page's Inside <head>.
@@ -96,6 +96,57 @@
   text-transform: uppercase;
   color: #A88B5C;
   margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ----- rail icons -------------------------------------------------------- */
+/* Drawn as a data-URI SVG used as a MASK over `background: currentColor`, which
+   is the technique the navbar call button already uses — the glyph inherits the
+   title's tan and would follow any future colour change for free. Pure CSS, so
+   it needs no DOM element, no Designer step, and never touches the Webflow API
+   (which 406s on payloads containing SVG markup anyway).
+
+   The handset is REUSED VERBATIM from --tel in code.css rather than redrawn, so
+   the two phone glyphs on the site cannot drift apart.
+
+   🚩 Blocks are selected STRUCTURALLY, not by attribute or :nth-child.
+   data-rail-icon attributes were the first choice, but set_attributes on these
+   blocks fails persistently with "[Conflict] The operation could not be applied
+   to the component map" — twice, so not the documented transient. :nth-child was
+   the other option and is worse: it silently paints the wrong icon the moment
+   anyone reorders the rail. Each selector below instead keys on something only
+   its own block has, so reordering is safe and a mismatch is impossible. */
+.sched_rail {
+  --ico-phone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z'/%3E%3C/svg%3E");
+  --ico-pin: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 0 12 6.5a2.5 2.5 0 0 0 0 5Z'/%3E%3C/svg%3E");
+  --ico-doc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Zm0 2.4L16.6 7H14V4.4ZM8.5 12.5h7V14h-7v-1.5Zm0 3.5h7v1.5h-7V16Z'/%3E%3C/svg%3E");
+}
+.sched_rail-block .sched_rail-title::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  -webkit-mask: var(--rail-icon, none) center/contain no-repeat;
+          mask: var(--rail-icon, none) center/contain no-repeat;
+}
+/* `background` is set ONLY by the matching rules below, never on the base rule.
+   That is the failure guard: a block matching no rule has no mask, and painting
+   currentColor through no mask would render a solid 14px tan SQUARE — louder
+   and worse than a missing icon. Unmatched blocks get an empty box instead. */
+.sched_rail-block:has(.sched_rail-phone) .sched_rail-title::before {
+  --rail-icon: var(--ico-phone);
+  background: currentColor;
+}
+.sched_rail-block:has(.sched_rail-note):not(.sched_rail-block-legal) .sched_rail-title::before {
+  --rail-icon: var(--ico-pin);
+  background: currentColor;
+}
+.sched_rail-block:not(:has(.sched_rail-phone)):not(:has(.sched_rail-note)) .sched_rail-title::before {
+  --rail-icon: var(--ico-doc);
+  background: currentColor;
 }
 .sched_rail-phone {
   font-family: "Lora", serif;
