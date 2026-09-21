@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-20.4  (Team Teaser component skin) */
+/* CODE-CSS-VERSION: 2026-09-20.5  (Team Teaser names centre properly) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1439,16 +1439,20 @@ html.lenis, html.lenis body { height: auto; }
   margin: 0;
 }
 
-/* Five people. auto-fit rather than a fixed five-up so the row rewraps
-   cleanly if someone joins or leaves, instead of stranding one name. */
+/* Five people, CENTRED FLEX rather than a grid. An auto-fit grid resolved to
+   SIX columns at 1280 and left a dangling empty cell, throwing the row off
+   centre. Flex with justify-content:center balances whatever number of people
+   the firm actually has, and rewraps cleanly if someone joins or leaves. */
 .team-teaser_names {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 1.5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.75rem 2.75rem;
   margin-top: 2.25rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(168,139,92,0.28);
 }
+.team-teaser_person { flex: 0 1 190px; }
 .team-teaser_person { text-align: center; }
 .team-teaser_name {
   font-family: "Lora", Georgia, serif;
@@ -1467,10 +1471,10 @@ html.lenis, html.lenis body { height: auto; }
 
 @media screen and (max-width: 767px) {
   .team-teaser_names {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem 1rem;
+    gap: 1.4rem 1.25rem;
     margin-top: 1.75rem;
     padding-top: 1.5rem;
   }
+  .team-teaser_person { flex: 0 1 140px; }
   .team-teaser_head { margin-bottom: 1.75rem; }
 }
