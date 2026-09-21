@@ -1,0 +1,358 @@
+
+/* Collection List transparency — KEEP THIS FIRST. */
+.included_grid > .w-dyn-list,
+.included_grid .w-dyn-items,
+.included_grid .w-dyn-item,
+.faq_list > .w-dyn-list,
+.faq_list .w-dyn-items,
+.faq_list .w-dyn-item { display: contents; }
+
+/* ===== CLOSING CTA =====
+   The photo is a real <img> (.cta_bg-image), NOT a CSS background. Background
+   images cannot be bound to CMS fields in the Style panel, and an <img> also
+   gets Webflow's automatic responsive srcset, which a background never does.
+   Layering: img z-0  ->  ::before navy scrim z-1  ->  content z-2.
+   Empty CMS field just means no image and the scrim reads as a navy gradient. */
+.section_service-cta { position: relative; overflow: hidden; }
+.section_service-cta::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(165deg, rgba(24,39,66,0.90) 0%, rgba(17,29,51,0.95) 100%),
+    radial-gradient(900px 500px at 15% 0%, rgba(168,139,92,0.16), transparent 60%);
+  pointer-events: none;
+}
+.section_service-cta > .padding-global { position: relative; z-index: 2; }
+.cta_inner::before {
+  content: "";
+  display: block;
+  width: 56px; height: 2px;
+  margin: 0 auto 1.5rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+}
+
+/* Trust row — equal thirds with hairline dividers */
+.trust_row { grid-column-gap: 0; align-items: stretch; }
+.trust_row > div { flex: 1 1 0; padding-left: 1.5rem; padding-right: 1.5rem; }
+.trust_row > div:first-child { padding-left: 0; }
+.trust_row > div:last-child { padding-right: 0; }
+.trust_row > div + div { border-left: 1px solid rgba(26,40,64,0.12); }
+.trust_number { letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.trust_label { max-width: 18ch; }
+
+/* Stat cards — an icon and a sentence, not a giant numeral ================
+   REBUILT 2026-09-20. These four were a 2.6rem maroon numeral above a caption.
+   Two problems with that: "AILA" is not a number and sat awkwardly in a slot
+   built for one, and the numerals gave the four cards a visual hierarchy the
+   content does not actually have - they are four equal facts.
+
+   Each card now leads with an icon chip and folds its figure INTO the sentence
+   it belongs to, emphasised inline: "15+ years focused on immigration law
+   alone". .stat_number and .stat_label are used on no other page (verified
+   across 8 rendered pages), so both are restyled here rather than site-wide.
+
+   .stat_card stays a BLOCK on purpose. A flex container blockifies its inline
+   children, so display:inline on the two text nodes would be ignored and the
+   sentence would break back onto two lines. The icon is block-level instead,
+   via display:flex, which puts it on its own line with no extra wrapper. */
+.stat_card {
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  padding: 1.6rem 1.5rem;
+}
+/* the centred tan rule anchored a numeral that no longer exists */
+.stat_card::before { display: none; }
+
+.stat_icon {
+  display: flex;                 /* block-level: takes its own line */
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.95rem;
+  border-radius: 11px;
+  color: #FCF6EC;
+  background-image: linear-gradient(150deg, #22324E 0%, #16223A 100%);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 4px 10px rgba(26,40,64,0.18), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+/* whtml keeps only the viewBox, so stroke and size are restored here */
+.stat_icon svg {
+  width: 21px; height: 21px; display: block; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* the figure and its clause flow as ONE sentence */
+.stat_number {
+  display: inline;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-weight: 600;
+  color: #891E2D;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  margin-right: 0.3em;
+}
+.stat_label {
+  display: inline;
+  max-width: none;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #4A5470;
+}
+
+/* Drop cap — FIRST paragraph of the Overview only.
+   ⚠ ::first-letter will capture ¿ / ¡ on any future Spanish page. */
+.overview_grid .w-richtext > p:first-of-type::first-letter {
+  float: left; margin-right: 0.62rem; padding-top: 0.06em;
+  font-family: Lora, Georgia, 'Times New Roman', serif;
+  font-size: 3.5em; line-height: 0.82; font-weight: 600; color: #891E2D;
+}
+/* Guard: an empty <p> from the rich-text editor must not take the drop cap */
+.overview_grid .w-richtext > p:empty { display: none; }
+
+/* ---- Mobile ---- */
+@media screen and (max-width: 767px) {
+  .overview_grid .w-richtext > p:first-of-type::first-letter { font-size: 2.9em; margin-right: 0.5rem; }
+
+  .trust_row { grid-column-gap: 0; margin-top: 1.8rem; padding-top: 1.4rem; }
+  .trust_row > div { flex: 1 1 0; padding-left: 0.7rem; padding-right: 0.7rem; }
+  .trust_row > div:first-child { padding-left: 0; }
+  .trust_row > div:last-child { padding-right: 0; }
+  .trust_row > div + div { border-left: 1px solid rgba(26,40,64,0.12); border-top: 0; padding-top: 0; }
+  .trust_number { font-size: 1.55rem; }
+  .trust_label { font-size: 0.72rem; line-height: 1.35; max-width: none; }
+
+  .why_stats { grid-template-columns: 1fr 1fr; grid-column-gap: 0.7rem; grid-row-gap: 0.7rem; }
+  .stat_card { padding: 1.2rem 1.05rem; }
+  .stat_icon { width: 38px; height: 38px; border-radius: 10px; margin-bottom: 0.7rem; }
+  .stat_icon svg { width: 18px; height: 18px; }
+  .stat_number, .stat_label { font-size: 0.88rem; line-height: 1.5; }
+
+  /* Webflow serves a smaller srcset candidate here automatically */
+  .cta_bg-image { object-position: center 35%; }
+  .cta_inner::before { width: 44px; margin-bottom: 1.2rem; }
+}
+
+@media screen and (max-width: 380px) {
+  .trust_row > div { padding-left: 0.45rem; padding-right: 0.45rem; }
+  .trust_number { font-size: 1.35rem; }
+  .trust_label { font-size: 0.68rem; }
+}
+
+/* At a Glance — equal rhythm whether or not a row wraps to two lines. */
+.glance_list { grid-row-gap: 0; }
+.glance_item { padding-top: 0.85rem; padding-bottom: 0.85rem; }
+.glance_item:first-child { padding-top: 0; }
+.glance_item:last-child { padding-bottom: 0; }
+.glance_item + .glance_item { border-top: 1px solid rgba(26,40,64,0.10); }
+
+/* Why-choose-us points — equal rhythm + tan accent on hover. */
+.why_points { grid-row-gap: 0; }
+.why_point {
+  position: relative; margin-left: -0.9rem;
+  padding: 0.9rem 0 0.9rem 0.9rem;
+  border-radius: 10px; transition: background-color .3s ease;
+}
+.why_point::before {
+  content: ""; position: absolute; left: 0; top: 14px; bottom: 14px;
+  width: 2px; border-radius: 2px;
+  background-image: linear-gradient(180deg, #A88B5C, rgba(168,139,92,0));
+  opacity: 0; transform: scaleY(0.35); transform-origin: top;
+  transition: opacity .35s ease, transform .35s cubic-bezier(.5,0,.2,1);
+}
+.why_point:hover { background-color: rgba(168,139,92,0.05); }
+.why_point:hover::before { opacity: 1; transform: scaleY(1); }
+.why_point-text { max-width: 46ch; }
+.why_icon { transition: border-color .35s ease, box-shadow .35s ease; }
+.why_point:hover .why_icon {
+  border-color: rgba(168,139,92,0.5);
+  box-shadow: 0 10px 22px rgba(6,12,28,0.30), 0 0 0 3px rgba(168,139,92,0.10), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+/* Process steps — gentle lift, tan edge, steady top-left corner glow. */
+.step_item { transition: transform .4s cubic-bezier(.5,0,.2,1), box-shadow .4s ease, border-color .4s ease; }
+.step_item::after {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background-image: radial-gradient(460px circle at 0% 0%,
+    rgba(191,163,116,0.17), rgba(191,163,116,0.06) 38%, rgba(191,163,116,0) 70%);
+  opacity: 0; transition: opacity .45s ease; pointer-events: none;
+}
+.step_item:hover::after { opacity: 1; }
+.step_item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(168,139,92,0.45);
+  box-shadow: 0 28px 60px rgba(6,12,28,0.42), 0 6px 18px rgba(6,12,28,0.28), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.step_item:hover .step_number { color: #BFA374; opacity: 1; }
+.step_item:hover .step_tag { border-color: rgba(168,139,92,0.7); color: #D8C39A; }
+.step_number, .step_tag { transition: color .35s ease, opacity .35s ease, border-color .35s ease; }
+
+/* FAQ — three distinct states: rest, hover, open. */
+.faq_item {
+  position: relative;
+  transition: border-color .35s ease, box-shadow .35s ease, background-color .35s ease;
+}
+.faq_item::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; border-radius: 2px;
+  background-image: linear-gradient(180deg, #A88B5C, rgba(168,139,92,0.15));
+  opacity: 0; transform: scaleY(0.3); transform-origin: top;
+  transition: opacity .35s ease, transform .4s cubic-bezier(.5,0,.2,1);
+}
+.faq_item:hover {
+  border-color: rgba(168,139,92,0.35);
+  box-shadow: 0 14px 30px rgba(26,40,64,0.10), 0 3px 8px rgba(26,40,64,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
+}
+.faq_item.is-open { border-color: rgba(168,139,92,0.5); background-color: rgba(255,255,255,0.35); }
+.faq_item.is-open::before { opacity: 1; transform: scaleY(1); }
+.faq_question-text { transition: color .3s ease; }
+.faq_item:hover .faq_question-text,
+.faq_item.is-open .faq_question-text { color: #0F1B30; }
+.faq_plus { transition: transform .3s cubic-bezier(.5,0,.2,1); }
+.faq_item:hover .faq_plus { transform: scale(1.1); }
+.faq_answer-inner { opacity: 0; transition: opacity .3s ease .06s; }
+.faq_item.is-open .faq_answer-inner { opacity: 1; }
+
+/* FAQ plus/minus icon — pseudo-elements are not expressible in the Designer */
+.faq_plus::before,
+.faq_plus::after { content: ""; position: absolute; inset: 0; margin: auto; background: #A88B5C; border-radius: 2px; }
+.faq_plus::before { width: 13px; height: 2px; }
+.faq_plus::after { width: 2px; height: 13px; transition: transform .3s ease, opacity .3s ease; }
+.faq_item.is-open .faq_plus::after { transform: rotate(90deg); opacity: 0; }
+
+.faq_question { -webkit-tap-highlight-color: transparent; }
+.faq_question:focus-visible { outline: 2px solid #A88B5C; outline-offset: -2px; }
+
+/* Icon chips. display:block on the SVG is what centres it. */
+.glance_icon svg,
+.icon-chip svg,
+.why_icon svg {
+  display: block; fill: none; stroke: currentColor;
+  stroke-linecap: round; stroke-linejoin: round; flex: none;
+}
+.glance_icon svg { width: 19px; height: 19px; stroke-width: 1.7; }
+.why_icon svg   { width: 21px; height: 21px; stroke-width: 1.7; }
+.icon-chip svg  { width: 26px; height: 26px; stroke-width: 1.8; }
+.icon-chip svg path,
+.icon-chip svg circle { fill: none; stroke: currentColor; vector-effect: non-scaling-stroke; }
+
+.glance_icon .w-embed,
+.icon-chip .w-embed,
+.why_icon .w-embed { display: flex; align-items: center; justify-content: center; line-height: 0; }
+
+/* Rich text from the CMS — .w-richtext is Webflow's automatic class. */
+.overview_grid .w-richtext p {
+  margin-top: 0; margin-bottom: 1rem;
+  font-size: 1.05rem; line-height: 1.7; color: #4A5470;
+}
+.overview_grid .w-richtext p:last-child { margin-bottom: 0; }
+.overview_grid .w-richtext strong { font-weight: 600; color: #1A2840; }
+
+.faq_answer .w-richtext p {
+  margin-top: 0; margin-bottom: 0.8rem;
+  font-size: 0.98rem; line-height: 1.65; color: #4A5470;
+}
+.faq_answer .w-richtext p:last-child { margin-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .included_card, .faq_answer, .faq_plus::after, .why_point, .why_point::before, .why_icon,
+  .step_item, .step_item::after, .step_number, .step_tag,
+  .faq_item, .faq_item::before, .faq_plus, .faq_question-text, .faq_answer-inner { transition: none !important; }
+  .step_item:hover { transform: none; }
+  .why_point:hover::before { transform: scaleY(1); }
+  .faq_item.is-open::before { transform: scaleY(1); }
+  .faq_item:hover .faq_plus { transform: none; }
+}
+
+/* =========================================================
+   ADDITION 02 — connective sections (2026-09-18)
+   covers / results / reading.
+
+   These reuse the topic_* classes, which are real global
+   Webflow classes — but their hovers and Collection List
+   plumbing live in topic-template.css, page-level on the
+   PERMANENTLY DRAFTED topic template. Nothing is inherited
+   from there, so it is re-declared here.
+   ========================================================= */
+
+/* Collection List transparency. .w-dyn-item is required —
+   omitting it is the uneven-card bug from this very page. */
+.topic_related-row > .w-dyn-list,
+.topic_related-row .w-dyn-items,
+.topic_related-row .w-dyn-item,
+.topic_applied-grid > .w-dyn-list,
+.topic_applied-grid .w-dyn-items,
+.topic_applied-grid .w-dyn-item,
+.topic_reading-grid > .w-dyn-list,
+.topic_reading-grid .w-dyn-items,
+.topic_reading-grid .w-dyn-item { display: contents; }
+
+/* An empty list must not leave a heading sitting above nothing.
+   Paired with the Collection List filters, this is what keeps
+   "Where we've helped" invisible until real, non-placeholder
+   matters are tagged, and "Related reading" invisible until an
+   article is attorney-reviewed. */
+.section_service-covers:has(.w-dyn-empty),
+.section_service-results:has(.w-dyn-empty),
+.section_service-reading:has(.w-dyn-empty) { display: none; }
+
+/* Chips — inline-flex, not inline-block. The CMS label renders as a
+   block child, which pushed a second line on the expertise hub. The
+   width clamp stops a long term overflowing its row; page-level
+   scrollWidth did NOT catch that overflow, the element box did. */
+.topic_chip { display: inline-flex; align-items: center; max-width: 100%; min-width: 0; }
+.topic_chip:hover {
+  color: #891E2D;
+  border-color: rgba(137,30,45,0.35);
+  background-color: rgba(137,30,45,0.04);
+}
+.topic_chip:focus-visible { outline: 2px solid #A88B5C; outline-offset: 3px; }
+
+/* ⚠ A Topic with no Canonical Page renders href="#", which would jump the
+   reader to the top of the page. Same for an Insights card until its
+   CMS-item link is wired in the Designer. Neutralised here, but CSS cannot
+   take an anchor out of the tab order — the real fix is the Designer step
+   that splits linked and unlinked chips into two conditionally-visible
+   elements. Remove these two rules once that lands. */
+.topic_chip[href="#"] { pointer-events: none; cursor: default; color: #4A5470; }
+.topic_read-card[href="#"] { pointer-events: none; }
+
+/* Case-result kicker: "Family-Based · 2025".
+   Literal middle dot, never a CSS unicode escape — an escape written
+   through a script became an OCTAL escape on the reviews build and
+   shipped a stray glyph to staging. */
+.result_kicker > .topic_area-label { margin: 0; }
+.result_year { margin: 0; font-variant-numeric: tabular-nums; }
+.result_kicker > .result_year::before { content: "· "; }
+
+/* Reading cards lift; case cards deliberately do not. A case card is
+   not a link in phase 1 (no per-case detail pages exist yet), so it
+   must not read as clickable. */
+.topic_read-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168,139,92,0.45);
+  box-shadow: 0 12px 32px rgba(26,40,64,0.10);
+}
+.topic_read-card:focus-visible { outline: 2px solid #A88B5C; outline-offset: 3px; }
+.topic_area-card { cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .topic_chip, .topic_read-card { transition: none; }
+  .topic_read-card:hover { transform: none; }
+}
+
+@media screen and (max-width: 991px) {
+  .topic_reading-grid { grid-template-columns: 1fr 1fr; }
+}
+@media screen and (max-width: 767px) {
+  .topic_applied-grid { grid-template-columns: 1fr; }
+  .topic_reading-grid { grid-template-columns: 1fr; }
+  .section_service-results { padding-top: 4rem; padding-bottom: 4rem; }
+  .section_service-reading { padding-top: 3.5rem; padding-bottom: 4rem; }
+}
