@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-20.2  (hub click-through in the mega menu; dead footer15 block removed) */
+/* CODE-CSS-VERSION: 2026-09-20.3  (headings on .section-dark bands forced cream) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1388,3 +1388,24 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) {
   .navbar8_component .navbar8_dropdown-content .nav_hub-all { transition: none; }
 }
+
+/* ===== Headings on dark bands (2026-09-20) ===============================
+   The h1-h6 TAG style sets color: var(--base-color-brand--blue-dark), i.e. navy.
+   A tag style beats the cream that .section-dark passes down by inheritance, so
+   any heading dropped on a dark band renders navy-on-navy and is invisible.
+
+   This shipped exactly that way on the new /immigration and /humanitarian hubs:
+   "Not Sure Which One Is Yours?" was unreadable against the router band. It is
+   also why .section_layout253 .heading-style-h2 was hard-coded to cream back in
+   September - the same bug, patched one section at a time.
+
+   Fixed once, for the class of bug: a tag-level selector scoped to .section-dark
+   is (0,1,1), which beats the bare tag at (0,0,1). Any future dark section gets
+   readable headings for free. .cta_heading already sets cream, so the closing CTA
+   bands are unaffected either way. */
+.section-dark h1,
+.section-dark h2,
+.section-dark h3,
+.section-dark h4,
+.section-dark h5,
+.section-dark h6 { color: #FCF6EC; }
