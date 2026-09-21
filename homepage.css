@@ -71,37 +71,115 @@
 .section_layout253 .button.is-link::before { display: none; }
 .section_layout253 .button.is-link:hover { color: #A88B5C; }
 
-/* ===== section_layout423 — expandable case cards: glass/3D skin over the dark photos =====
-   Relume's IX2 hover-GROW + the jQuery content-reveal (fades the OTHER cards' content) are
-   left fully untouched — the grow is IX2-driven (card has data-w-id; card transition-duration
-   is 0s, no CSS :hover), so a CSS skin on :hover co-fires with it and can't break the motion.
-   This ONLY adds the visual skin so the grown card reads as a 3D glass card that echoes the
-   layout253 navy cards: rounded corners (fixes the undefined Relume radius var → was square),
-   a navy legibility veil over each dark photo, a resting depth shadow, and a 3D pop (deeper
-   layered shadow + tan brand-glow edge + inset highlight) on hover. */
+/* ===== section_layout423 — "Cases We Handle": THREE ROUTE CARDS =====================
+   REBUILT 2026-09-20. Relume shipped these as 70vh photo tiles with the copy laid over the
+   image, and — the part that actually mattered — two IX2 interactions that made them behave
+   unlike anything else on the site:
+
+     1. each card carried an inline width:50% and GREW on hover while its neighbours shrank
+     2. .layout423_card-content-bottom was parked at opacity:0 + translateY(100%) above 992px,
+        so THE DESCRIPTION AND THE CTA WERE INVISIBLE AT REST on desktop. A visitor saw an
+        eyebrow and a heading and nothing else until they happened to hover.
+
+   Both are neutralised below with !important, which beats the inline styles IX2 writes. That
+   is deliberately a stopgap: the clean fix is to DELETE the two interactions on this section
+   in the Designer, after which every !important here can come out. Until then the hover is a
+   no-op rather than a fight, because the properties IX2 animates are pinned.
+
+   The cards now use the site's own card language — the same cream-glass surface, tan hairline,
+   4px lift and tan border-glow as .included_card, .stat_card, .logo6_wrapper and the
+   layout413/testimonial20 cards — with the photograph as a framed thumbnail on top and the
+   copy below it, where it is readable without hovering. ===== */
+
+/* Three equal columns. Relume's .layout423_row is a flex row of width:50% children. */
+.section_layout423 .layout423_row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+/* --- the card ---------------------------------------------------------------------- */
 .section_layout423 .layout423_card {
-  border-radius: 14px;                                     /* was var(--<unknown|relume-variable-radius-medium>) → 0 */
-  border: 1px solid rgba(255,255,255,0.10);
-  box-shadow: 0 8px 24px rgba(6,12,28,0.32);
+  width: auto !important;          /* kills the IX2 inline width:50% grow */
+  min-height: 0;
+  height: auto;
+  padding: 0;                      /* was 2rem — padding now lives on the content block */
+  justify-content: flex-start;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.28);
+  border-top-color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 28px rgba(26,40,64,0.10), 0 2px 6px rgba(26,40,64,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
   transition: transform 0.4s cubic-bezier(0.5,0,0.2,1), box-shadow 0.4s ease, border-color 0.4s ease;
 }
-/* IX2 grows the card via inline WIDTH (confirmed: inline style="width:50%", transform empty),
-   so the transform channel is free — translateY lifts the card without touching the grow. */
-/* Navy legibility veil over the photo — sits BELOW the white content (a later sibling). */
-.section_layout423 .layout423_image-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(20,32,58,0.90) 0%, rgba(20,32,58,0.45) 45%, rgba(20,32,58,0.12) 100%);
-  pointer-events: none;
-}
-/* 3D pop on the hovered (grown) card — desktop only, mirrors the jQuery ≥992 grow guard. */
-@media (min-width: 992px) {
+@media (prefers-reduced-motion: no-preference) {
   .section_layout423 .layout423_card:hover {
-    transform: translateY(-10px);                          /* pop up off the row */
-    box-shadow: 0 30px 60px rgba(6,12,28,0.62), inset 0 1px 0 rgba(255,255,255,0.18);
-    border-color: rgba(168,139,92,0.50);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 44px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.95);
+    border-color: rgba(168,139,92,0.55);
   }
+}
+
+/* --- the photograph: a framed thumbnail, not a backdrop ----------------------------- */
+.section_layout423 .layout423_image-wrapper {
+  position: relative;              /* was absolute; inset:0 */
+  inset: auto;
+  width: 100%;
+  height: auto;
+  flex: none;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(168,139,92,0.28);
+}
+.section_layout423 .layout423_image { width: 100%; height: 100%; object-fit: cover; }
+/* The navy legibility veil is no longer needed — no copy sits on the photo now. */
+.section_layout423 .layout423_image-wrapper::after { display: none; }
+
+/* --- the copy ----------------------------------------------------------------------- */
+.section_layout423 .layout423_card-content {
+  max-width: none;                 /* was 19rem */
+  justify-content: flex-start;
+  flex: 1 1 auto;
+  padding: 1.5rem 1.6rem 1.7rem;
+}
+/* UNPIN the description + CTA. Beats the inline opacity/transform IX2 writes on hover. */
+.section_layout423 .layout423_card-content-bottom {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* The card carries .text-color-white and the heading is .heading-style-h4, which computes
+   WHITE site-wide (it is effectively the on-dark heading class — same trap that made the
+   About bios and CTA heading invisible on 2026-09-17). Both must be re-coloured for cream. */
+.section_layout423 .layout423_card,
+.section_layout423 .layout423_card [class*="heading-style"] { color: #1A2840; }
+.section_layout423 .layout423_card p { color: #4A5470; font-size: 0.95rem; line-height: 1.6; }
+.section_layout423 .layout423_card .text-style-tagline { color: #1A2840; }
+
+/* CTA reads as a text link, not a solid maroon block inside a card. The global .button
+   fill-sweep runs on ::before and this combo is not in its :not() exclusion list, so the
+   sweep is switched off explicitly rather than left to paint underneath. */
+.section_layout423 .layout423_card .button.is-icon {
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  color: #891E2D;
+  gap: 0.4rem;
+}
+.section_layout423 .layout423_card .button.is-icon::before { display: none; }
+.section_layout423 .layout423_card .button.is-icon .text-color-alternate { color: #891E2D; font-weight: 600; }
+.section_layout423 .layout423_card .button.is-icon .w-embed { color: #891E2D; transition: transform 0.3s ease; }
+.section_layout423 .layout423_card:hover .button.is-icon .w-embed { transform: translateX(4px); }
+
+/* --- responsive --------------------------------------------------------------------- */
+@media (max-width: 991px) {
+  .section_layout423 .layout423_row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+}
+@media (max-width: 767px) {
+  .section_layout423 .layout423_row { grid-template-columns: minmax(0, 1fr); }
+  .section_layout423 .layout423_card-content { padding: 1.3rem 1.35rem 1.45rem; }
 }
 
 /* ===== section_layout408 — stacking "journey" cards: SOLID DEEP NAVY panel (opaque, NOT glass —
@@ -158,9 +236,50 @@
    Relume IX2 image-GROW (data-w-id on .layout413_image-wrapper, overflow:hidden) is left
    untouched — radius only clips the zoom cleanly. Reveal: add data-animate-group to
    .layout413_content-right in Designer to stagger the intro + both cards in (like values). */
+/* HEADSHOT — REBUILT 2026-09-20. The Relume IX2 on this wrapper set an inline
+   width:200%, which is literally why the picture ran over the copy in the right
+   column. That is pinned off below; the clean fix is to delete that interaction
+   in the Designer, after which the !important can go.
+
+   The frame now matches .framed-image, the site's one image treatment, in its
+   data-frame-mount="flush" form — no offset outline, because this wrapper is a
+   single element and the offset rule has to sit outside an overflow:hidden box.
+   Portrait 4:5, same as .founder_portrait on /about, which carries the same photo. */
 .section_layout413 .layout413_image-wrapper {
-  border-radius: 16px;
+  position: relative;
+  width: auto !important;        /* kills the IX2 inline width:200% overflow */
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #F3EADB;           /* warm hold while the image loads */
   box-shadow: 0 20px 50px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08);
+}
+/* tan hairline drawn OVER the photo edge + the faded top highlight, clipped by
+   the radius — the same two pseudo-elements .framed-image_media uses. */
+.section_layout413 .layout413_image-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(168,139,92,0.30);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
+  pointer-events: none;
+  z-index: 2;
+}
+.section_layout413 .layout413_image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.01);        /* hairline bleed so no edge gap shows on scale-back */
+  transition: transform 1.1s cubic-bezier(0.22,0.61,0.36,1);
+}
+/* The ENTRANCE is now the site-wide section reveal from init.js, which every other
+   section already uses — that is the "animation that fits". What is added here is a
+   slow contained push-in on hover, which cannot overflow because the media box clips. */
+@media (prefers-reduced-motion: no-preference) {
+  .section_layout413 .layout413_content:hover .layout413_image { transform: scale(1.06); }
 }
 /* Cream GLASS on a plain cream page: no content behind to frost, so a diagonal white→cream
    gradient sheen + a bright top edge + tan-tinted hairline sell the "glass" instead of the blur. */
@@ -410,4 +529,92 @@
 }
 @media (max-width: 479px) {
   .section_logo6 .logo6_logo { height: 50px; }
+}
+
+
+/* --- contact2 SUCCESS STATE ---------------------------------------------------
+   Webflow's default success block is one line of text, so on submit the whole
+   section collapsed from ~1246px to almost nothing. The wrapper now holds its
+   height (the form measures 680px at 1440) and the panel is skinned to match the
+   dark glass of the form it replaces, with somewhere to go next. */
+.section_contact2 .w-form { min-height: 680px; }
+.section_contact2 .w-form-done {
+  min-height: 680px;
+  box-sizing: border-box;
+  padding: 3.25rem 2.25rem;
+  text-align: center;
+  border-radius: 14px;
+  color: #FCF6EC;
+  background: rgba(18,30,52,0.55);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 16px 40px rgba(6,12,28,0.34), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+/* tan rule above the message, echoing .cta_inner::before on the closing bands */
+.section_contact2 .w-form-done::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: 0 auto 1.6rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+}
+.section_contact2 .done_heading {
+  font-family: "Lora", serif;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: #FCF6EC;
+  margin: 0 auto 0.9rem;
+  max-width: 22ch;
+}
+.section_contact2 .done_text {
+  color: rgba(252,246,236,0.82);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 46ch;
+  margin: 0 auto 1.1rem;
+}
+.section_contact2 .done_note {
+  color: #A88B5C;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0 auto 2.2rem;
+}
+.section_contact2 .done_links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+.section_contact2 .done_link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #FCF6EC;
+  background: rgba(252,246,236,0.06);
+  border: 1px solid rgba(252,246,236,0.16);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+.section_contact2 .done_link:hover {
+  background: rgba(252,246,236,0.12);
+  border-color: rgba(168,139,92,0.55);
+  transform: translateY(-2px);
+}
+@media (max-width: 767px) {
+  .section_contact2 .w-form,
+  .section_contact2 .w-form-done { min-height: 560px; }
+  .section_contact2 .w-form-done { padding: 2.25rem 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section_contact2 .done_link { transition: none; }
 }
