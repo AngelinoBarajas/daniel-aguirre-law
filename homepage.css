@@ -1,0 +1,413 @@
+
+/* ============================================================
+   PART 2 — SECTION STYLING  (layout253 / layout423 / layout408)
+   Homepage-only; scoped to each section so nothing leaks site-wide.
+   ============================================================ */
+
+/* ===== section_layout253 — cream-glass feature cards on a dark image =====
+   Dark photographic bg (added in DESIGNER on .section_layout253) + the 4
+   .layout253_item cards rendered as frosted cream glass matching the navbar/popup
+   language, with light text. Split: DESIGNER owns the bg IMAGE + overlay and the
+   card PADDING; THIS block owns the glass (backdrop-filter, hairline, layered shadow,
+   3D hover) + the section's text colours — SCOPED, so the global heading/text utility
+   classes are never recoloured (they're shared site-wide). Same glass tokens as
+   .case-map .popup / navbar, opacity tuned down for a DARK ground so light text
+   stays high-contrast. */
+.section_layout253 { position: relative; background-color: #14203a; }  /* fallback ground under the Designer image so the glass always has something to blur */
+
+/* --- The 4 feature cards: NAVY dark-blue glass, 3D lift --- */
+/* Navy #1A2840 = rgb(26,40,64) (same dark-blue as the navbar sub-nav highlight),
+   translucent + blurred so the dark bg image reads through as deep frosted glass.
+   Light hairline + inset top highlight sell the glass edge; tan border-glow on hover. */
+.section_layout253 .layout253_item {
+  position: relative;
+  background: rgba(26,40,64,0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px;
+  box-shadow: 0 12px 34px rgba(6,12,28,0.45), inset 0 1px 0 rgba(255,255,255,0.10);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .section_layout253 .layout253_item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 48px rgba(6,12,28,0.55), inset 0 1px 0 rgba(255,255,255,0.16);
+    background: rgba(26,40,64,0.66);
+    border-color: rgba(168,139,92,0.45);   /* tan brand-glow edge on lift */
+  }
+}
+/* Icon tile — a RAISED 3D chip that sits above the card face. Enlarged from Relume's
+   34px to 54px and flex-centred, so the ~32px icon gets real padding (~11px). Gradient
+   sheen + layered drop shadow + inset top highlight make it read as floating/embossed. */
+.section_layout253 .layout253_item-icon-wrapper {
+  width: 54px;
+  height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: linear-gradient(155deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(6,12,28,0.50), 0 2px 5px rgba(6,12,28,0.40), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+/* Icons are <img> (can't take currentColor) — force them cream/white on the dark glass.
+   Remove this rule if you swap in light-coloured icon assets. */
+.section_layout253 .layout253_item-icon-wrapper img { filter: brightness(0) invert(1); opacity: 0.92; }
+
+/* --- Text colours (SCOPED to this section — global classes untouched) --- */
+.section_layout253 .text-style-tagline { color: #A88B5C; }                 /* tan accent */
+.section_layout253 .heading-style-h2 { color: #FCF6EC; }                    /* cream */
+.section_layout253 .layout253_content-left .text-size-medium { color: rgba(252,246,236,0.82); }
+.section_layout253 .layout253_item .heading-style-h4 { color: #FCF6EC; }    /* was invisible white → now intentional cream */
+.section_layout253 .layout253_item p { color: rgba(252,246,236,0.80); }
+/* Intro buttons over the dark bg: ghost + text-link go light */
+.section_layout253 .button.is-secondary { color: #FCF6EC; border-color: rgba(252,246,236,0.5); }
+/* Text link: cream text + arrow (SVG uses stroke="currentColor", so it follows `color`). */
+.section_layout253 .button.is-link { color: #FCF6EC; }
+/* `is-link` isn't excluded from the global .button fill-sweep, so it'd get a maroon box on
+   hover — suppress it here and use a tan colour shift as the text-link hover cue instead. */
+.section_layout253 .button.is-link::before { display: none; }
+.section_layout253 .button.is-link:hover { color: #A88B5C; }
+
+/* ===== section_layout423 — expandable case cards: glass/3D skin over the dark photos =====
+   Relume's IX2 hover-GROW + the jQuery content-reveal (fades the OTHER cards' content) are
+   left fully untouched — the grow is IX2-driven (card has data-w-id; card transition-duration
+   is 0s, no CSS :hover), so a CSS skin on :hover co-fires with it and can't break the motion.
+   This ONLY adds the visual skin so the grown card reads as a 3D glass card that echoes the
+   layout253 navy cards: rounded corners (fixes the undefined Relume radius var → was square),
+   a navy legibility veil over each dark photo, a resting depth shadow, and a 3D pop (deeper
+   layered shadow + tan brand-glow edge + inset highlight) on hover. */
+.section_layout423 .layout423_card {
+  border-radius: 14px;                                     /* was var(--<unknown|relume-variable-radius-medium>) → 0 */
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 8px 24px rgba(6,12,28,0.32);
+  transition: transform 0.4s cubic-bezier(0.5,0,0.2,1), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+/* IX2 grows the card via inline WIDTH (confirmed: inline style="width:50%", transform empty),
+   so the transform channel is free — translateY lifts the card without touching the grow. */
+/* Navy legibility veil over the photo — sits BELOW the white content (a later sibling). */
+.section_layout423 .layout423_image-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20,32,58,0.90) 0%, rgba(20,32,58,0.45) 45%, rgba(20,32,58,0.12) 100%);
+  pointer-events: none;
+}
+/* 3D pop on the hovered (grown) card — desktop only, mirrors the jQuery ≥992 grow guard. */
+@media (min-width: 992px) {
+  .section_layout423 .layout423_card:hover {
+    transform: translateY(-10px);                          /* pop up off the row */
+    box-shadow: 0 30px 60px rgba(6,12,28,0.62), inset 0 1px 0 rgba(255,255,255,0.18);
+    border-color: rgba(168,139,92,0.50);
+  }
+}
+
+/* ===== section_layout408 — stacking "journey" cards: SOLID DEEP NAVY panel (opaque, NOT glass —
+   navy glass washed out on the cream page), big tan step numerals, light text, navy photo gradient.
+   Relume shipped these transparent + square, which read flat as they stack. ===== */
+.section_layout408 .layout408_card {
+  background: linear-gradient(160deg, #1E2C46 0%, #16223A 100%);   /* opaque deep navy (subtle top sheen) */
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  box-shadow: 0 24px 54px rgba(6,12,28,0.32), 0 4px 14px rgba(6,12,28,0.20), inset 0 1px 0 rgba(255,255,255,0.10);
+  overflow: hidden;                          /* clips the photo + numeral to the radius */
+}
+/* Big faint step numeral behind each card's content (01 / 02 / 03). Card is position:sticky
+   (a positioned ancestor), so the absolute ::before anchors to it. */
+.section_layout408 .layout408_card::before {
+  position: absolute;
+  top: 1.4rem;
+  left: 2rem;
+  font-family: "Lora", serif;
+  font-size: clamp(4rem, 6.5vw, 6.5rem);
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(168,139,92,0.22);            /* faint tan/gold watermark on the navy */
+  pointer-events: none;
+  z-index: 0;
+}
+.section_layout408 .layout408_component > .layout408_card:nth-child(1)::before { content: "01"; }
+.section_layout408 .layout408_component > .layout408_card:nth-child(2)::before { content: "02"; }
+.section_layout408 .layout408_component > .layout408_card:nth-child(3)::before { content: "03"; }
+.section_layout408 .layout408_card-content { position: relative; z-index: 1; }   /* text above the numeral */
+/* Text — light on the navy surface. Tagline → tan (was blue #1a325c, unreadable on navy).
+   Heading targeted by [class*="heading-style"] so it works whatever h2/h3/h4 class the content uses. */
+.section_layout408 .layout408_card .text-style-tagline { color: #A88B5C; }
+.section_layout408 .layout408_card [class*="heading-style"] { color: #FCF6EC; }
+.section_layout408 .layout408_card-content p { color: rgba(252,246,236,0.80); }
+/* CTA buttons in the navy card: add the .is-light combo in Designer (global system in code.css)
+   → cream text + arrow, tan hover. (No per-section button hack needed anymore.) */
+/* Photo — subtle navy gradient at the base for depth + palette tie-in */
+.section_layout408 .layout408_image-wrapper { position: relative; }
+.section_layout408 .layout408_image-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(26,40,64,0.20), transparent 45%);
+  pointer-events: none;
+}
+
+/* ===== section_layout413 — "Meet Daniel Aguirre" highlight =====
+   The 2 sub-blocks (.layout413_text-wrapper) become cream frosted cards in the popup
+   language (tuned MORE opaque + a hair brighter than the cream page so they read on it —
+   backdrop-blur has nothing to blur over plain cream, so the border + layered shadow +
+   inset highlight do the lifting), plus the layout253 value-card 3D hover lift. The
+   headshot image gets rounded corners + a soft shadow to match the other sections; its
+   Relume IX2 image-GROW (data-w-id on .layout413_image-wrapper, overflow:hidden) is left
+   untouched — radius only clips the zoom cleanly. Reveal: add data-animate-group to
+   .layout413_content-right in Designer to stagger the intro + both cards in (like values). */
+.section_layout413 .layout413_image-wrapper {
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08);
+}
+/* Cream GLASS on a plain cream page: no content behind to frost, so a diagonal white→cream
+   gradient sheen + a bright top edge + tan-tinted hairline sell the "glass" instead of the blur. */
+.section_layout413 .layout413_text-wrapper {
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-top-color: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  padding: 1.2rem 1.35rem;
+  box-shadow: 0 16px 40px rgba(26,40,64,0.14), 0 3px 10px rgba(26,40,64,0.07), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .section_layout413 .layout413_text-wrapper:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 46px rgba(26,40,64,0.18), 0 5px 14px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.92);
+    border-color: rgba(168,139,92,0.45);   /* tan brand-glow edge on lift (matches layout253) */
+  }
+}
+/* Card text — navy heading + slate body (cohesive with the site) */
+.section_layout413 .layout413_text-wrapper .heading-style-h6 { color: #1A2840; }
+.section_layout413 .layout413_text-wrapper p { color: #4A5470; }
+
+/* Icon chip on each card — a raised NAVY chip + cream line-icon (echoes the layout253 value-card
+   icons, tuned to pop on the cream cards). Rendered via ::before (no Designer element needed);
+   nth-child gives each card its own icon (1 = home/roots, 2 = target/focus). The chip gradient is
+   the 2nd background layer; the icon SVG is the 1st (centred). */
+.section_layout413 .layout413_text-wrapper::before {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  margin-bottom: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 8px 18px rgba(6,12,28,0.28), inset 0 1px 0 rgba(255,255,255,0.14);
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;
+  background-size: 22px 22px, cover;
+}
+.section_layout413 .layout413_text-wrapper:nth-child(1)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FCF6EC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3Cpolyline points='9 22 9 12 15 12 15 22'/%3E%3C/svg%3E"),
+    linear-gradient(155deg, #24334F 0%, #1A2840 100%);
+}
+.section_layout413 .layout413_text-wrapper:nth-child(2)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FCF6EC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Ccircle cx='12' cy='12' r='6'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3C/svg%3E"),
+    linear-gradient(155deg, #24334F 0%, #1A2840 100%);
+}
+
+/* ===== section_testimonial20 — scrolling reviews: cream frosted cards (popup language) =====
+   Each .testimonial20_card (32px padding already, was transparent + square) becomes a cream
+   frosted card matching the map popups / layout413 cards. Same read-on-cream tuning: brighter/
+   opaque cream + white hairline + layered navy shadow + inset highlight (backdrop-blur has
+   nothing to blur over the plain cream page — border + shadow do the lifting). */
+.section_testimonial20 .testimonial20_card {
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-top-color: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(26,40,64,0.14), 0 3px 10px rgba(26,40,64,0.07), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+/* Subtle hover lift (matches the other card sections). Lifts the card inside the slide —
+   doesn't touch the slider's own transform on .w-slide, so dragging is unaffected. */
+@media (prefers-reduced-motion: no-preference) {
+  .section_testimonial20 .testimonial20_card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 46px rgba(26,40,64,0.18), 0 5px 14px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.92);
+    border-color: rgba(168,139,92,0.45);   /* tan brand-glow edge on lift */
+  }
+}
+/* Star rating — brand gold/tan. The star SVGs use fill="currentColor", so setting `color`
+   on the icon cascades to the glyph. */
+.section_testimonial20 .testimonial20_rating-icon { color: #A88B5C; }
+/* Text cohesion on the cream surface */
+.section_testimonial20 .testimonial20_content-top .text-size-medium { color: #2C3D5C; }   /* the quote — deep navy-slate */
+.section_testimonial20 .testimonial20_client-info .text-weight-semibold { color: #1A2840; } /* client name — navy */
+
+/* ===== section_contact2 — consultation form (landing-page fields, 2-column, DARK bg) =====
+   Relume's default form fields are DELETED in Designer; the landing-page field set is pasted
+   as an HTML Embed inside the Webflow Form (.contact2_form) — see contact2-form-embed.html.
+   Fields sit in a .contact2_form-grid 2-col grid (wide fields carry .is-span-2). This block
+   ports the landing glass-input styling, re-tuned for a DARK section background: light labels,
+   translucent light-glass inputs with cream text, tan focus glow. Add the dark bg on
+   .section_contact2 in Designer. Uses .landing_* class hooks (landing-contact.css is page-level
+   on the landing page only, so it never touches the homepage — this is the sole styling here). */
+/* Heading over the dark bg → light */
+.section_contact2 .text-style-tagline { color: #A88B5C; }
+.section_contact2 .heading-style-h2 { color: #FCF6EC; }
+.section_contact2 .text-align-center .text-size-medium { color: rgba(252,246,236,0.82); }
+
+.section_contact2 .contact2_form { margin: 0; }
+
+/* 2-column field grid — NO frame; fields sit directly on the section's dark background.
+   (Relies on the dark bg on .section_contact2 for legibility — labels + inputs are light.)
+   Wide fields (.is-span-2) span both columns. */
+.section_contact2 .contact2_form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.25rem;
+}
+.section_contact2 .contact2_form-grid .is-span-2 { grid-column: 1 / -1; }
+/* The two radio-group fields pair up side by side (1 col each), not full-width — overrides
+   any leftover .is-span-2 on them if the embed isn't re-pasted. */
+.section_contact2 .contact2_form-grid .landing_field.is-span-2:has(.landing_radio-row) { grid-column: auto; }
+.section_contact2 .landing_field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+/* Labels — light on dark */
+.section_contact2 .landing_label {
+  font-family: Inter, sans-serif; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: rgba(252,246,236,0.85);
+}
+.section_contact2 .landing_label .landing_req { color: #A88B5C; margin-left: 2px; }
+
+/* Glass inputs on dark */
+.section_contact2 .landing_input,
+.section_contact2 .landing_select,
+.section_contact2 .landing_textarea {
+  width: 100%; font-family: Inter, sans-serif; font-size: 0.9rem;
+  color: #FCF6EC;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 9px; padding: 0.6rem 0.85rem; margin: 0;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.section_contact2 .landing_textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+.section_contact2 .landing_input::placeholder,
+.section_contact2 .landing_textarea::placeholder { color: rgba(252,246,236,0.45); }
+/* native select caret — light; option list is OS-rendered on white, so option text goes dark */
+.section_contact2 .landing_select {
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%23FCF6EC' stroke-width='1.5'/></svg>");
+  background-repeat: no-repeat; background-position: right 0.85rem center; padding-right: 2.1rem; cursor: pointer;
+}
+.section_contact2 .landing_select option { color: #1A2840; }
+.section_contact2 .landing_input:focus,
+.section_contact2 .landing_select:focus,
+.section_contact2 .landing_textarea:focus {
+  outline: none; border-color: #A88B5C;
+  background: rgba(255,255,255,0.14);
+  box-shadow: 0 0 0 3px rgba(168,139,92,0.25);
+}
+
+/* Radio groups — each option is a GLASS ROUNDED BOX matching the inputs (same bg/border/radius);
+   hover brightens, selected = tan glow (border + tan-tint fill) via :has(input:checked). */
+.section_contact2 .landing_radio-row { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; margin-top: 0.15rem; }
+.section_contact2 .landing_radio {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 9px;
+  font-family: Inter, sans-serif; font-size: 0.9rem; color: rgba(252,246,236,0.85);
+  cursor: pointer; margin: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+.section_contact2 .landing_radio:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.30); }
+.section_contact2 .landing_radio:has(input:checked) { border-color: #A88B5C; background: rgba(168,139,92,0.18); }
+.section_contact2 .landing_radio .w-radio-input { display: none !important; }
+.section_contact2 .landing_radio input[type="radio"] {
+  opacity: 1 !important; position: static !important; z-index: auto !important;
+  accent-color: #A88B5C; width: 1rem !important; height: 1rem !important; margin: 0 !important;
+}
+
+/* Helper + consent — soft light. Disclaimer centred under the form. */
+.section_contact2 .landing_helper { font-family: Inter, sans-serif; font-size: 0.74rem; font-style: italic; line-height: 1.4; color: rgba(252,246,236,0.55); margin-top: 0.35rem; }
+.section_contact2 .landing_consent { font-family: Inter, sans-serif; font-size: 0.68rem; line-height: 1.4; color: rgba(252,246,236,0.5); margin: 0; text-align: center; }
+
+/* Submit — reuses the global .button visuals; the global fill-sweep uses a ::before which an
+   <input> can't render, so replicate the L→R darker-maroon (#6f1824) wipe with a background
+   layer that grows 0→100% on hover (same look, input-safe). */
+.section_contact2 .contact2_form-grid .button {
+  width: 100%;
+  text-align: center;
+  margin-top: 0.25rem;
+  background-image: linear-gradient(90deg, #6f1824, #6f1824);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 0% 100%;
+  transition: background-size 0.4s cubic-bezier(0.5,0,0.2,1), transform 0.2s ease;
+}
+.section_contact2 .contact2_form-grid .button:hover,
+.section_contact2 .contact2_form-grid .button:focus-visible {
+  background-size: 100% 100%;
+  transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section_contact2 .contact2_form-grid .button { transition: none; }
+}
+
+/* Responsive — collapse to one column on tablet/phone */
+@media (max-width: 767px) {
+  .section_contact2 .contact2_form-grid { grid-template-columns: 1fr; }
+  .section_contact2 .contact2_form-block { padding: 1.5rem 1.25rem; }
+}
+
+/* ===== section_logo6 — credential badges =================================
+   FIX 2026-09-20: the badges sat on WHITE cards on the cream page. This was NOT
+   an image problem — all six logos are transparent PNG/WebP (verified by pixel
+   sampling: every corner is alpha 0). Relume styles .logo6_wrapper with
+   background-color: var(--<unknown|relume-variable-color-scheme-1-foreground>),
+   and the Relume shim at the top of code.css defines that token as #FFF.
+
+   Fixed HERE rather than by repointing the shim, because six other components
+   read that same token (.layout408_card, .testimonial20_card,
+   .navbar8_dropdown-background-layer, .slider-arrow, .footer11_top-wrapper,
+   .multi-step-form-instructions-delete) and most already override it.
+
+   The card now uses the site's own cream-glass language — identical tokens to
+   .layout413_text-wrapper and .testimonial20_card below. ===== */
+.section_logo6 .logo6_wrapper {
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.28);
+  border-top-color: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  align-items: center;
+  box-shadow: 0 10px 28px rgba(26,40,64,0.10), 0 2px 6px rgba(26,40,64,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+/* Equal optical weight regardless of the source file. The six badges run from
+   272x122 to 500x412, so Relume's shared max-height:6rem let the tall ones read
+   at roughly twice the visual weight of the wide ones. A fixed box plus
+   object-fit:contain equalises them without touching the artwork. */
+.section_logo6 .logo6_logo {
+  max-height: none;
+  height: 74px;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.section_logo6 .logo6_list { grid-column-gap: 1rem; grid-row-gap: 1rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .section_logo6 .logo6_wrapper:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 44px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.95);
+    border-color: rgba(168,139,92,0.55);
+  }
+}
+@media (max-width: 991px) {
+  .section_logo6 .logo6_wrapper { padding: 1.25rem; }
+  .section_logo6 .logo6_logo { height: 58px; }
+}
+@media (max-width: 479px) {
+  .section_logo6 .logo6_logo { height: 50px; }
+}
