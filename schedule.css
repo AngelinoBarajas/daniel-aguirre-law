@@ -1,0 +1,554 @@
+/* SCHEDULE-CSS-VERSION: 2026-09-21.1 */
+/* ===========================================================================
+   /schedule-consultation — page stylesheet
+   Deployed via jsDelivr as schedule.css, linked from the page's Inside <head>.
+   Local file is the source of truth. Repo copy = this file minus the <style>
+   wrapper, LF line endings.
+
+   THE FORM ON THIS PAGE IS BUILT FROM REAL WEBFLOW FORM ELEMENTS, not an HTML
+   Embed. That is deliberate and it is the first such form on the site: Webflow
+   Localization reaches real elements and does NOT reach custom code, so the two
+   older forms (landing-form-embed.html, contact2-form-embed.html) carry
+   hardcoded English that the /es pass will have to retrofit by hand. This one
+   will not. Keep it that way — do not "simplify" it back into an Embed.
+
+   Because the fields are real Webflow elements, Webflow supplies its own
+   markup around them (.w-input, .w-select, .w-radio, .w-radio-input,
+   .w-button, .w-form-done). The rules below deliberately target those
+   Webflow classes alongside the project ones.
+
+   Visual language ported from the homepage section_contact2 block in
+   homepage-sections.css (dark glass inputs, tan focus glow, chip radios) and
+   re-scoped to .section_schedule-form. It is NOT shared with that page: this
+   page's fields use sched_* classes, the homepage's use landing_* ones, so the
+   two can diverge without breaking each other.
+   =========================================================================== */
+
+/* ===== 1 · HERO (light cream) ============================================ */
+.section_schedule-hero {
+  padding-top: 5rem;
+  padding-bottom: 4rem;
+}
+.sched-hero_inner { max-width: 54rem; }
+.sched-hero_lead {
+  margin: 1.1rem 0 0;
+  font-family: Inter, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: #4A5470;
+  max-width: 44rem;
+}
+
+/* Reassurance row — equal thirds with hairline dividers, the same device as
+   the practice-area trust row, so the two pages read as one system. */
+.sched-assure {
+  margin-top: 2.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid rgba(26,40,64,0.12);
+  padding-top: 1.5rem;
+}
+.sched-assure_item { padding: 0 1.75rem; border-left: 1px solid rgba(26,40,64,0.12); }
+.sched-assure_item:first-child { padding-left: 0; border-left: 0; }
+.sched-assure_title {
+  font-family: Inter, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1A2840;
+  margin-bottom: 0.45rem;
+}
+.sched-assure_text {
+  font-family: Inter, sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #4A5470;
+}
+
+/* ===== 2 · FORM SECTION (dark navy) ====================================== */
+/* .section-dark is already defined site-wide in code.css for eyebrow and
+   heading colour ONLY — it carries no background, so the band is set here. */
+.section_schedule-form {
+  background-image: linear-gradient(165deg, #1E2C46 0%, #16223A 100%);
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+}
+
+/* The two-column layout: rail | form panel. */
+.sched_layout {
+  display: grid;
+  grid-template-columns: 0.72fr 1fr;
+  gap: 3.5rem;
+  align-items: start;
+}
+
+/* ----- 2a · left rail ---------------------------------------------------- */
+.sched_rail { display: block; padding-top: 0.35rem; }
+.sched_rail-block { margin-bottom: 2.25rem; }
+.sched_rail-block:last-child { margin-bottom: 0; }
+.sched_rail-title {
+  font-family: Inter, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #A88B5C;
+  margin-bottom: 0.6rem;
+}
+.sched_rail-phone {
+  font-family: "Lora", serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #FCF6EC;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(168,139,92,0.5);
+  padding-bottom: 2px;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.sched_rail-phone:hover { color: #A88B5C; border-bottom-color: #A88B5C; }
+.sched_rail-text {
+  font-family: Inter, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(252,246,236,0.82);
+  margin-top: 0.7rem;
+}
+.sched_rail-note {
+  font-family: Inter, sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(252,246,236,0.55);
+  margin-top: 0.6rem;
+}
+/* The attorney-client disclaimer sits apart from the helpful copy above it. */
+.sched_rail-block-legal {
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 1.25rem;
+}
+.sched_rail-block-legal .sched_rail-note { margin-top: 0; font-style: italic; }
+
+/* ----- 2b · form panel --------------------------------------------------- */
+.sched_panel {
+  background: rgba(18,30,52,0.55);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px;
+  padding: 2.25rem;
+  box-shadow: 0 16px 40px rgba(6,12,28,0.34), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.sched_panel-head { margin-bottom: 1.6rem; }
+.sched_panel-title {
+  font-family: "Lora", serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #FCF6EC;
+  margin: 0 0 0.45rem;
+}
+.sched_panel-sub {
+  font-family: Inter, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(252,246,236,0.62);
+}
+
+/* ----- 2c · field grid --------------------------------------------------- */
+.sched_panel .w-form { margin: 0; }
+.sched_panel form { margin: 0; }
+.sched_grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.15rem 1.25rem;
+}
+.sched_grid .is-span-2 { grid-column: 1 / -1; }
+.sched_field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.sched_label {
+  font-family: Inter, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(252,246,236,0.85);
+  margin: 0;
+}
+.sched_req { color: #A88B5C; margin-left: 2px; }
+
+/* Inputs. Webflow adds .w-input / .w-select to real form elements and ships
+   its own margin and border defaults, so both are reset here. */
+.sched_input,
+.sched_textarea,
+.sched_panel .w-input,
+.sched_panel .w-select {
+  width: 100%;
+  font-family: Inter, sans-serif;
+  font-size: 0.9rem;
+  color: #FCF6EC;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 9px;
+  padding: 0.62rem 0.85rem;
+  margin: 0;
+  height: auto;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.sched_textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.55;
+}
+.sched_input::placeholder,
+.sched_textarea::placeholder { color: rgba(252,246,236,0.45); }
+.sched_input:focus,
+.sched_textarea:focus,
+.sched_panel .w-input:focus,
+.sched_panel .w-select:focus {
+  outline: none;
+  border-color: #A88B5C;
+  background: rgba(255,255,255,0.14);
+  box-shadow: 0 0 0 3px rgba(168,139,92,0.25);
+}
+/* Autofill repaints the field white in Chrome, which would blow a hole in the
+   dark panel. There is no way to set the background directly, so an inset
+   shadow the size of the field stands in for it. */
+.sched_input:-webkit-autofill,
+.sched_input:-webkit-autofill:hover,
+.sched_input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #FCF6EC;
+  -webkit-box-shadow: 0 0 0 1000px #202F4A inset;
+  caret-color: #FCF6EC;
+}
+
+/* ----- 2d · radio groups as chips ---------------------------------------- */
+/* These are REAL Webflow radios, so Webflow may render a decorative
+   div.w-radio-input alongside the actual input. Hide the div only — the
+   element selector keeps input.w-radio-input (the non-custom case) visible. */
+.sched_radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.6rem;
+  margin-top: 0.1rem;
+}
+.sched_chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+.sched_radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 9px;
+  font-family: Inter, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: rgba(252,246,236,0.85);
+  cursor: pointer;
+  margin: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+.sched_radio:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.30);
+}
+.sched_radio:has(input:checked) {
+  border-color: #A88B5C;
+  background: rgba(168,139,92,0.18);
+  color: #FCF6EC;
+}
+.sched_radio div.w-radio-input { display: none !important; }
+.sched_radio input[type="radio"] {
+  opacity: 1 !important;
+  position: static !important;
+  z-index: auto !important;
+  accent-color: #A88B5C;
+  width: 1rem !important;
+  height: 1rem !important;
+  min-width: 1rem;
+  margin: 0 !important;
+  flex: none;
+}
+/* Keyboard focus has to be visible on the chip, not the 16px input. */
+.sched_radio:focus-within {
+  border-color: #A88B5C;
+  box-shadow: 0 0 0 3px rgba(168,139,92,0.25);
+}
+
+.sched_helper {
+  font-family: Inter, sans-serif;
+  font-size: 0.74rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: rgba(252,246,236,0.55);
+  margin-top: 0.35rem;
+}
+.sched_consent {
+  font-family: Inter, sans-serif;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: rgba(252,246,236,0.5);
+  margin: 0;
+  text-align: center;
+}
+
+/* ----- 2e · submit ------------------------------------------------------- */
+/* The global .button fill-sweep in code.css runs on a ::before, which an
+   <input type="submit"> cannot render. Same solution as the homepage form:
+   a background layer grown 0 to 100% on hover reproduces the wipe exactly. */
+.sched_grid .button,
+.sched_grid .w-button {
+  width: 100%;
+  text-align: center;
+  margin-top: 0.35rem;
+  background-image: linear-gradient(90deg, #6f1824, #6f1824);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 0% 100%;
+  transition: background-size 0.4s cubic-bezier(0.5,0,0.2,1), transform 0.2s ease;
+}
+.sched_grid .button:hover,
+.sched_grid .button:focus-visible {
+  background-size: 100% 100%;
+  transform: translateY(-1px);
+}
+
+/* ----- 2f · success + error states --------------------------------------- */
+/* Webflow's default success block is a single line, so without a minimum the
+   panel would collapse from full height to almost nothing on submit. */
+.sched_panel .w-form-done {
+  padding: 2.5rem 1.75rem;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.sched_panel .w-form-fail {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 9px;
+  background: rgba(137,30,45,0.22);
+  border: 1px solid rgba(137,30,45,0.55);
+  color: #FCF6EC;
+  font-family: Inter, sans-serif;
+  font-size: 0.88rem;
+}
+.sched_done::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: 0 auto 1.6rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+}
+.sched_done-heading {
+  font-family: "Lora", serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #FCF6EC;
+  margin-bottom: 0.8rem;
+}
+.sched_done-text {
+  font-family: Inter, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(252,246,236,0.82);
+  max-width: 40ch;
+  margin: 0 auto 1rem;
+}
+.sched_done-note {
+  font-family: Inter, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #A88B5C;
+  margin-bottom: 1.9rem;
+}
+.sched_done-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  justify-content: center;
+}
+.sched_done-link {
+  font-family: Inter, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #FCF6EC;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(168,139,92,0.5);
+  padding-bottom: 2px;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.sched_done-link:hover { color: #A88B5C; border-bottom-color: #A88B5C; }
+
+/* ===== 3 · WHAT HAPPENS NEXT (light) ===================================== */
+.section_schedule-next {
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+}
+.sched-next_head { max-width: 40rem; margin-bottom: 2.75rem; }
+.sched-next_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.sched-step {
+  position: relative;
+  padding: 1.9rem 1.75rem;
+  border-radius: 14px;
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.28);
+  border-top-color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 28px rgba(26,40,64,0.10), 0 2px 6px rgba(26,40,64,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.sched-step_num {
+  font-family: "Lora", serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(168,139,92,0.45);
+  margin-bottom: 0.9rem;
+}
+.sched-step_title {
+  font-family: "Lora", serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1A2840;
+  margin-bottom: 0.55rem;
+}
+.sched-step_text {
+  font-family: Inter, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4A5470;
+}
+
+/* ===== 4 · ROUTING CARDS (light) ========================================= */
+.section_schedule-help {
+  padding-top: 0;
+  padding-bottom: 5.5rem;
+}
+.sched-help_head { max-width: 42rem; margin-bottom: 2.25rem; }
+.sched-help_lead {
+  margin: 0.9rem 0 0;
+  font-family: Inter, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: #4A5470;
+}
+.sched-help_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+.sched-help_card {
+  display: block;
+  padding: 1.65rem 1.6rem;
+  border-radius: 14px;
+  text-decoration: none;
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.28);
+  border-top-color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 28px rgba(26,40,64,0.10), 0 2px 6px rgba(26,40,64,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: transform 0.35s cubic-bezier(0.5,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.sched-help_title {
+  font-family: "Lora", serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1A2840;
+  margin-bottom: 0.5rem;
+}
+.sched-help_text {
+  font-family: Inter, sans-serif;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: #4A5470;
+  margin-bottom: 1rem;
+}
+.sched-help_more {
+  font-family: Inter, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #891E2D;
+}
+/* Literal arrow glyph, never a CSS unicode escape — an escape written through
+   a Python heredoc becomes an octal escape and emits garbage. */
+.sched-help_more::after {
+  content: " →";
+  transition: transform 0.25s ease;
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sched-step:hover,
+  .sched-help_card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 44px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08), inset 0 1px 0 rgba(255,255,255,0.95);
+    border-color: rgba(168,139,92,0.55);
+  }
+  .sched-help_card:hover .sched-help_more::after { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sched-step,
+  .sched-help_card,
+  .sched_grid .button,
+  .sched_radio,
+  .sched_input { transition: none; }
+}
+
+/* ===== 5 · RESPONSIVE ==================================================== */
+/* The chip grid is the tightest thing on the page: twelve options, the longest
+   of which is "Green Card / Permanent Residence". Three across needs the full
+   panel width, so it steps down before the layout does. Spanish runs longer
+   than English, so these breakpoints carry deliberate headroom. */
+@media (max-width: 1199px) {
+  .sched_layout { grid-template-columns: 0.8fr 1fr; gap: 2.5rem; }
+  .sched_chip-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 991px) {
+  .section_schedule-hero { padding-top: 3.5rem; padding-bottom: 3rem; }
+  .sched_layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  /* Rail moves BELOW the form on tablet and phone: the form is why someone is
+     on this page, and the rail is the alternative route for people who would
+     rather not use it. */
+  .sched_rail { order: 2; }
+  .sched_panel { order: 1; }
+  .sched-next_grid { grid-template-columns: 1fr; }
+  .sched-help_grid { grid-template-columns: 1fr; }
+  .sched-assure { grid-template-columns: 1fr; gap: 1.25rem; }
+  .sched-assure_item {
+    padding: 0 0 1.25rem;
+    border-left: 0;
+    border-bottom: 1px solid rgba(26,40,64,0.12);
+  }
+  .sched-assure_item:last-child { padding-bottom: 0; border-bottom: 0; }
+}
+@media (max-width: 767px) {
+  .sched_grid { grid-template-columns: 1fr; }
+  .sched_chip-grid { grid-template-columns: 1fr; }
+  .sched_panel { padding: 1.5rem 1.25rem; }
+  .sched_panel .w-form-done { min-height: 340px; padding: 2rem 1.25rem; }
+  .section_schedule-form { padding-top: 3rem; padding-bottom: 3rem; }
+  .section_schedule-next { padding-top: 3.25rem; padding-bottom: 3.25rem; }
+  .section_schedule-help { padding-bottom: 4rem; }
+  .sched_rail-phone { font-size: 1.4rem; }
+}
