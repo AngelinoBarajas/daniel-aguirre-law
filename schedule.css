@@ -1,4 +1,4 @@
-/* SCHEDULE-CSS-VERSION: 2026-09-21.3 */
+/* SCHEDULE-CSS-VERSION: 2026-09-21.4 */
 /* ===========================================================================
    /schedule-consultation — page stylesheet
    Deployed via jsDelivr as schedule.css, linked from the page's Inside <head>.
@@ -277,6 +277,14 @@
   cursor: pointer;
   margin: 0;
   transition: border-color 0.15s, background 0.15s;
+  /* A flex item will not shrink below its max-content width by default, so a
+     long label overflows its container rather than wrapping. That is exactly
+     how "Deportation Defense in Immigration Court" escaped its card by 57px on
+     the expertise hub. At 375px the longest chip here already measures 290px in
+     a 301px field, and Spanish runs longer — so clamp it.
+     [[lesson_reading-measure-class-must-not-wrap-ui]] */
+  max-width: 100%;
+  min-width: 0;
 }
 .sched_radio:hover {
   background: rgba(255,255,255,0.14);
