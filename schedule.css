@@ -1,4 +1,4 @@
-/* SCHEDULE-CSS-VERSION: 2026-09-21.2 */
+/* SCHEDULE-CSS-VERSION: 2026-09-21.3 */
 /* ===========================================================================
    /schedule-consultation — page stylesheet
    Deployed via jsDelivr as schedule.css, linked from the page's Inside <head>.
@@ -205,8 +205,19 @@
   resize: vertical;
   line-height: 1.55;
 }
-.sched_input::placeholder,
-.sched_textarea::placeholder { color: rgba(252,246,236,0.45); }
+/* 🚩 Webflow ships EVERY new text input with placeholder="Example text", and the
+   placeholder property is not writable through the MCP — set_settings returns
+   "Setting placeholder is not applicable to this element", and set_attributes
+   errors outright on form inputs. So the junk string cannot be removed
+   headlessly, and it rendered on all five fields until a screenshot caught it.
+   Every field here carries a visible label, so a placeholder is redundant; it is
+   hidden rather than left reading "Example text".
+   To use real placeholders instead (e.g. "(000) 000-0000" on Phone), set them in
+   the Designer and delete this rule — the colour rule below it is what they
+   should then use. */
+.sched_panel ::placeholder { color: transparent; }
+.sched_panel :-ms-input-placeholder { color: transparent; }
+.sched_panel ::-ms-input-placeholder { color: transparent; }
 .sched_input:focus,
 .sched_textarea:focus,
 .sched_panel .w-input:focus,
