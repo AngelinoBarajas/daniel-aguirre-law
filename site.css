@@ -1,5 +1,4 @@
-
-/* CODE-CSS-VERSION: 2026-09-20.5  (Team Teaser names centre properly) */
+/* CODE-CSS-VERSION: 2026-09-21.1  (FAQ accordion promoted site-wide + smooth open/close) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1477,4 +1476,141 @@ html.lenis, html.lenis body { height: auto; }
   }
   .team-teaser_person { flex: 0 1 140px; }
   .team-teaser_head { margin-bottom: 1.75rem; }
+}
+
+/* ===== FAQ ACCORDION - canonical skin, SITE-WIDE (2026-09-21) =============
+   Promoted here because .faq_* is used on 13+ pages and its skin had been
+   duplicated across THREE page stylesheets - resources-page.css (12 rules),
+   practice-areas-page.css (23) and hubs-page.css (8) - with ZERO rules in this
+   file. The three copies had already drifted into three different accordions:
+   a maroon caret on /resources, a tan +/- on the hubs, and a two-bar plus with
+   a sliding accent rail on the practice-area template. Same classes, three
+   looks. That is the layout253 lesson again.
+   [[lesson_componentized-section-needs-sitewide-css]]
+
+   THREE DOM SHAPES share these classes and every rule below has to survive all
+   three. Do not assume the markup:
+
+     /resources       <details class="glass faq_item">
+                        <summary class="faq_question">
+                          <div class="faq_question-text">
+                        <div class="faq_answer-inner">
+
+     hubs (x2)        same, but the text sits DIRECTLY in the summary with no
+                      .faq_question-text wrapper, and the class is doubled
+                      ("faq_question faq_question")
+
+     practice areas   NOT a <details>. A div toggled by the __daFaq script,
+     (x11 pages)      which adds .is-open and animates max-height on an extra
+                      .faq_answer wrapper. Carries a real .faq_plus element.
+
+   The BOX (14px radius, cream glass gradient, 21.6/25.6 summary padding,
+   .faq_answer-inner padding) already comes from .glass plus Webflow classes
+   and is identical on all three - verified by computed style. Only these
+   extras diverged, so only these are unified here. */
+
+/* 1 - one marker everywhere.
+   The practice-area template has a real .faq_plus DIV; the details pages have
+   no marker element. Rather than style two different things, .faq_plus is
+   hidden and the caret is drawn with ::after on the question in all three
+   cases. .faq_plus is then an empty hidden div - harmless, and worth deleting
+   from the template next time that page is open.
+   LITERAL glyph, never a CSS unicode escape: an escape written through a
+   Python heredoc becomes an OCTAL escape and emits garbage.
+   [[lesson_css-escapes-through-python-heredocs]] */
+.faq_question { list-style: none; -webkit-tap-highlight-color: transparent; }
+.faq_question::-webkit-details-marker { display: none; }
+.faq_plus { display: none; }
+.faq_question::after {
+  content: "▾";
+  flex: none;
+  margin-left: 1rem;
+  color: #891E2D;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: transform 220ms ease;
+}
+.faq_item[open] > .faq_question::after,
+.faq_item.is-open .faq_question::after { transform: rotate(180deg); }
+
+/* 2 - question type.
+   /resources and the practice areas carry .faq_question-text (Inter 600, navy,
+   from a Webflow class). The hubs do not, so their summary text would fall back
+   to the 16px black .faq_question default and read as a different component.
+   :not(:has()) gives the bare-text case the same type WITHOUT touching markup. */
+.faq_question:not(:has(.faq_question-text)) {
+  font-family: Inter, sans-serif;
+  font-weight: 600;
+  font-size: 1.14rem;
+  line-height: 1.5;
+  color: #1A2840;
+}
+
+/* 3 - states: the /resources treatment, which is what is being standardised on */
+.faq_item { transition: border-color .35s ease, box-shadow .35s ease; }
+.faq_question:hover { background-color: rgba(26,40,64,0.03); }
+.faq_item:hover { border-color: rgba(168,139,92,0.35); }
+.faq_item[open],
+.faq_item.is-open { border-color: rgba(168,139,92,0.50); }
+.faq_question-text { transition: color .3s ease; }
+.faq_item:hover .faq_question-text,
+.faq_item[open] .faq_question-text,
+.faq_item.is-open .faq_question-text { color: #0F1B30; }
+.faq_question:focus-visible { outline: 2px solid #A88B5C; outline-offset: -2px; }
+.faq_item[open] > .faq_question,
+.faq_item.is-open .faq_question { padding-bottom: 0.9rem; }
+
+/* 4 - answer typography, previously defined only on the practice-area pages */
+.faq_answer-inner p {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #4A5470;
+}
+.faq_answer-inner p:last-child { margin-bottom: 0; }
+
+/* 5 - SMOOTH OPEN / CLOSE ------------------------------------------------
+   Two mechanisms, both deliberately kept: converting the practice-area
+   template to <details> would mean restructuring a CMS Collection List item,
+   and the details pages are JS-free ON PURPOSE to stay clear of Lenis/GSAP.
+   [[lesson_details-element-js-free-disclosure]]
+   Both are therefore animated to the SAME duration and curve so they feel
+   identical from page to page.
+
+   (a) native <details>. A <details> cannot transition height normally, because
+   its content is not rendered at all while closed. ::details-content plus
+   interpolate-size is what makes height:auto interpolable. */
+.faq_item,
+.expertise_term { interpolate-size: allow-keywords; }
+@supports selector(::details-content) {
+  .faq_item::details-content,
+  .expertise_term::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size .32s cubic-bezier(.4,0,.2,1),
+                content-visibility .32s allow-discrete;
+  }
+  .faq_item[open]::details-content,
+  .expertise_term[open]::details-content { block-size: auto; }
+}
+/* interpolate-size is scoped to the accordions rather than :root on purpose -
+   on :root it would quietly make every keyword size on the site interpolable.
+   Browsers without ::details-content just open instantly, exactly as today:
+   an enhancement, never a regression. */
+
+/* (b) the practice-area script sets max-height on .faq_answer. Matching curve.
+   The opacity fade is scoped INSIDE .faq_answer, which exists only in that
+   markup - unscoped, `opacity: 0` would permanently HIDE the answers on
+   /resources and the hubs, which have no .is-open class to turn it back on. */
+.faq_answer { transition: max-height .32s cubic-bezier(.4,0,.2,1); }
+.faq_answer .faq_answer-inner { opacity: 0; transition: opacity .28s ease .04s; }
+.faq_item.is-open .faq_answer .faq_answer-inner { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .faq_question::after,
+  .faq_item,
+  .faq_answer,
+  .faq_question-text { transition: none; }
+  .faq_answer .faq_answer-inner { opacity: 1; transition: none; }
 }
