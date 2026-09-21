@@ -1,0 +1,78 @@
+/* ===== /resources — Insights library + FAQ hub =========================
+   Page-level CSS ONLY. Box styling lives in real Webflow classes, most of
+   them REUSED from the topic template (.topic_read-card, .topic_reading-grid)
+   and the practice-area FAQ (.faq_item, .faq_question, .faq_answer-inner).
+   Mirrored at code backup/daniel-aguirre/resources-page.css
+   ---------------------------------------------------------------------- */
+
+/* --- Collection List plumbing -----------------------------------------
+   Eight lists feed this page: one Insights library plus one per FAQ
+   category. The wrappers must vanish so cards and accordions are direct
+   children of the grid / flex column. .w-dyn-item MUST be included. */
+.topic_reading-grid .w-dyn-list,
+.topic_reading-grid .w-dyn-items,
+.topic_reading-grid .w-dyn-item,
+.faq_list .w-dyn-list,
+.faq_list .w-dyn-items,
+.faq_list .w-dyn-item { display: contents; }
+
+.topic_reading-grid .w-dyn-empty,
+.faq_list .w-dyn-empty { display: none; }
+
+/* A category with no questions hides itself, heading and all. "General" is
+   empty today; add questions to it and the block appears on its own with no
+   code change. This is why all seven categories are built rather than six.
+   A hidden grid item claims no cell, so this is safe inside .faq_groups. */
+.faq_group:has(.w-dyn-empty) { display: none; }
+
+/* --- FAQ category column (2026-09-19) ---------------------------------
+   The seven groups used to sit in .topic_body-inner, `max-width: 46rem` —
+   a prose READING MEASURE borrowed for what is actually UI. Replaced with
+   .faq_groups, which owns its width explicitly instead of inheriting a
+   body-copy constraint by accident.
+
+   Tried as a two-column grid first and reverted: with 7 questions in one
+   category and 10 in the next, a grid row is as tall as its taller cell, so
+   the shorter category always left a gap under it. Stacked reads cleaner.
+
+   The width stays bounded on purpose. Stacked at the container's full
+   1280px each bar would be roughly 17:1, far stubbier than it is now.
+   46rem keeps the bar proportion; the column is centred via auto margins
+   on .faq_groups.
+
+   The section HEADING is centred with it. A 736px column centred under a
+   left-aligned h2 reads as broken, and the practice-area FAQ — the site's
+   other FAQ surface — already centres its heading block, so this matches. */
+.section_resources-faq [class*="heading-style"] { text-align: center; }
+
+/* --- FAQ accordion ----------------------------------------------------
+   MOVED TO SITE-WIDE code.css on 2026-09-21. The caret, hover, open and
+   focus states that used to live here were one of THREE drifted copies of
+   the same component (the hubs and the practice-area template had the other
+   two, each with a different marker). They are now defined once, under
+   "FAQ ACCORDION - canonical skin", together with the smooth open/close.
+
+   Nothing FAQ-visual belongs in this file any more: page CSS loads after
+   code.css, so a rule added back here would silently win and re-fork the
+   component. Only the Collection List plumbing and the column width above
+   are page-specific and stay. */
+
+/* --- Insight cards ----------------------------------------------------- */
+.topic_read-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(168,139,92,0.45);
+}
+
+/* --- responsive -------------------------------------------------------- */
+@media screen and (max-width: 991px) {
+  .topic_reading-grid { grid-template-columns: 1fr 1fr; }
+  .section_resources-hero { padding-top: 6.5rem; }
+}
+@media screen and (max-width: 767px) {
+  .topic_reading-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* the FAQ caret's reduced-motion rule moved to code.css with the rest of it */
+  .topic_read-card:hover { transform: none; }
+}
