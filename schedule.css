@@ -1,4 +1,4 @@
-/* SCHEDULE-CSS-VERSION: 2026-09-21.1 */
+/* SCHEDULE-CSS-VERSION: 2026-09-21.2 */
 /* ===========================================================================
    /schedule-consultation — page stylesheet
    Deployed via jsDelivr as schedule.css, linked from the page's Inside <head>.
@@ -237,9 +237,17 @@
   gap: 0.5rem 0.6rem;
   margin-top: 0.1rem;
 }
+/* The twelve situation options pack as a chip cloud, NOT a fixed grid. A
+   3-column grid was tried first and measured badly: "Green Card / Permanent
+   Residence" and "Family or Marriage Visa" wrap at a 189px track, and because
+   grid rows stretch to their tallest cell the entire first row went to 75px
+   against 37px for the rest. Letting each chip take its own width keeps every
+   one on a single line and every row the same height, and it is the same
+   flex-wrap idiom as the other radio rows on this page. It also absorbs the
+   longer Spanish labels without a breakpoint change. */
 .sched_chip-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.1rem;
 }
@@ -522,7 +530,6 @@
    than English, so these breakpoints carry deliberate headroom. */
 @media (max-width: 1199px) {
   .sched_layout { grid-template-columns: 0.8fr 1fr; gap: 2.5rem; }
-  .sched_chip-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 991px) {
   .section_schedule-hero { padding-top: 3.5rem; padding-bottom: 3rem; }
@@ -544,7 +551,6 @@
 }
 @media (max-width: 767px) {
   .sched_grid { grid-template-columns: 1fr; }
-  .sched_chip-grid { grid-template-columns: 1fr; }
   .sched_panel { padding: 1.5rem 1.25rem; }
   .sched_panel .w-form-done { min-height: 340px; padding: 2rem 1.25rem; }
   .section_schedule-form { padding-top: 3rem; padding-bottom: 3rem; }
