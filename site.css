@@ -1,5 +1,5 @@
 
-/* CODE-CSS-VERSION: 2026-09-20.1  (article rail: On This Page jump list + reading time) */
+/* CODE-CSS-VERSION: 2026-09-20.2  (hub click-through in the mega menu; dead footer15 block removed) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -733,52 +733,6 @@ html.lenis, html.lenis body { height: auto; }
 .navbar8_component .es-embed-root { background: rgba(255,255,255,0.55); border: 1px solid rgba(168,139,92,0.30); border-radius: 100px; padding: 0.3rem 0.6rem; transition: background 0.15s ease, border-color 0.15s ease; }
 .navbar8_component .es-embed-root:hover { background: rgba(255,255,255,0.85); border-color: rgba(168,139,92,0.55); }
 
-/* ===== Footer15 — dark navy (site-wide) =====
-   Relume footer15 ships transparent + black/maroon text (reads light on the cream page).
-   Make it a dark band matching the layout408 navy panels. Scoped to .footer15_component so
-   it beats Relume base classes with no !important. Designer does: dark bg on the BASE (flat
-   navy fallback), swap .footer15_logo to the LIGHT svg, delete the .footer15_image placeholder,
-   real content. CSS does the on-dark recolor, link hovers, divider fix, gradient + hairline. */
-.footer15_component {
-  position: relative;
-  background: linear-gradient(160deg, #1E2C46, #16223A);   /* same opaque navy as layout408 (nothing behind to blur → not glass) */
-  color: #FCF6EC;
-}
-/* Top separator hairline — reads as its own band under the section above */
-.footer15_component::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(168,139,92,0.35), transparent);
-}
-/* On-dark body text → cream */
-.footer15_component .footer15_details-wrapper,
-.footer15_component .footer15_credit-text { color: rgba(252,246,236,0.80); }
-/* The "Address:" / "Contact:" semibold labels → tan eyebrows */
-.footer15_component .footer15_details-wrapper .text-weight-semibold { color: #A88B5C; letter-spacing: 0.02em; }
-
-/* Links: cream → tan on hover (replaces the maroon Relume default, unreadable on navy) */
-.footer15_component a,
-.footer15_component .footer15_link,
-.footer15_component .footer15_legal-link {
-  color: #FCF6EC; text-decoration: none; transition: color 0.2s ease;
-}
-.footer15_component a:hover,
-.footer15_component .footer15_link:hover,
-.footer15_component .footer15_legal-link:hover { color: #A88B5C; }
-
-/* Main menu links get a tan underline reveal (navbar language, left-origin for the footer list) */
-.footer15_component .footer15_link { position: relative; display: inline-block; padding-bottom: 2px; }
-.footer15_component .footer15_link::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-  background: #A88B5C; transform: scaleX(0); transform-origin: left; transition: transform 0.28s ease;
-}
-.footer15_component .footer15_link:hover::after { transform: scaleX(1); }
-
-/* Fix Relume's broken divider (undefined color-scheme var → 0 height / transparent) */
-.footer15_component .divider-horizontal {
-  height: 1px; border: 0;
-  background: linear-gradient(90deg, transparent, rgba(168,139,92,0.30), rgba(252,246,236,0.14), rgba(168,139,92,0.30), transparent);
-}
-
 /* ===== Kickers / taglines — SITE-WIDE =====
    One system for both kicker classes: ALWAYS uppercase, NAVY on light grounds,
    TAN/gold on dark. Relume's `.text-style-tagline` shipped black + sentence case;
@@ -853,10 +807,6 @@ html.lenis, html.lenis body { height: auto; }
 .section_layout253 .button.is-link { color: #FCF6EC; }
 .section_layout253 .button.is-link::before { display: none; }
 .section_layout253 .button.is-link:hover { color: #A88B5C; }
-
-@media (prefers-reduced-motion: reduce) {
-  .footer15_component .footer15_link::after { transition: none; }
-}
 
 /* ===== 4K / ultrawide scaling (≥1921px) =====
    Tune the per-section overrides per project; the html font-size + container/padding
@@ -1395,3 +1345,46 @@ html.lenis, html.lenis body { height: auto; }
   .insight_toc-link { transition: none; }
 }
 
+
+/* ===== Category-hub click-through on the mega-menu labels (2026-09-20) =====
+   "Immigration" and "Humanitarian" are Webflow DropdownToggles, not links, so
+   until now they could not reach the two category hubs at all. The label inside
+   each toggle is now a real <a class="nav_hub-link">, and that is the whole
+   desktop mechanism: hover still opens the panel, because hover bubbles from the
+   child up to the toggle, and clicking the label navigates.
+
+   BELOW 992px the label is made transparent to pointer events, so the tap falls
+   straight through to the toggle and the mobile accordion still expands - the
+   behaviour that was chosen deliberately over turning these into plain links,
+   which would have cost the 20-service dropdown approved in August. On mobile
+   the hub is reached instead through the "View all ..." row that now leads each
+   panel. No JavaScript is involved in any of it. */
+.navbar8_component .navbar8_dropdown-toggle .nav_hub-link {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: none;          /* mobile: let the tap reach the toggle */
+}
+@media screen and (min-width: 992px) {
+  .navbar8_component .navbar8_dropdown-toggle .nav_hub-link { pointer-events: auto; }
+}
+
+/* The "View all ..." row leading each mega panel. .navbar8_dropdown-content is a
+   flex ROW, so the row only sits above the columns once the container is allowed
+   to wrap and the link is told to claim a full line. */
+.navbar8_component .navbar8_dropdown-content { flex-wrap: wrap; }
+.navbar8_component .navbar8_dropdown-content .nav_hub-all {
+  flex: 1 0 100%;
+  display: block;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #891E2D;
+  padding: 0.85rem 0 0.8rem;
+  border-bottom: 1px solid rgba(168,139,92,0.28);
+  transition: color 0.3s ease;
+}
+.navbar8_component .navbar8_dropdown-content .nav_hub-all:hover { color: #6F1824; }
+@media (prefers-reduced-motion: reduce) {
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all { transition: none; }
+}
