@@ -647,12 +647,17 @@ html.lenis, html.lenis body { height: auto; }
 
   /* Accordion: the open row goes navy with a tan caret, matching the FAQ marker unified
      site-wide on 2026-09-21. */
+  /* VERIFIED on the rendered page 2026-09-21: inside the mobile sheet Webflow puts `w--open`
+     on the TOGGLE and the LIST, and never on the `.navbar8_menu-dropdown` WRAPPER (which gets
+     `w--nav-dropdown-open` instead, permanently, as soon as the sheet opens). The desktop rules
+     above all key off `.navbar8_menu-dropdown.w--open`, so they are inert here and the open row
+     has to be addressed through the toggle itself -- including the chevron rotation. */
   .navbar8_component .dropdown-chevron { color: #891E2D; width: 16px; height: 16px; flex: 0 0 16px; }
-  .navbar8_component .navbar8_menu-dropdown.w--open > .navbar8_dropdown-toggle {
+  .navbar8_component .navbar8_dropdown-toggle.w--open {
     background: #1A2840; color: #FCF6EC;
   }
-  .navbar8_component .navbar8_menu-dropdown.w--open > .navbar8_dropdown-toggle .dropdown-chevron {
-    color: #A88B5C;
+  .navbar8_component .navbar8_dropdown-toggle.w--open .dropdown-chevron {
+    color: #A88B5C; transform: rotate(180deg);
   }
 
   /* Accordion panel: a tan left rule instead of a card, indented under its parent row. */
@@ -814,7 +819,8 @@ html.lenis, html.lenis body { height: auto; }
   }
   .navbar8_component .nav_call-button {
     order: 2;
-    min-height: 50px; width: 100%;
+    box-sizing: border-box;    /* without it the 1px borders made this 52 against the CTA's 50 */
+    min-height: 50px; height: 50px; width: 100%;
     border-radius: 0;          /* square, like every other button on the site */
     font-size: 0.9375rem;
     display: flex; align-items: center; justify-content: center;
