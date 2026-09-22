@@ -669,19 +669,14 @@
 }
 
 /* ===== 2026-09-22 — MOBILE PASS =========================================
-   (1) THE VALUES BAND'S PHOTOGRAPH WAS TILING. Webflow's own rule ships
-       `background-size: auto, auto` with no `background-repeat`, so the photo
-       repeated across the section at its natural size. Both layers are named
-       explicitly here — the navy scrim gradient first, the photograph second
-       — so neither can ever repeat.
-       This IS Designer-expressible (Style panel > Background > Size: Cover,
-       Tile: No-repeat) and setting it there too is harmless: cover + no-repeat
-       is what this band wants whatever image is in it. */
-.section_layout253 {
-  background-repeat: no-repeat, no-repeat;
-  background-position: 50% 50%, 50% 50%;
-  background-size: cover, cover;
-}
+   ⚠ THE VALUES-BAND TILING FIX IS NOT HERE. It was briefly page-level, which was
+   wrong: .section_layout253 is the **Values COMPONENT**, instanced on /old-home,
+   /about and /reviews, so a page-level rule fixed exactly one of the three and the
+   user saw /about still tiling. Webflow ships `background-size: auto, auto` with no
+   `background-repeat`. It now lives on the WEBFLOW CLASS itself (cover / no-repeat /
+   50% 50%), which is where a Designer-expressible background belongs and which
+   reaches every instance. A component's skin never belongs in a page file.
+   [[lesson_componentized-section-needs-sitewide-css]] */
 
 /* (2) "YOUR ADVOCATE" ON TABLET AND PHONE — the headshot moves BELOW the
        description and shrinks.
@@ -699,7 +694,14 @@
        ::before, which an `overflow: hidden` box cannot show. Sizing is stated
        outright (height / padding-top / aspect-ratio) rather than left to the
        Relume `padding-top: 100%` and our `aspect-ratio` interacting. */
-@media (max-width: 991px) {
+/* SCOPED TO <=767, NOT <=991 - and that distinction is the whole rule. Webflow's
+   `medium` breakpoint keeps .layout413_content at `1fr 1fr`; only `small` collapses
+   it to one column. Running the display:contents promotion at <=991 therefore
+   CHECKERBOARDED the copy across two tablet columns - tagline left, its spacer
+   right, heading left, its spacer right - because every promoted child became a
+   grid item in a still-two-column grid. Verified broken at 768 and correct at 375.
+   Before widening this block again, read the grid's computed columns at that width. */
+@media (max-width: 767px) {
   .section_layout413 .layout413_content { grid-row-gap: 0rem; }
   .section_layout413 .layout413_content-right { display: contents; }
   .section_layout413 .layout413_content-right > * { order: 1; }
@@ -713,18 +715,23 @@
   .section_layout413 .layout413_content-right > .layout413_item-list,
   .section_layout413 .layout413_content-right > .layout413_item-list ~ * { order: 3; }
 
+  /* Sized to MATCH .founder_portrait on /about at this width, which carries the same
+     photograph: full column width capped at 26rem, 3:2, object-position 50% 20% so his
+     face stays in frame on a landscape crop. A 4:5 portrait at 17rem read as a thumbnail
+     next to the same picture on /about. */
   .section_layout413 .layout413_image-wrapper {
     width: 100% !important;          /* beats the base rule's width:auto!important */
-    max-width: 17rem;
+    max-width: 26rem;
     height: auto;
     padding-top: 0;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 2;
     margin: 0 auto 2.75rem;
     overflow: visible;               /* lets the offset mount show */
   }
   .section_layout413 .layout413_image {
     transform: none;                 /* the 1.01 bleed exists only for the clipped hover */
     border-radius: 14px;             /* the wrapper no longer clips it */
+    object-position: 50% 20%;        /* same crop as .founder_portrait-img on /about */
   }
   /* the offset mount, copied from .framed-image::before rather than re-invented */
   .section_layout413 .layout413_image-wrapper::before {
@@ -738,5 +745,7 @@
   }
 }
 @media (max-width: 479px) {
-  .section_layout413 .layout413_image-wrapper { max-width: 14rem; margin-bottom: 2.25rem; }
+  /* no max-width reduction here on purpose - the photo should read at the same scale as
+     the one on /about, which fills its column at every phone width. */
+  .section_layout413 .layout413_image-wrapper { margin-bottom: 2.25rem; }
 }
