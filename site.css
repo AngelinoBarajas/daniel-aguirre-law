@@ -663,9 +663,15 @@ html.lenis, html.lenis body { height: auto; }
   /* Accordion panel: a tan left rule instead of a card, indented under its parent row. */
   .navbar8_component .navbar8_dropdown-list {
     /* Webflow writes an INLINE `width` on this list matching .navbar8_menu-left (341px at
-       375). With the indent below that pushed the panel 13px past the sheet's right edge and
-       clipped the "View all" chip's border. Inline width only yields to !important. */
+       375), and `.w-dropdown-list` sets `min-width: 100%`. With the indent below, the panel
+       overflowed the sheet's right edge by exactly the indent and clipped the "View all"
+       chip's border. BOTH declarations are required: `min-width` FLOORS the box, so
+       overriding `width` alone changes nothing -- the documented trap that already bit the
+       docked mega-menu ("min-width: 0 is mandatory in any rule that narrows a Webflow
+       dropdown"). Symptom is diagnostic: an injected `width: auto !important` probe moves
+       the computed value not at all. */
     width: auto !important;
+    min-width: 0 !important;
     margin: 0.35rem 0 0.6rem 1.4rem;
     padding: 0 0 0 0.875rem;
     border-left: 2px solid rgba(168,139,92,0.45);
