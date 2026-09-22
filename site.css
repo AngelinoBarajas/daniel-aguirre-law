@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.6  (nav: all eight links in the bar at rest above 1460) */
+/* CODE-CSS-VERSION: 2026-09-22.7  (nav: all eight links in the bar at rest above 1440) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2028,14 +2028,13 @@ html.lenis, html.lenis body { height: auto; }
    went 106px -> 173px tall. The miss was that `Immigration` and `Humanitarian` are
    .navbar8_dropdown-toggle, NOT .navbar8_link, so the link-padding reduction never
    touched them.
-   The arithmetic that holds: available to menu-left = viewport - 15 (scrollbar)
-   - 80 (bar padding) - logo - 372 (actions). Eight links need ~756px plus ~28px of
-   inline whitespace. Tightening link padding (0.65rem), toggle padding (10px) and
-   the logo (185px) brings the requirement to ~768 and frees 20px, so 1460 leaves
-   about 40px spare and 1440 would leave ~25px - too close to the boundary to trust,
-   which is why the band is 1460 and not 1440.
-   Below 1460 nothing changes: those widths keep today's two-tier nav in BOTH states.
-   If this is wanted at 1366/1440 too, something has to give - a shorter label set, a
+   MEASURED on the rendered page, with flex applied and shrinking disabled, as the
+   gap between the last link and the actions block:
+       1500 -> 72px   1460 -> 32px   1440 -> 12px   1400 -> 0px
+   So 1440 is the last width where the row genuinely fits, and that is the band.
+   Below it nothing changes - those widths keep today's two-tier nav in BOTH states,
+   which is a real arrangement rather than a degraded one.
+   If this is ever wanted at 1366 too, something has to give: a shorter label set, a
    smaller logo, or an icon-only call button (the 992-1099 band already does that).
    This is the same graduated-band approach the 992-1199 fit range already uses.
 
@@ -2043,7 +2042,7 @@ html.lenis, html.lenis body { height: auto; }
    copies keep `display: inline-block` and collapse to zero width via max-width +
    padding instead; the strip animates its inner min-height, which it already
    transitions for the docking move. */
-@media (min-width: 1460px) {
+@media (min-width: 1440px) {
   /* The base rule is `[data-nav-secondary] { display: none !important }`, so showing
      these needs !important too - matching specificity alone would lose. */
   .navbar8_component .navbar8_menu-left > [data-nav-secondary] {
@@ -2074,6 +2073,19 @@ html.lenis, html.lenis body { height: auto; }
   }
   /* 20px back from the logo. It is 205px at rest and the wordmark keeps its ratio. */
   .navbar8_component:not(.nav-condensed) .navbar8_logo { max-width: 185px; }
+  /* THE ACTUAL CAUSE OF THE WRAP, and it is not any single width:
+     .navbar8_menu-left is display:block with inline-block children, so the gaps
+     between them are TEXT NODES - roughly 4px each, ~28px across eight items. The
+     row summed 740px into a 742px box and STILL wrapped. Flex removes that
+     whitespace entirely; `flex: 0 0 auto` then stops the labels being squeezed
+     instead of wrapped, which is what happens by default and is worse because it
+     compresses text rather than failing visibly. */
+  .navbar8_component:not(.nav-condensed) .navbar8_menu-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+  .navbar8_component:not(.nav-condensed) .navbar8_menu-left > * { flex: 0 0 auto; }
 
   /* RESTING: the navy strip becomes a thin rule and its links stand down. */
   .navbar8_component .nav-utility { overflow: hidden; }
