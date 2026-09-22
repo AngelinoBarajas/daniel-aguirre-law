@@ -703,7 +703,13 @@
   .section_layout413 .layout413_content { grid-row-gap: 0rem; }
   .section_layout413 .layout413_content-right { display: contents; }
   .section_layout413 .layout413_content-right > * { order: 1; }
-  .section_layout413 .layout413_image-wrapper { order: 2; }
+  /* !important because Webflow's Grid-Child "order" setting emits an ID rule -
+     #w-node-_837b6043-...-37a02e5e { order: 9999 } at <=767 - which is 1,0,0 and
+     beats any class selector. That rule is why the headshot was landing dead last,
+     BELOW the buttons, instead of under the description. Same family as the 0,3,0
+     navbar trap: a losing rule reads as correct and ships unstyled.
+     [[lesson_webflow-base-rules-beat-two-class-overrides]] */
+  .section_layout413 .layout413_image-wrapper { order: 2 !important; }
   .section_layout413 .layout413_content-right > .layout413_item-list,
   .section_layout413 .layout413_content-right > .layout413_item-list ~ * { order: 3; }
 
