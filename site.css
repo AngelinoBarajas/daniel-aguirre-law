@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-21.3  (mega-menu "View all" chip moves to bottom right) */
+/* CODE-CSS-VERSION: 2026-09-21.4  (mega-menu "View all" chip: own row, bottom right) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1413,9 +1413,19 @@ html.lenis, html.lenis body { height: auto; }
      first in source order where mobile needs it. The columns already fill the
      line, so an auto-width item wraps below them and margin-left:auto pushes it
      to the right edge. */
+  /* The column block is `flex: 1 1 0%`, so it SHRINKS to share the line with
+     anything beside it. Without this the chip sat alongside the columns,
+     stretched to the full 472px row height, and quietly squeezed the three
+     columns from ~427px to 314px each. Pinning the basis to 100% makes the
+     columns claim the whole line, which both pushes the chip onto its own row
+     and restores the column widths the panel had before the chip existed. */
+  .navbar8_component .navbar8_dropdown-content > .navbar8_dropdown-content-left {
+    flex: 1 0 100%;
+  }
   .navbar8_component .navbar8_dropdown-content .nav_hub-all {
     order: 1;
     flex: 0 0 auto;
+    align-self: flex-end;
     display: inline-flex;
     align-items: center;
     margin-left: auto;
