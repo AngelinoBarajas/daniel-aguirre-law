@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.2  (mega-menu View all chip clears the panel bottom edge) */
+/* CODE-CSS-VERSION: 2026-09-22.3  (article meta strip moves above the body on mobile) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1461,10 +1461,39 @@ html.lenis, html.lenis body { height: auto; }
 .insight_rail-block:has(.insight_rail-value.w-dyn-bind-empty) { display: none; }
 
 @media screen and (max-width: 991px) {
-  /* Below the two-column breakpoint the rail stops being a rail: it unsticks and
-     sits under the article as a plain metadata footer. */
-  .insight_layout { grid-template-columns: minmax(0, 1fr); }
-  .insight_rail { position: static; top: auto; }
+  /* Below the two-column breakpoint the rail stops being a rail. It unsticks and
+     moves ABOVE the article as a compact metadata strip - theme, reading time and
+     last-updated are what you want BEFORE deciding to read, not after finishing.
+     `order: -1` reorders the grid item, so the DOM stays body-then-rail and the
+     article itself is still first for a screen reader.
+     Each block goes label-and-value on ONE line: three stacked pairs cost ~60px,
+     where three side-by-side columns do not fit 343px once "Citizenship &
+     Naturalization" is in one of them.
+     On This Page stays `display: none` here, set by the Webflow class - a jump list
+     is only worth its height on a viewport where the rail can stay in view. */
+  .insight_layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-row-gap: 1.75rem;              /* was 48px, which orphaned the strip */
+  }
+  .insight_rail {
+    position: static;
+    top: auto;
+    order: -1;
+    padding-bottom: 1.15rem;
+    border-bottom: 1px solid rgba(168,139,92,0.30);
+  }
+  .insight_rail .insight_rail-block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    margin-bottom: 0.4rem;
+  }
+  .insight_rail .insight_rail-block:last-child { margin-bottom: 0; }
+  .insight_rail .insight_rail-label {
+    flex: 0 0 auto;
+    margin-bottom: 0;                   /* was 8px, for the stacked rail */
+  }
+  .insight_rail .insight_rail-value { margin-bottom: 0; }
 }
 
 /* ===== Closing CTA — PROMOTED from practice-areas-page.css ===================
