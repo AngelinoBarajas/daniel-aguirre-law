@@ -150,11 +150,31 @@
    the content's doing and not a defect. The pill radius, colours and the open-term
    behaviour are all unchanged. */
 @media (max-width: 479px) {
+  /* TWO COLUMNS, not a wrapping pill cloud. Scaling the chips down was not enough on its
+     own: after the scale the terms still ran 142-219px against a 313px row, so two of them
+     summed just over the line and all but one pair still took a row each. A 2-track grid
+     makes the outcome structural rather than arithmetic -- every term gets half the row
+     whatever its length, and a long label wraps inside its own pill instead of claiming
+     the whole width.
+     `align-items: start` keeps a 2-line term from stretching its 1-line neighbour, and an
+     OPEN term still claims a full row (grid-column, replacing the flex-basis rule above,
+     which does not apply to a grid item). */
   .facet-col { padding: 14px; }
-  .chip-row { gap: 7px; }
+  .chip-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 7px;
+  }
+  .expertise_term { max-width: none; min-width: 0; }
+  .expertise_term[open] { grid-column: 1 / -1; }
   .expertise_term > summary {
     font-size: 0.8rem;
-    padding: 7px 11px;
+    padding: 8px 12px;
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
   }
-  .expertise_term > summary::after { margin-left: 5px; }
+  .expertise_term > summary > div { white-space: normal; }
+  .expertise_term > summary::after { margin-left: 6px; flex: 0 0 auto; }
 }
