@@ -1,3 +1,4 @@
+
 /* ===== CATEGORY HUBS — /immigration and /humanitarian ====================
    ONE stylesheet, linked from BOTH hub pages. Edit once, both pages change.
    Mirrored locally at code backup/daniel-aguirre/hubs-page.css and served
@@ -290,3 +291,9 @@
   .hub-svc_row { flex-direction: column; gap: 0.15rem; }
   .hub-svc_k { width: auto; padding-top: 0; }
 }
+
+/* 2026-09-22 — room above the two CTA rows added to both hubs: the consultation
+   pair at the end of the dark "Not Sure Which One Is Yours?" router, and the
+   "Browse all resources" button under Related Reading. */
+.section_hub-router .button-row,
+.section_hub-reading .button-row { margin-top: 2.75rem; }
