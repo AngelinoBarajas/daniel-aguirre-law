@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.8  (nav: eight links at rest; condensed falls back to the base hide) */
+/* CODE-CSS-VERSION: 2026-09-22.9  (nav: strip links keyed explicitly to .nav-condensed) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2089,9 +2089,14 @@ html.lenis, html.lenis body { height: auto; }
     opacity: 0;
     pointer-events: none;
   }
-  .navbar8_component .nav-utility_links {
+  /* Stated against .nav-condensed EXPLICITLY rather than as a base rule the :not()
+     above overrides. As a base rule it measured opacity 0 in the condensed state -
+     something earlier in this file also targets .nav-utility_links - and an empty
+     navy strip on scroll would have been worse than not doing this at all. */
+  .navbar8_component.nav-condensed .nav-utility_links {
     max-height: 3rem;
     opacity: 1;
+    pointer-events: auto;
     transition: opacity 0.3s ease 0.15s,
                 max-height 0.45s cubic-bezier(0.5,0,0.2,1);
   }
