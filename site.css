@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-21.1  (FAQ accordion promoted site-wide + smooth open/close) */
+/* CODE-CSS-VERSION: 2026-09-21.2  (FAQ accordion site-wide; reduced-motion covers ::details-content) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1613,4 +1613,10 @@ html.lenis, html.lenis body { height: auto; }
   .faq_answer,
   .faq_question-text { transition: none; }
   .faq_answer .faq_answer-inner { opacity: 1; transition: none; }
+  /* the height animation has to be listed separately - ::details-content is a
+     pseudo-element that `*, *::before, *::after` does not reach, so it is easy
+     to miss. Without this the accordion still animated for readers who asked
+     for no motion, which is the one convention this site keeps everywhere. */
+  .faq_item::details-content,
+  .expertise_term::details-content { transition: none; }
 }
