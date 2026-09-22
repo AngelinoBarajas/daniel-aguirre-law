@@ -138,3 +138,23 @@
 @media (prefers-reduced-motion: reduce) {
   .expertise_term > summary::after { transition: none; }
 }
+
+/* ===== Phone: let short terms SHARE a row (2026-09-22) ============================
+   At 375 every term sat on its own line. Cause was arithmetic, not layout: .chip-row is
+   already `flex-wrap: wrap`, but it is only 296px wide (343 card minus 22.4px padding a
+   side) while the chips run 174-265px at 15px/16px padding -- so no two could ever pair.
+   Two changes together, because either alone still fails to fit a pair:
+     - the card's padding drops 22.4 -> 14px, taking the row 296 -> ~315px;
+     - the chip scales to 12.8px text on 7/11px padding, ~44 -> ~31px tall.
+   The longest labels ("Crime & Trafficking Survivors") still take a full row, which is
+   the content's doing and not a defect. The pill radius, colours and the open-term
+   behaviour are all unchanged. */
+@media (max-width: 479px) {
+  .facet-col { padding: 14px; }
+  .chip-row { gap: 7px; }
+  .expertise_term > summary {
+    font-size: 0.8rem;
+    padding: 7px 11px;
+  }
+  .expertise_term > summary::after { margin-left: 5px; }
+}
