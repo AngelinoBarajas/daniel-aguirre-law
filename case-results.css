@@ -197,3 +197,25 @@
   .results-area_all::after,
   .results-area_all:hover::after { transition: none; transform: none; }
 }
+
+/* ===== 2026-09-22 (later) — THE MAP SECTION READS AS ONE UNIT =================
+   (1) "Explore the Case Map" and its sub were left-aligned against a 672px measure
+       while the map below them ran the full 1280px container, so the heading hung
+       off the top-left corner of a very wide object. Centred over the map instead.
+   (2) The map box was 1280 x 826 at aspect 1.55, which pushed the FILTER CHIPS to
+       y=1785 - below the fold on a 900px viewport, so the one control the section
+       tells you to use ("or filter by the kind of case") was invisible until you
+       scrolled past the map. Capping the canvas at 60rem takes it to roughly
+       960 x 619 and brings the chips up with it.
+   ⚠ Scoped to .section_results-map on purpose: `.case-map` is SITE-WIDE and the
+   same engine renders on /old-home and /reviews, which are not being changed. */
+.section_results-map .results-map_head {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+.section_results-map .case-map_canvas-wrap {
+  max-width: 60rem;
+  margin-left: auto;
+  margin-right: auto;
+}
