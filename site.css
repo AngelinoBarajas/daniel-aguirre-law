@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.3  (article meta strip moves above the body on mobile) */
+/* CODE-CSS-VERSION: 2026-09-22.4  (article meta strip above the body; TOC stays hidden) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1488,6 +1488,12 @@ html.lenis, html.lenis body { height: auto; }
     gap: 0.55rem;
     margin-bottom: 0.4rem;
   }
+  /* ⚠ The rule above re-enabled On This Page, which the Webflow class hides here -
+     a blanket `display: flex` on every block beat that `display: none`, and a 200px
+     table of contents appeared above the article. Hidden again, EXPLICITLY and by
+     structure (the block that contains the TOC) rather than by leaning on a class
+     rule this file now outranks. */
+  .insight_rail .insight_rail-block:has(.insight_toc) { display: none; }
   .insight_rail .insight_rail-block:last-child { margin-bottom: 0; }
   .insight_rail .insight_rail-label {
     flex: 0 0 auto;
