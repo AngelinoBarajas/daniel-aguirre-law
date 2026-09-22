@@ -354,3 +354,33 @@
     padding: 6px 10px;
   }
 }
+
+/* ===== 2026-09-22 — MOBILE + MID-PAGE CTA PASS ===========================
+   (1) On tablet and phone `.why_grid` stacks, which stranded the four stat
+       cards BELOW the "View our case results" button: the button reads as the
+       end of the section, so the cards under it looked orphaned. The copy
+       column is promoted with `display: contents` so its children and
+       `.why_stats` share one grid, then the CTA is ordered last.
+       row-gap goes to 0 on purpose — those children were block siblings a
+       moment ago and carry their own margins, so the 2rem grid gap would
+       double every one of them. The two elements that need space get it here.
+       ⚠ `.why_cta` is `display: inline-flex`, which shrink-wraps as a block
+       child but STRETCHES to full width as a grid item. `justify-self: start`
+       keeps it at content width. */
+@media screen and (max-width: 991px) {
+  .section_service-why .why_grid { grid-row-gap: 0rem; }
+  .section_service-why .why_grid > div:first-child { display: contents; }
+  .section_service-why .why_grid > div:first-child > * { order: 1; }
+  .section_service-why .why_stats { order: 2; margin-top: 2.25rem; }
+  .section_service-why .why_cta {
+    order: 3;
+    justify-self: start;
+    margin-top: 2.25rem;
+  }
+}
+
+/* (2) Room above the two CTA rows added 2026-09-22 — the consultation pair
+       under the sub-service cards, and the "Common questions about this
+       process" jump at the end of the dark process band. */
+.section_service-included .button-row,
+.section_service-process .button-row { margin-top: 3rem; }
