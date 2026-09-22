@@ -662,6 +662,10 @@ html.lenis, html.lenis body { height: auto; }
 
   /* Accordion panel: a tan left rule instead of a card, indented under its parent row. */
   .navbar8_component .navbar8_dropdown-list {
+    /* Webflow writes an INLINE `width` on this list matching .navbar8_menu-left (341px at
+       375). With the indent below that pushed the panel 13px past the sheet's right edge and
+       clipped the "View all" chip's border. Inline width only yields to !important. */
+    width: auto !important;
     margin: 0.35rem 0 0.6rem 1.4rem;
     padding: 0 0 0 0.875rem;
     border-left: 2px solid rgba(168,139,92,0.45);
