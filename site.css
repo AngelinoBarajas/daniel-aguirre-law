@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-21.5  (mobile nav rebuilt: one column, grouped, tap-to-call strip) */
+/* CODE-CSS-VERSION: 2026-09-22.1  (team teaser: initials discs + founder set apart) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1902,4 +1902,74 @@ html.lenis, html.lenis body { height: auto; }
      for no motion, which is the one convention this site keeps everywhere. */
   .faq_item::details-content,
   .expertise_term::details-content { transition: none; }
+}
+
+/* ===== TEAM TEASER — initials discs + the founder set apart (2026-09-22) ==
+   THE FIRM HAS NO HEADSHOTS YET: the Team Members `headshot` field is empty on
+   all four staff, and Daniel is not in that collection at all. So each person
+   gets an initials disc in the cream-glass language the cards already use.
+   When real photographs arrive they become an <img> in the same 62px box and
+   nothing else here changes.
+
+   Daniel is pulled onto his OWN full-width row above the other four — larger
+   disc with a maroon ring, name at heading size, role in the brand maroon, and
+   a credential line — rather than reading as one of five equal names.
+   `order: -1` + `flex: 0 0 100%` do that from CSS, so the DOM order is
+   untouched and a screen reader still reads him first.
+   ⚠ `flex: 0 0 100%` rather than a clamped basis: flex line breaking uses the
+   max-width-CLAMPED hypothetical size, so `flex-basis:100% + max-width:34rem`
+   would let the other four join his line on a wide viewport. The reading
+   measure is set on the credential text instead. */
+.team-teaser_monogram {
+  width: 62px; height: 62px;
+  margin: 0 auto 0.7rem;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(152deg, rgba(255,255,255,0.85) 0%, rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55) 100%);
+  border: 1px solid rgba(168,139,92,0.30);
+  box-shadow: 0 6px 16px rgba(26,40,64,0.10), inset 0 1px 0 rgba(255,255,255,0.45);
+  font-family: "Lora", Georgia, serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: #1A2840;
+}
+
+.team-teaser_person.is-lead {
+  flex: 0 0 100%;
+  order: -1;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(168,139,92,0.28);
+}
+.team-teaser_person.is-lead .team-teaser_monogram {
+  width: 84px; height: 84px;
+  margin-bottom: 0.85rem;
+  font-size: 1.55rem;
+  border-color: rgba(137,30,45,0.45);
+  box-shadow: 0 10px 24px rgba(26,40,64,0.14),
+              inset 0 1px 0 rgba(255,255,255,0.50),
+              0 0 0 5px rgba(137,30,45,0.07);
+}
+.team-teaser_person.is-lead .team-teaser_name { font-size: 1.35rem; }
+.team-teaser_person.is-lead .team-teaser_role {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #891E2D;
+}
+.team-teaser_cred {
+  max-width: 34rem;
+  margin: 0.55rem auto 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #4A5470;
+}
+
+@media screen and (max-width: 767px) {
+  .team-teaser_monogram { width: 52px; height: 52px; font-size: 1rem; margin-bottom: 0.55rem; }
+  .team-teaser_person.is-lead .team-teaser_monogram { width: 72px; height: 72px; font-size: 1.35rem; }
+  .team-teaser_person.is-lead { padding-bottom: 1.25rem; }
+  .team-teaser_person.is-lead .team-teaser_name { font-size: 1.22rem; }
+  .team-teaser_cred { font-size: 0.78rem; }
 }
