@@ -1,3 +1,4 @@
+
 /* Collection List transparency — KEEP THIS FIRST. */
 .included_grid > .w-dyn-list,
 .included_grid .w-dyn-items,
@@ -336,4 +337,20 @@
   .topic_reading-grid { grid-template-columns: 1fr; }
   .section_service-results { padding-top: 4rem; padding-bottom: 4rem; }
   .section_service-reading { padding-top: 3.5rem; padding-bottom: 4rem; }
+}
+
+/* ===== Phone: let short "What this covers" chips SHARE a row (2026-09-22) ==========
+   Same arithmetic as /expertise. The grouped rows are 277px wide (343 minus the glass
+   card's 32px padding a side) while the chips run 116-232px at 13.5px/13px padding, so a
+   pair missed by a couple of pixels and every chip took its own line.
+   NOTE THE SELECTOR: the chip's base size is set in the PRACTICE AREAS TEMPLATE FOOTER
+   field (`.section_service-covers .topic_chip`, 0,2,0), which loads AFTER this file. A
+   tie would lose, so this rule adds `.container-medium` to reach 0,3,0 and win on
+   specificity rather than order. It deliberately does NOT key off `.topic_group-row`,
+   which only exists once the footer's grouping script has run. */
+@media (max-width: 479px) {
+  .section_service-covers .container-medium .topic_chip {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
 }
