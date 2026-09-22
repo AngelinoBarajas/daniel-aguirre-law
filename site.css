@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-21.4  (mega-menu "View all" chip: own row, bottom right) */
+/* CODE-CSS-VERSION: 2026-09-21.5  (mobile nav rebuilt: one column, grouped, tap-to-call strip) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -302,6 +302,11 @@ html.lenis, html.lenis body { height: auto; }
   position: relative;
   color: #1A2840;
   background: none;
+  /* Expertise / Reviews / Resources were added by MCP as PLAIN <a class="navbar8_link">, so they
+     never got Webflow's `.w-nav-link` reset and shipped UNDERLINED while the others did not.
+     Visible only in the mobile sheet (they are display:none >=992), but it belongs on the base
+     rule, not in a breakpoint. Same family as the `.button` had-no-display bug. */
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 .navbar8_component .navbar8_link::after,
@@ -453,12 +458,23 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component > .navbar8_container { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
 }
 
-/* --- Tablet + mobile (≤991, hamburger): open menu = cream-glass sheet; top links become
-   full-width rows with a glass-blue tap highlight + a maroon active bar (no underline);
-   hamburger recoloured to navy → maroon when open; sub-nav padding/pop comes from the base
-   rules above. --- */
+/* --- Tablet + mobile (≤991, hamburger) -- REBUILT 2026-09-21 ------------------------
+   WHAT WAS WRONG: the open sheet rendered as a centred, word-wrapped blob. `.navbar8_menu-left`
+   is display:BLOCK with inline-block children and inherits text-align:center, so the eight links
+   flowed like TEXT -- "Home About" on one line, the two dropdowns full-width, "Results Expertise
+   Reviews" on another, "Resources" alone. Three of them were underlined (see the base rule), the
+   active-page bar floated free of its word, the sheet was a fixed 812px with ~300px of dead cream
+   under the last button, and the phone number was reachable only by opening the menu.
+   This is the SAME root cause as the 992-1199 fit band documented below -- which had only ever
+   been fixed for desktop.
+
+   NOW: one left-aligned column of rows inside the site's cream-glass card, split into three
+   groups by tan hairlines, with the actions as full-width square buttons matching `.button`.
+   Group separators use STRUCTURAL ADJACENCY (About -> Immigration, Humanitarian -> Results),
+   never :nth-child, so reordering the nav cannot silently paint the rule in the wrong place.
+--- */
 @media (max-width: 991px) {
-  /* Bar is FULL-WIDTH + FLUSH in BOTH states on mobile/tablet — no pill, no float gap.
+  /* Bar is FULL-WIDTH + FLUSH in BOTH states on mobile/tablet -- no pill, no float gap.
      The desktop morph is neutralised here: the condensed selector is reset to the expanded
      look, and the extra vertical padding gives the logo breathing room. */
   .navbar8_component.w-nav,
@@ -466,27 +482,50 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component > .navbar8_container,
   .navbar8_component.nav-condensed > .navbar8_container {
     max-width: 100%;
-    min-height: 66px;                              /* taller bar = breathing room around the logo
-                                                      (the 48px hamburger pins the height, so vertical
-                                                      PADDING gets absorbed — min-height is reliable) */
-    padding: 0 1.5rem;
+    min-height: 62px;
+    padding: 0 1.25rem;
     border-radius: 0;
     border-color: transparent;
     border-bottom-color: rgba(26,40,64,0.10);
     box-shadow: 0 1px 0 rgba(26,40,64,0.06), 0 6px 18px rgba(26,40,64,0.06);
   }
-
-  /* Hamburger → X. Relume ships this icon with transparent lines + NO working animation,
-     and rotating its flex line-divs makes them redistribute in the flex column (rotated
-     bbox grows → siblings pushed apart → broken/offset X). So we DRAW our own instead:
-     hide Relume's top/bottom line divs, keep the middle div as the centre bar, and render
-     the two animating arms as ::before/::after on .menu-icon5. Pseudo-elements are immune
-     to flex layout AND to Webflow IX, and both arms rotate around the SAME centre.
-     Verified deterministically (side-by-side closed/open harness): clean 3-line hamburger
-     → clean maroon X. */
+  /* The logo took 205px of a 375px viewport (55%) and the hamburger sat in a 16px hit box. */
+  .navbar8_component .navbar8_logo { max-width: 168px; }
   .navbar8_component .navbar8_menu-button {
     display: flex; align-items: center; justify-content: center; background: transparent;
+    width: 44px; height: 44px; margin-right: -0.625rem;   /* 44px = the minimum touch target */
   }
+
+  /* --- TAP-TO-CALL STRIP -----------------------------------------------------------
+     The navy strip was display:none below 992, so a phone number -- the single most valuable
+     thing on an immigration firm's phone nav -- was reachable only by opening the hamburger.
+     Here the strip keeps its tier-1 navy language and carries ONLY the number, centred.
+     It deliberately does NOT collapse with `.nav-condensed`: there is no pill state at this
+     width, and the whole bar already auto-hides on scroll-down. */
+  .navbar8_component .nav-utility,
+  .navbar8_component.nav-condensed .nav-utility {
+    display: block; max-width: 100%;
+    border: 0; border-radius: 0; box-shadow: none;
+  }
+  .navbar8_component .nav-utility_links { display: none; }   /* its links are rows in the sheet */
+  .navbar8_component .nav-utility_inner,
+  .navbar8_component.nav-condensed .nav-utility_inner {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 34px; padding: 0 1rem;
+  }
+  .navbar8_component .nav-utility_tel {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em;
+    color: #FCF6EC; text-decoration: none;
+  }
+  .navbar8_component .nav-utility_tel::before { background: #A88B5C; }   /* tan handset */
+
+  /* Hamburger -> X. Relume ships this icon with transparent lines + NO working animation,
+     and rotating its flex line-divs makes them redistribute in the flex column (rotated
+     bbox grows -> siblings pushed apart -> broken/offset X). So we DRAW our own instead:
+     hide Relume's top/bottom line divs, keep the middle div as the centre bar, and render
+     the two animating arms as ::before/::after on .menu-icon5. Pseudo-elements are immune
+     to flex layout AND to Webflow IX, and both arms rotate around the SAME centre. */
   .navbar8_component .menu-icon5 { position: relative; width: 24px; height: 16px; }
   .navbar8_component .menu-icon1_line-top,
   .navbar8_component .menu-icon1_line-bottom { display: none; }
@@ -507,44 +546,142 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component .navbar8_menu-button.w--open .menu-icon5::after  { transform: rotate(-45deg); background-color: #891E2D; }
   .navbar8_component .navbar8_menu-button.w--open .menu-icon1_line-middle { opacity: 0; }
 
-  /* Open menu = glass sheet */
+  /* --- THE SHEET ------------------------------------------------------------------
+     Sized to its CONTENT. Webflow gives `.w-nav-menu` height:100vh, which is why the old
+     sheet was a fixed 812px with a large cream void under the last button. `max-height`
+     caps it so a long accordion scrolls instead of running off the screen.
+     `data-lenis-prevent` is set on this element by init.js -- without it Lenis swallows the
+     touch scroll and the sheet cannot be scrolled at all once an accordion is open. */
   .navbar8_component .navbar8_menu {
-    background: #FCF6EC;
-    border: 1px solid rgba(26,40,64,0.10);
+    height: auto;
+    max-height: calc(100vh - 6.5rem);
+    max-height: calc(100svh - 6.5rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    background: linear-gradient(152deg, rgba(255,255,255,0.85), rgba(252,246,236,0.62) 55%, rgba(248,240,226,0.55)), #FCF6EC;
+    border: 1px solid rgba(168,139,92,0.30);
     border-radius: 14px;
     box-shadow: 0 24px 50px rgba(26,40,64,0.20), inset 0 1px 0 rgba(255,255,255,0.85);
-    padding: 0.5rem;
+    padding: 0.5rem 0;
     margin: 0.5rem;
   }
 
-  /* Top links become rows: NO underline; glass-blue tap highlight; active = maroon + left bar */
+  /* THE FIX: one column. Everything below is styling; this is the bug. */
+  .navbar8_component .navbar8_menu-left {
+    display: flex; flex-direction: column; align-items: stretch;
+    text-align: left; padding: 0 0.5rem;
+  }
+
+  /* Rows */
   .navbar8_component .navbar8_link::after,
-  .navbar8_component .navbar8_dropdown-toggle::after { display: none; }
+  .navbar8_component .navbar8_dropdown-toggle::after { display: none; }   /* no underline here */
   .navbar8_component .navbar8_link,
   .navbar8_component .navbar8_dropdown-toggle {
-    padding: 0.8rem 0.9rem !important;   /* override Relume's tall 24px link padding for rows */
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; box-sizing: border-box; min-height: 52px;
+    padding: 0 0.875rem !important;   /* beats Relume's tall 24px w-nav-link padding */
+    margin: 0 0 2px;
     border-radius: 10px;
+    font-size: 1.0625rem; font-weight: 600; text-align: left;
     transition: background 0.18s ease, color 0.18s ease;
+  }
+  /* The secondary set reads one step quieter than the five primary items. */
+  .navbar8_component .navbar8_menu-left > [data-nav-secondary],
+  .navbar8_component .navbar8_menu-left > [data-nav-primary] {
+    min-height: 46px; font-size: 1rem; font-weight: 500;
   }
   .navbar8_component .navbar8_link:hover,
   .navbar8_component .navbar8_link:active,
   .navbar8_component .navbar8_dropdown-toggle:hover,
   .navbar8_component .navbar8_dropdown-toggle:active {
-    background: rgba(26,40,64,0.90); color: #FCF6EC;
-  }
-  .navbar8_component .navbar8_link.w--current::before {
-    content: ""; position: absolute; left: 2px; top: 24%; bottom: 24%;
-    width: 3px; border-radius: 2px; background: #891E2D;   /* active-page bar */
+    background: #1A2840; color: #FCF6EC;
   }
 
-  /* Accordion panel (the mega, flattened) */
+  /* Active page: maroon text, a faint maroon wash, and a left bar ANCHORED inside the row.
+     It used to float beside the word because the row was centred. */
+  .navbar8_component .navbar8_link.w--current {
+    color: #891E2D; background: rgba(137,30,45,0.06);
+    padding-left: 1.125rem !important;
+  }
+  .navbar8_component .navbar8_link.w--current::before {
+    content: ""; position: absolute; left: 0.375rem; top: 0.75rem; bottom: 0.75rem;
+    width: 3px; border-radius: 2px; background: #891E2D;
+  }
+
+  /* GROUP RULES. Adjacency, not :nth-child -- reordering the nav stays safe. */
+  .navbar8_component .navbar8_menu-left > .navbar8_link + .navbar8_menu-dropdown,
+  .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link {
+    margin-top: 0.6rem;
+    border-top: 1px solid rgba(168,139,92,0.30);
+  }
+  /* Section label over the secondary set.
+     WARNING -- hardcoded user-visible copy, which the localization standing constraint asks us
+     to avoid. There is no element here to put it in without changing the component's markup, so
+     it is a :lang()-switched ::after. The es string is a DRAFT written here and NOT reviewed --
+     the localization pass must replace it. */
+  .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link {
+    padding-top: 1.7rem !important; min-height: 64px;
+  }
+  .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link::after {
+    content: "The Firm";
+    display: block; position: absolute;
+    left: 0.875rem; right: auto; top: 0.6rem; bottom: auto;
+    width: auto; height: auto; background: none; transform: none;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #A88B5C;
+  }
+  .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link:lang(es)::after {
+    content: "El Despacho";   /* DRAFT - unreviewed */
+  }
+
+  /* Accordion: the open row goes navy with a tan caret, matching the FAQ marker unified
+     site-wide on 2026-09-21. */
+  .navbar8_component .dropdown-chevron { color: #891E2D; width: 16px; height: 16px; flex: 0 0 16px; }
+  .navbar8_component .navbar8_menu-dropdown.w--open > .navbar8_dropdown-toggle {
+    background: #1A2840; color: #FCF6EC;
+  }
+  .navbar8_component .navbar8_menu-dropdown.w--open > .navbar8_dropdown-toggle .dropdown-chevron {
+    color: #A88B5C;
+  }
+
+  /* Accordion panel: a tan left rule instead of a card, indented under its parent row. */
   .navbar8_component .navbar8_dropdown-list {
-    margin-top: 0; border-radius: 0; box-shadow: none; overflow: hidden;
-    background: rgba(255,255,255,0.30); backdrop-filter: none; -webkit-backdrop-filter: none;
+    margin: 0.35rem 0 0.6rem 1.4rem;
+    padding: 0 0 0 0.875rem;
+    border-left: 2px solid rgba(168,139,92,0.45);
+    border-radius: 0; box-shadow: none; background: transparent;
+    backdrop-filter: none; -webkit-backdrop-filter: none; overflow: hidden;
   }
   .navbar8_component .navbar8_dropdown-list::before,
-  .navbar8_component .navbar8_dropdown-list::after { display: none; }   /* no accent rule / hover bridge on the tap accordion */
+  .navbar8_component .navbar8_dropdown-list::after { display: none; }   /* no accent rule / hover bridge */
+  /* 12 services under Immigration + 11 under Humanitarian: the icon chips and the two-line
+     descriptions cost ~300px each with nothing to show for it at phone width. */
+  .navbar8_component .navbar8_icon-holder { display: none; }
+  .navbar8_component .navbar8_dropdown-link .navbar8_item-text p { display: none; }
+  .navbar8_component .navbar8_dropdown-link,
+  .navbar8_component .navbar8_dropdown-link-small {
+    padding: 0.55rem 0.75rem; border-radius: 8px;
+  }
+  .navbar8_component .navbar8_dropdown-link .navbar8_item-text .text-weight-semibold {
+    font-size: 0.9375rem; font-weight: 500;
+  }
+  .navbar8_component .navbar8_dropdown-column .margin-bottom h4,
+  .navbar8_component .navbar8_dropdown-small-link-list h4 {
+    font-size: 0.65rem; letter-spacing: 0.14em; color: #A88B5C; margin-bottom: 0.15rem;
+  }
+  /* "View all ..." keeps its chip here too. It is already FIRST in source order, which is why
+     the desktop rule moves it with `order` rather than markup: below 992 the hub label itself is
+     pointer-events:none, so this chip is the ONLY route to the hub and must not sit under 12 rows. */
+  .navbar8_component .nav_hub-all {
+    display: inline-flex; align-items: center;
+    padding: 0.5rem 0.85rem; margin: 0 0 0.4rem;
+    border: 1px solid rgba(168,139,92,0.55); border-radius: 9px;
+    background: rgba(255,255,255,0.55);
+    font-size: 0.8125rem;
+  }
 }
+
 /* Small phones: expanded content inset = hero global padding (1rem ≤478) */
 @media (max-width: 478px) {
   .navbar8_component > .navbar8_container { padding-left: 1rem; padding-right: 1rem; }
@@ -644,24 +781,36 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component.nav-condensed .nav-utility_inner { padding-left: 1.75rem; padding-right: 1.75rem; }
 }
 @media (max-width: 991px) {
-  /* The strip is hidden here (class-level) — its links are already rows in the sheet. Both actions
-     become full-width bars at the bottom of the open menu, call first.
-     `align-items: stretch` is REQUIRED: the desktop rule below sets `center` on .navbar8_menu-right
-     to align the language toggle, and that inherits into the sheet, leaving the CTA at content
-     width and centred while the call button (width:100%) filled — a mismatched pair. */
+  /* --- THE ACTIONS, at the foot of the sheet ---------------------------------------
+     Both full-width and SQUARE, matching `.button` site-wide -- the call button's 100px pill
+     was the only pill on the site. The CTA leads because it is the navbar's primary action and
+     the navy strip above already covers calling.
+     `align-items: stretch` is REQUIRED here: the language-toggle rule further down used to set
+     `center` unconditionally, which inherited into the sheet and left the CTA at content width
+     (190px, centred) beside a 325px call bar -- a mismatched pair. That rule is now scoped to
+     >=992 so it cannot reach this breakpoint. */
   .navbar8_component .navbar8_menu-right {
     align-items: stretch;
-    gap: 0.65rem;
-    padding: 0.25rem 0.5rem 0.75rem;
-  }
-  .navbar8_component .nav_call-button { order: 1; }
-  .navbar8_component .navbar8_menu-right > .button {
-    order: 2;
-    min-height: 48px;            /* match the call bar so the two read as a pair */
-    display: flex; align-items: center; justify-content: center;
+    gap: 0.6rem;
+    margin: 0.5rem 0.5rem 0;
+    padding: 0.9rem 0.5rem 0.4rem;
+    border-top: 1px solid rgba(168,139,92,0.30);
   }
   .navbar8_component .navbar8_menu-right > .w-embed { order: 0; justify-content: center; }
+  .navbar8_component .navbar8_menu-right > .button {
+    order: 1;
+    min-height: 50px; font-size: 0.9375rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .navbar8_component .nav_call-button {
+    order: 2;
+    min-height: 50px; width: 100%;
+    border-radius: 0;          /* square, like every other button on the site */
+    font-size: 0.9375rem;
+    display: flex; align-items: center; justify-content: center;
+  }
 }
+
 /* Desktop: the three secondary links live in the strip, so their duplicates inside
    .navbar8_menu-left are suppressed. They stay in the DOM purely so the ≤991 hamburger sheet
    still lists all 7 approved items. Attribute-based, not nth-child, so reordering is safe. */
@@ -722,9 +871,14 @@ html.lenis, html.lenis body { height: auto; }
    an HTML Embed in .navbar8_menu-right, BEFORE the CTA button. Scoped to the navbar. The
    flag/dropdown INTERNALS need the widget's real selectors (couldn't capture in the headless
    pane); this frames + aligns the toggle and tints its text. */
-/* Centre the toggle (and the CTA) vertically — menu-right was align:stretch */
-.navbar8_component .navbar8_menu-right { align-items: center; }
-.navbar8_component .navbar8_menu-right > .w-embed { display: flex; align-items: center; }
+/* Centre the toggle (and the CTA) vertically — menu-right was align:stretch.
+   SCOPED to >=992 on 2026-09-21: unscoped, this silently overrode the `align-items: stretch`
+   the mobile actions block sets, so the sheet's CTA rendered at content width while the call
+   button filled -- the mismatch the mobile block's own comment warns about. */
+@media (min-width: 992px) {
+  .navbar8_component .navbar8_menu-right { align-items: center; }
+  .navbar8_component .navbar8_menu-right > .w-embed { display: flex; align-items: center; }
+}
 /* Match the nav: Inter + navy text (cascades to the light-DOM toggle text) */
 .navbar8_component .es-embed-root { display: inline-flex; align-items: center; line-height: 1; font-family: "Inter", sans-serif; color: #1A2840; }
 .navbar8_component .es-embed-root * { font-family: inherit; }
