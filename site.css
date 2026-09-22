@@ -502,7 +502,11 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component.w-nav .navbar8_menu-button.w-nav-button {
     display: flex; align-items: center; justify-content: center; background: transparent;
     width: 44px; height: 44px; padding: 0;
-    margin-right: -0.625rem;   /* pulls the 44px hit area out to the bar's 1.25rem gutter */
+    /* Pulls the 44px hit area out past the bar's gutter so the 24px GLYPH lands the same
+       distance from the edge as the logo does on the left. Measured at 375 (where the
+       <=478 rule makes the gutter 16px): -10px left the glyph 13px in against the logo's
+       17px, so -6px squares them up. */
+    margin-right: -0.375rem;
   }
 
   /* --- TAP-TO-CALL STRIP -----------------------------------------------------------
