@@ -654,3 +654,16 @@
   .section_contact2 .w-form-done::before,
   .section_contact2 .w-form-done > * { animation: none; }
 }
+
+/* ===== section_layout408 — centre the card actions on phones (2026-09-22) ==========
+   Each journey card's .button-group is `justify-content: flex-start`, so at 375 the
+   primary button (243px) and the text link wrapped to two left-hung rows inside a 293px
+   column and read as stray, unbalanced items. Centred they read as a deliberate pair.
+   The body copy stays LEFT aligned on purpose: these paragraphs run 4-6 lines, and centred
+   ragged-both-edges body text is measurably harder to read. Desktop is untouched. */
+@media (max-width: 767px) {
+  .section_layout408 .button-group {
+    justify-content: center;
+    width: 100%;
+  }
+}
