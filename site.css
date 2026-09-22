@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.9  (nav: strip links keyed explicitly to .nav-condensed) */
+/* CODE-CSS-VERSION: 2026-09-22.10  (overflow:hidden fallbacks before every overflow:clip) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -27,7 +27,7 @@
 /* ===== Global ===== */
 * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 html { scrollbar-gutter: stable; }              /* reserve gutter = no layout shift, but only ONE scrollbar */
-body { overflow-x: clip; }                      /* clip horizontal overflow WITHOUT making body a 2nd scroll container (Lenis-safe; keeps sticky) */
+body { overflow-x: hidden; overflow-x: clip; }  /* hidden = fallback for Safari <16 (no clip); body overflow propagates to the viewport, so sticky still works. clip horizontal overflow WITHOUT making body a 2nd scroll container (Lenis-safe; keeps sticky) */
 .heading-style-h1 span { display: inline-block; white-space: nowrap; }
 
 /* ===== Lenis smooth scroll — REQUIRED stylesheet =====
@@ -38,7 +38,7 @@ body { overflow-x: clip; }                      /* clip horizontal overflow WITH
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-stopped { overflow: hidden; overflow: clip; }
 .lenis.lenis-smooth iframe { pointer-events: none; }
 
 /* ===== Utility: designer-only hide =====
@@ -1020,7 +1020,7 @@ html.lenis, html.lenis body { height: auto; }
   .spacer-large { height: 2.5rem; }
   .spacer-medium { height: 1.5rem; }
   img { max-width: 100%; height: auto; }
-  body { overflow-x: clip; }
+  body { overflow-x: hidden; overflow-x: clip; }
   .button { padding: 0.75rem 1.5rem; font-size: 0.9rem; min-height: 44px; }
   .button.is-small { padding: 0.5rem 1rem; font-size: 0.82rem; min-height: 40px; }
   .max-width-medium, .max-width-large, .max-width-xlarge { max-width: 100%; }
