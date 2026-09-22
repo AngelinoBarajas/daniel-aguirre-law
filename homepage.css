@@ -667,3 +667,70 @@
     width: 100%;
   }
 }
+
+/* ===== 2026-09-22 — MOBILE PASS =========================================
+   (1) THE VALUES BAND'S PHOTOGRAPH WAS TILING. Webflow's own rule ships
+       `background-size: auto, auto` with no `background-repeat`, so the photo
+       repeated across the section at its natural size. Both layers are named
+       explicitly here — the navy scrim gradient first, the photograph second
+       — so neither can ever repeat.
+       This IS Designer-expressible (Style panel > Background > Size: Cover,
+       Tile: No-repeat) and setting it there too is harmless: cover + no-repeat
+       is what this band wants whatever image is in it. */
+.section_layout253 {
+  background-repeat: no-repeat, no-repeat;
+  background-position: 50% 50%, 50% 50%;
+  background-size: cover, cover;
+}
+
+/* (2) "YOUR ADVOCATE" ON TABLET AND PHONE — the headshot moves BELOW the
+       description and shrinks.
+       `.layout413_content-right` becomes `display: contents`, so its children
+       and the image wrapper become siblings in one grid and can be ordered.
+       The ordering is STRUCTURAL, never :nth-child — everything defaults to
+       order 1, the image takes 2, and `.layout413_item-list` plus every
+       following sibling take 3 — so this section can be re-ordered later
+       without the rule painting in the wrong place.
+       The grid's 3rem row-gap is zeroed deliberately: those children were
+       block siblings a moment ago and already carry Relume's own spacer divs,
+       so leaving the gap on would add 3rem between every one of them.
+       With the wrapper no longer clipped on mobile it can also carry the FULL
+       mounted-print frame — the offset tan outline `.framed-image` draws with
+       ::before, which an `overflow: hidden` box cannot show. Sizing is stated
+       outright (height / padding-top / aspect-ratio) rather than left to the
+       Relume `padding-top: 100%` and our `aspect-ratio` interacting. */
+@media (max-width: 991px) {
+  .section_layout413 .layout413_content { grid-row-gap: 0rem; }
+  .section_layout413 .layout413_content-right { display: contents; }
+  .section_layout413 .layout413_content-right > * { order: 1; }
+  .section_layout413 .layout413_image-wrapper { order: 2; }
+  .section_layout413 .layout413_content-right > .layout413_item-list,
+  .section_layout413 .layout413_content-right > .layout413_item-list ~ * { order: 3; }
+
+  .section_layout413 .layout413_image-wrapper {
+    width: 100% !important;          /* beats the base rule's width:auto!important */
+    max-width: 17rem;
+    height: auto;
+    padding-top: 0;
+    aspect-ratio: 4 / 5;
+    margin: 0 auto 2.75rem;
+    overflow: visible;               /* lets the offset mount show */
+  }
+  .section_layout413 .layout413_image {
+    transform: none;                 /* the 1.01 bleed exists only for the clipped hover */
+    border-radius: 14px;             /* the wrapper no longer clips it */
+  }
+  /* the offset mount, copied from .framed-image::before rather than re-invented */
+  .section_layout413 .layout413_image-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 10px; top: 10px; right: -10px; bottom: -10px;
+    border: 1px solid rgba(168,139,92,0.38);
+    border-radius: 14px;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+@media (max-width: 479px) {
+  .section_layout413 .layout413_image-wrapper { max-width: 14rem; margin-bottom: 2.25rem; }
+}
