@@ -387,3 +387,45 @@
        process" jump at the end of the dark process band. */
 .section_service-included .button-row,
 .section_service-process .button-row { margin-top: 3rem; }
+
+/* ===== 2026-09-22 — THE FOUR STAT CARDS GO DARK ==========================
+   They were cream glass carrying a NAVY icon chip, which put the darkest object
+   on the page inside the lightest card and made the chips read as holes. Flipping
+   the card inverts that: the panel is dark and the chip becomes a raised
+   translucent tile, exactly as it works on the homepage values cards.
+
+   SOLID navy, not navy glass. The site has both, and the 2026-07 note on
+   .section_layout408 records why: navy GLASS washes out over a cream page because
+   there is nothing behind it to blur. These sit on cream, so they take the
+   layout408 treatment.
+
+   ⚠ .stat_card also carries the shared `glass glass-pad` utilities, whose cream
+   gradient, hairline and shadow all have to be overridden - scoped to
+   .section_service-why so the utilities keep working everywhere else. */
+.section_service-why .stat_card {
+  background-image: linear-gradient(160deg, #1E2C46 0%, #16223A 100%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 16px 34px rgba(6,12,28,0.22), 0 3px 8px rgba(6,12,28,0.16);
+}
+/* The icon container now matches .layout253_item-icon-wrapper on the homepage:
+   a raised translucent tile with a bright top edge, not a solid navy block. */
+.section_service-why .stat_icon {
+  background-image: linear-gradient(155deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 100%);
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(6,12,28,0.50),
+              0 2px 5px rgba(6,12,28,0.40),
+              inset 0 1px 0 rgba(255,255,255,0.35);
+  color: #FCF6EC;
+}
+/* Maroon on navy is unreadable. The figure takes the site's on-dark accent, tan,
+   and the clause takes cream at the same opacity the other dark bands use. */
+.section_service-why .stat_number { color: #A88B5C; }
+.section_service-why .stat_label  { color: rgba(252,246,236,0.82); }
+
+@media (hover: hover) {
+  .section_service-why .stat_card:hover {
+    border-color: rgba(168,139,92,0.55);
+    box-shadow: 0 22px 44px rgba(6,12,28,0.28), 0 4px 10px rgba(6,12,28,0.20);
+  }
+}
