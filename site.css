@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.4  (article meta strip above the body; TOC stays hidden) */
+/* CODE-CSS-VERSION: 2026-09-22.5  (nav: all eight links in the bar at rest above 1400) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2011,4 +2011,79 @@ html.lenis, html.lenis body { height: auto; }
   .team-teaser_person.is-lead { padding-bottom: 1.25rem; }
   .team-teaser_person.is-lead .team-teaser_name { font-size: 1.22rem; }
   .team-teaser_cred { font-size: 0.78rem; }
+}
+
+/* ===== 2026-09-22 — ALL EIGHT LINKS IN THE BAR AT REST, TWO TIERS ONCE SCROLLED ==
+   At the top of the page the bar is edge-to-edge and the navy strip is a thin rule
+   with nothing in it. As soon as the bar condenses into the 80rem pill that room
+   disappears, so Expertise / Reviews / Resources move UP into the strip - which is
+   exactly today's design. THE CONDENSED STATE IS DELIBERATELY UNCHANGED; only the
+   resting state is new.
+
+   ⚠ BANDED AT >=1400px, AND THE NUMBER IS MEASURED, NOT PICKED.
+   At 1440 in the resting state: component 1425, side padding 80, so 1345 available;
+   logo 205 + menu-left 511 + actions 380 = 1097 used, leaving 248px of slack. The
+   three extra links cost ~270px at the normal 1rem link padding - 22px MORE than
+   exists. Tightening link padding to 0.65rem inside this band recovers ~77px across
+   all eight, which is what makes it fit (about 55px spare at 1440, ~30px at 1400).
+   Below 1400 there is no arrangement of eight labels that fits beside this logo and
+   these three actions without shrinking the logo or cutting a label, so those widths
+   keep today's two-tier nav in BOTH states. No regression, nothing to explain.
+   This is the same graduated-band approach the 992-1199 fit range already uses.
+
+   Both halves ANIMATE rather than snap. `display` cannot be transitioned, so the bar
+   copies keep `display: inline-block` and collapse to zero width via max-width +
+   padding instead; the strip animates its inner min-height, which it already
+   transitions for the docking move. */
+@media (min-width: 1400px) {
+  /* The base rule is `[data-nav-secondary] { display: none !important }`, so showing
+     these needs !important too - matching specificity alone would lose. */
+  .navbar8_component .navbar8_menu-left > [data-nav-secondary] {
+    display: inline-block !important;
+    overflow: hidden;
+    max-width: 12rem;
+    opacity: 1;
+    transition: max-width 0.45s cubic-bezier(0.5,0,0.2,1),
+                padding 0.45s cubic-bezier(0.5,0,0.2,1),
+                opacity 0.3s ease 0.12s;
+  }
+  /* the 77px that makes eight fit */
+  .navbar8_component:not(.nav-condensed) .navbar8_link {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+  /* the underline is inset to match the link's own padding, so it has to follow */
+  .navbar8_component:not(.nav-condensed) .navbar8_link::after {
+    left: 0.65rem;
+    right: 0.65rem;
+  }
+
+  /* RESTING: the navy strip becomes a thin rule and its links stand down. */
+  .navbar8_component .nav-utility { overflow: hidden; }
+  .navbar8_component:not(.nav-condensed) .nav-utility_inner { min-height: 12px; }
+  .navbar8_component:not(.nav-condensed) .nav-utility_links {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .navbar8_component .nav-utility_links {
+    max-height: 3rem;
+    opacity: 1;
+    transition: opacity 0.3s ease 0.15s,
+                max-height 0.45s cubic-bezier(0.5,0,0.2,1);
+  }
+
+  /* CONDENSED: back to today's arrangement. */
+  .navbar8_component.nav-condensed .navbar8_menu-left > [data-nav-secondary] {
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar8_component .navbar8_menu-left > [data-nav-secondary],
+  .navbar8_component .nav-utility_links { transition: none; }
 }
