@@ -144,6 +144,17 @@
   flex: 1 1 auto;
   padding: 1.5rem 1.6rem 1.7rem;
 }
+/* UNPIN the OTHER cards' copy on hover. Relume ships an inline <style> ON THE PAGE -
+   `.layout423_card-content{opacity:1;transition:opacity .3s}` plus
+   `.layout423_card-content.inactive{opacity:0}` - and a jQuery handler that puts
+   `.inactive` on every card you are NOT hovering. That is the other half of the
+   expandable-card behaviour: the hovered card GREW and the rest faded their text.
+   The grow is pinned off (inline width:50% -> width:auto!important), so all that was
+   left was two cards going blank for no reason the moment you touched the third.
+   !important because that rule lives in a page <style> block, which loads after this
+   stylesheet, so source order alone would not settle it. */
+.section_layout423 .layout423_card-content.inactive { opacity: 1 !important; }
+
 /* UNPIN the description + CTA. Beats the inline opacity/transform IX2 writes on hover.
    🚩 `height` IS THE THIRD PROPERTY AND IT WAS MISSED until 2026-09-22. IX2 writes
    `height: 0px` inline alongside the opacity and transform, so the block collapsed to
@@ -257,7 +268,7 @@
 .section_layout413 .layout413_image-wrapper {
   position: relative;
   width: auto !important;        /* kills the IX2 inline width:200% overflow */
-  max-width: 28rem;              /* was 100% (=640px in this column) - the photo dominated the row */
+  max-width: 100%;               /* the COLUMN sizes it now - see the 0.82/1.18 grid below */
   height: auto;
   padding-top: 0;                /* Relume sets padding-top:100%; aspect-ratio owns the box now */
   aspect-ratio: 4 / 5;
@@ -316,6 +327,21 @@
 @media (prefers-reduced-motion: reduce) {
   .section_layout413 .layout413_image-wrapper { transition: none; transform: none; }
 }
+/* DESKTOP COLUMN RHYTHM. Relume ships .layout413_content as a symmetric `1fr 1fr`
+   with a 5rem margin on the copy, which left a ~190px dead gap between the photo and
+   the text once the headshot stopped filling its half. These are the SAME proportions
+   .founder_grid uses on /about - 0.82fr / 1.18fr with a 4rem gap - so the two pages
+   that carry this photograph now share one column rhythm.
+   Scoped to >=992 deliberately: Webflow's `medium` breakpoint keeps this grid at
+   `1fr 1fr` and the 09-22 tablet regression came from assuming otherwise. */
+@media (min-width: 992px) {
+  .section_layout413 .layout413_content {
+    grid-template-columns: 0.82fr 1.18fr;
+    grid-column-gap: 4rem;
+  }
+  .section_layout413 .layout413_content-right { margin-left: 0; }
+}
+
 /* Cream GLASS on a plain cream page: no content behind to frost, so a diagonal white→cream
    gradient sheen + a bright top edge + tan-tinted hairline sell the "glass" instead of the blur. */
 .section_layout413 .layout413_text-wrapper {
