@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-21.2  (FAQ accordion site-wide; reduced-motion covers ::details-content) */
+/* CODE-CSS-VERSION: 2026-09-21.3  (mega-menu "View all" chip moves to bottom right) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1367,9 +1367,25 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component .navbar8_dropdown-toggle .nav_hub-link { pointer-events: auto; }
 }
 
-/* The "View all ..." row leading each mega panel. .navbar8_dropdown-content is a
-   flex ROW, so the row only sits above the columns once the container is allowed
-   to wrap and the link is told to claim a full line. */
+/* The "View all ..." link in each mega panel.
+   .navbar8_dropdown-content is a flex ROW holding exactly two children - this
+   link and the 3-column grid - so wrapping is what lets the link take a line of
+   its own.
+
+   TWO PLACEMENTS ON PURPOSE:
+     mobile   a full-width row LEADING the panel. Below 992px the hub label is
+              pointer-events:none so the tap opens the accordion, which makes
+              this link the ONLY route to the hub - burying it under a 20-item
+              accordion would hide the one thing that has to be reachable.
+     desktop  a chip at the BOTTOM RIGHT, where the eye lands after reading the
+              columns, styled as a deliberate next step rather than a line of
+              text (2026-09-21, at the user's request - as a plain top-left
+              line it was being missed).
+
+   The arrow is a ::after, not part of the link text - it was literal text until
+   2026-09-21, which meant it could not move independently on hover. Literal
+   glyph, never a CSS unicode escape.
+   [[lesson_css-escapes-through-python-heredocs]] */
 .navbar8_component .navbar8_dropdown-content { flex-wrap: wrap; }
 .navbar8_component .navbar8_dropdown-content .nav_hub-all {
   flex: 1 0 100%;
@@ -1383,9 +1399,57 @@ html.lenis, html.lenis body { height: auto; }
   border-bottom: 1px solid rgba(168,139,92,0.28);
   transition: color 0.3s ease;
 }
+.navbar8_component .navbar8_dropdown-content .nav_hub-all::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 0.4rem;
+  transition: transform 0.3s cubic-bezier(.5,0,.2,1);
+}
 .navbar8_component .navbar8_dropdown-content .nav_hub-all:hover { color: #6F1824; }
+.navbar8_component .navbar8_dropdown-content .nav_hub-all:hover::after { transform: translateX(3px); }
+
+@media screen and (min-width: 992px) {
+  /* order:1 moves it after the columns WITHOUT touching the DOM, which keeps it
+     first in source order where mobile needs it. The columns already fill the
+     line, so an auto-width item wraps below them and margin-left:auto pushes it
+     to the right edge. */
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all {
+    order: 1;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    margin-top: 1.15rem;
+    padding: 0.55rem 1.05rem;
+    border: 1px solid rgba(168,139,92,0.45);
+    border-radius: 9px;
+    background-image: linear-gradient(152deg, rgba(255,255,255,0.92) 0%, rgba(252,246,236,0.72) 100%);
+    box-shadow: 0 2px 6px rgba(26,40,64,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease,
+                box-shadow 0.3s ease, transform 0.3s cubic-bezier(.5,0,.2,1);
+  }
+  /* Outline that FILLS on hover - the same affordance as .button.is-secondary,
+     in the nav's maroon rather than navy. 9px radius matches the mega menu's
+     icon holders; the square 0-radius of .button belongs to page CTAs, and a
+     square chip inside this panel read as a stray button. */
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all:hover,
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all:focus-visible {
+    color: #FCF6EC;
+    background-image: linear-gradient(152deg, #891E2D 0%, #6F1824 100%);
+    border-color: #891E2D;
+    box-shadow: 0 8px 18px rgba(137,30,45,0.22), inset 0 1px 0 rgba(255,255,255,0.14);
+    transform: translateY(-2px);
+  }
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all:focus-visible {
+    outline: 2px solid #A88B5C;
+    outline-offset: 2px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .navbar8_component .navbar8_dropdown-content .nav_hub-all { transition: none; }
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all,
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all::after { transition: none; }
+  .navbar8_component .navbar8_dropdown-content .nav_hub-all:hover { transform: none; }
 }
 
 /* ===== Headings on dark bands (2026-09-20) ===============================
