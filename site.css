@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.7  (nav: all eight links in the bar at rest above 1440) */
+/* CODE-CSS-VERSION: 2026-09-22.8  (nav: eight links at rest; condensed falls back to the base hide) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2045,14 +2045,8 @@ html.lenis, html.lenis body { height: auto; }
 @media (min-width: 1440px) {
   /* The base rule is `[data-nav-secondary] { display: none !important }`, so showing
      these needs !important too - matching specificity alone would lose. */
-  .navbar8_component .navbar8_menu-left > [data-nav-secondary] {
+  .navbar8_component:not(.nav-condensed) .navbar8_menu-left > [data-nav-secondary] {
     display: inline-block !important;
-    overflow: hidden;
-    max-width: 12rem;
-    opacity: 1;
-    transition: max-width 0.45s cubic-bezier(0.5,0,0.2,1),
-                padding 0.45s cubic-bezier(0.5,0,0.2,1),
-                opacity 0.3s ease 0.12s;
   }
   /* the 77px that makes eight fit */
   .navbar8_component:not(.nav-condensed) .navbar8_link {
@@ -2102,17 +2096,17 @@ html.lenis, html.lenis body { height: auto; }
                 max-height 0.45s cubic-bezier(0.5,0,0.2,1);
   }
 
-  /* CONDENSED: back to today's arrangement. */
-  .navbar8_component.nav-condensed .navbar8_menu-left > [data-nav-secondary] {
-    max-width: 0;
-    padding-left: 0;
-    padding-right: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
+  /* CONDENSED needs NO rule of its own, and that is deliberate. The show rule above
+     is gated on :not(.nav-condensed), so the moment the bar condenses the site's own
+     `[data-nav-secondary] { display: none !important }` takes over again and the pill
+     is byte-identical to what it was before this block existed.
+     ⚠ An earlier version instead kept the links displayed and collapsed them with
+     `max-width: 0` when condensed. Do not go back to that: it left the three links
+     occupying the pill and the row wrapped to THREE lines. `display` cannot be
+     transitioned, so the bar links swap instantly either way - only the strip fades -
+     and a guaranteed-correct swap beats an animation that can strand the nav. */
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navbar8_component .navbar8_menu-left > [data-nav-secondary],
   .navbar8_component .nav-utility_links { transition: none; }
 }
