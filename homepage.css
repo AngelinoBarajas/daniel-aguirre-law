@@ -144,10 +144,19 @@
   flex: 1 1 auto;
   padding: 1.5rem 1.6rem 1.7rem;
 }
-/* UNPIN the description + CTA. Beats the inline opacity/transform IX2 writes on hover. */
+/* UNPIN the description + CTA. Beats the inline opacity/transform IX2 writes on hover.
+   🚩 `height` IS THE THIRD PROPERTY AND IT WAS MISSED until 2026-09-22. IX2 writes
+   `height: 0px` inline alongside the opacity and transform, so the block collapsed to
+   ZERO height while its children still measured 129px - and the card's own
+   `overflow: hidden` then sliced the description mid-line and ate the CTA entirely.
+   Measured: card 359px tall against a 459px scrollHeight, content-bottom 0px against a
+   129px scrollHeight. It looked like a too-short card; it was a collapsed child.
+   When those IX2 interactions are finally deleted in the Designer, all THREE of these
+   !importants come out together. */
 .section_layout423 .layout423_card-content-bottom {
   opacity: 1 !important;
   transform: none !important;
+  height: auto !important;
 }
 
 /* The card carries .text-color-white and the heading is .heading-style-h4, which computes
@@ -248,12 +257,31 @@
 .section_layout413 .layout413_image-wrapper {
   position: relative;
   width: auto !important;        /* kills the IX2 inline width:200% overflow */
-  max-width: 100%;
+  max-width: 28rem;              /* was 100% (=640px in this column) - the photo dominated the row */
+  height: auto;
+  padding-top: 0;                /* Relume sets padding-top:100%; aspect-ratio owns the box now */
   aspect-ratio: 4 / 5;
-  overflow: hidden;
+  overflow: visible;             /* the offset mount has to escape the box to be seen */
   border-radius: 14px;
   background: #F3EADB;           /* warm hold while the image loads */
   box-shadow: 0 20px 50px rgba(26,40,64,0.16), 0 4px 12px rgba(26,40,64,0.08);
+  transition: transform 0.4s cubic-bezier(0.5,0,0.2,1), box-shadow 0.4s ease;
+}
+/* The offset mount - a tan rule sitting 10px down-right, BEHIND the photo. Copied
+   from .framed-image::before rather than re-invented, so this headshot and every
+   framed image on the site share one treatment.
+   ⚠ This is why the wrapper is `overflow: visible` and why the slow push-in zoom
+   had to go: a pseudo-element cannot escape an overflow:hidden box, and a scaled
+   <img> cannot be contained without one. The frame was the ask; the zoom was not.
+   The hover is now the SAME lift .framed-image uses. */
+.section_layout413 .layout413_image-wrapper::before {
+  content: "";
+  position: absolute;
+  left: 10px; top: 10px; right: -10px; bottom: -10px;
+  border: 1px solid rgba(168,139,92,0.38);
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: 0;
 }
 /* tan hairline drawn OVER the photo edge + the faded top highlight, clipped by
    the radius — the same two pseudo-elements .framed-image_media uses. */
@@ -272,14 +300,21 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.01);        /* hairline bleed so no edge gap shows on scale-back */
-  transition: transform 1.1s cubic-bezier(0.22,0.61,0.36,1);
+  border-radius: 14px;           /* the wrapper no longer clips it */
+  position: relative;
+  z-index: 1;                    /* above the offset mount, below the ::after hairline */
 }
-/* The ENTRANCE is now the site-wide section reveal from init.js, which every other
-   section already uses — that is the "animation that fits". What is added here is a
-   slow contained push-in on hover, which cannot overflow because the media box clips. */
-@media (prefers-reduced-motion: no-preference) {
-  .section_layout413 .layout413_content:hover .layout413_image { transform: scale(1.06); }
+/* The ENTRANCE is the site-wide section reveal from init.js. The hover is now the
+   same contained lift .framed-image uses, on the WRAPPER, so the mount travels with
+   the photo instead of the photo sliding under a stationary frame. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .section_layout413 .layout413_content:hover .layout413_image-wrapper {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 60px rgba(26,40,64,0.22), 0 6px 16px rgba(26,40,64,0.10);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section_layout413 .layout413_image-wrapper { transition: none; transform: none; }
 }
 /* Cream GLASS on a plain cream page: no content behind to frost, so a diagonal white→cream
    gradient sheen + a bright top edge + tan-tinted hairline sell the "glass" instead of the blur. */
@@ -719,30 +754,15 @@
      photograph: full column width capped at 26rem, 3:2, object-position 50% 20% so his
      face stays in frame on a landscape crop. A 4:5 portrait at 17rem read as a thumbnail
      next to the same picture on /about. */
+  /* Only size and crop here - the mount, the radius and the hover all live on the
+     base rule now, so phone and desktop cannot drift apart. */
   .section_layout413 .layout413_image-wrapper {
     width: 100% !important;          /* beats the base rule's width:auto!important */
     max-width: 26rem;
-    height: auto;
-    padding-top: 0;
     aspect-ratio: 3 / 2;
     margin: 0 auto 2.75rem;
-    overflow: visible;               /* lets the offset mount show */
   }
-  .section_layout413 .layout413_image {
-    transform: none;                 /* the 1.01 bleed exists only for the clipped hover */
-    border-radius: 14px;             /* the wrapper no longer clips it */
-    object-position: 50% 20%;        /* same crop as .founder_portrait-img on /about */
-  }
-  /* the offset mount, copied from .framed-image::before rather than re-invented */
-  .section_layout413 .layout413_image-wrapper::before {
-    content: "";
-    position: absolute;
-    left: 10px; top: 10px; right: -10px; bottom: -10px;
-    border: 1px solid rgba(168,139,92,0.38);
-    border-radius: 14px;
-    pointer-events: none;
-    z-index: 0;
-  }
+  .section_layout413 .layout413_image { object-position: 50% 20%; }
 }
 @media (max-width: 479px) {
   /* no max-width reduction here on purpose - the photo should read at the same scale as
