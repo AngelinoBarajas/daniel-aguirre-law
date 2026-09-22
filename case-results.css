@@ -219,3 +219,34 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+/* ===== The two practice-area columns become EQUAL-HEIGHT CARDS ==============
+   The card surface itself is NOT declared here: the two columns now carry the
+   shared `glass glass-pad` utilities, so they use the site's one cream-glass
+   recipe rather than a fourth private copy of those tokens.
+   [[feedback_shared-styles-discipline]]
+   What is left is the part utilities cannot do: make both columns full-height
+   flex stacks and push "View all ..." to the bottom of each, so the two links
+   align across the row even though Immigration has 5 links and Humanitarian 6.
+   Grid items already stretch, so equal height needs nothing further. */
+.section_results-areas .results-areas_grid { align-items: stretch; }
+.section_results-areas .results-areas_col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+/* margin-top:auto eats the slack in the shorter card. The 1.15rem the base rule
+   set is kept as a MINIMUM gap via padding, so the link never sits tight against
+   the last practice area in the taller card either. */
+.section_results-areas .results-area_all {
+  margin-top: auto;
+  padding-top: 1.15rem;
+}
+/* The last link's divider would otherwise collide with the card's own edge. */
+.section_results-areas .results-area_link:last-of-type { border-bottom: none; }
+
+@media screen and (max-width: 991px) {
+  /* Stacked, the two cards no longer share a row, so equal height is meaningless
+     and a forced 100% would stretch the shorter card for nothing. */
+  .section_results-areas .results-areas_col { height: auto; }
+}
