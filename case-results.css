@@ -1,0 +1,199 @@
+
+/* =========================================================
+   Case Results page — /case-results   (page-level code)
+   Page Settings -> Inside <head>. Mirrored locally as
+   case-results-page.css — this file is the source of truth.
+
+   Page-level only: Lora faces, pseudo-elements, on-navy
+   overrides and breakpoints. Every box style lives in a real
+   Webflow class so the Designer canvas stays honest.
+
+   NOTE: literal characters are used below (arrow, quotes)
+   rather than CSS unicode escapes. An escape written through
+   a Python heredoc once lost a backslash and was re-read as
+   an OCTAL escape, shipping an invisible control character.
+   ========================================================= */
+
+/* --- Lora -------------------------------------------------
+   whtml_builder cannot set font-family on this site
+   (returns missing_font: Lora), so the serif faces are here. */
+.results-hero_lead   { font-family: "Lora", serif; font-style: italic; }
+.results-metric_num  { font-family: "Lora", serif; }
+.results-step_title  { font-family: "Lora", serif; }
+
+/* --- Navy method section ----------------------------------
+   heading-style-* is dark by default, and the site-wide kicker
+   rule only knows the four dark sections that existed when it
+   was written — this one is newer, so it is handled here. */
+.section_results-method [class*="heading-style"] { color: #FCF6EC; }
+.section_results-method .eyebrow                 { color: #A88B5C; }
+
+/* --- Method cards: hover ----------------------------------
+   Ported from .step_item on the practice-area template so the
+   two navy step treatments match: gentle lift, tan edge, and a
+   steady top-left corner glow that only fades in and out.
+
+   Two deliberate differences from the source:
+   1. The glow circle is 380px, not 460px. These cards sit in a
+      2-up grid (~618px wide) rather than full width (~960px),
+      so the source radius would cover ~74% of the card instead
+      of ~48% and read as a hotspot rather than raking light.
+   2. No .step_tag equivalent — these cards carry no pill.
+
+   position/overflow are set here because .results-step has
+   neither; the glow needs a positioned parent, and the clip
+   keeps it inside the 14px radius. */
+.results-step {
+  position: relative;
+  overflow: hidden;
+  transition: transform .4s cubic-bezier(.5,0,.2,1), box-shadow .4s ease, border-color .4s ease;
+}
+.results-step::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: radial-gradient(380px circle at 0% 0%,
+    rgba(191,163,116,0.17), rgba(191,163,116,0.06) 38%, rgba(191,163,116,0) 70%);
+  opacity: 0;
+  transition: opacity .45s ease;
+  pointer-events: none;
+}
+.results-step:hover::after { opacity: 1; }
+.results-step:hover {
+  transform: translateY(-3px);
+  border-color: rgba(168,139,92,0.45);
+  box-shadow: 0 28px 60px rgba(6,12,28,0.42), 0 6px 18px rgba(6,12,28,0.28), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.results-step:hover .results-step_num { color: #BFA374; }
+.results-step_num { transition: color .35s ease; }
+
+/* --- Practice-area links ---------------------------------- */
+.results-area_link::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 0.5rem;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.results-area_link:hover {
+  color: #891E2D;
+  padding-left: 0.35rem;
+  border-bottom-color: rgba(137, 30, 45, 0.35);
+}
+.results-area_link:hover::after { opacity: 1; transform: translateX(0); }
+.results-area_link:focus-visible { outline: 2px solid #A88B5C; outline-offset: 3px; }
+
+/* --- Collection List wrappers -----------------------------
+   These must not become grid items themselves. .w-dyn-item is
+   required: omitting it is the uneven-card bug from
+   /practice-areas and /about. */
+.results-voices_grid .w-dyn-list,
+.results-voices_grid .w-dyn-items,
+.results-voices_grid .w-dyn-item { display: contents; }
+
+/* --- Map --------------------------------------------------
+   The base component is built for the hero's left-aligned
+   two-column layout; centring it is all this page needs.
+   The scroll-reveal is disabled on the section via
+   data-animate-skip so nothing ever transforms the canvas. */
+.section_results-map .case-map { margin-left: auto; margin-right: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .results-area_link,
+  .results-area_link::after,
+  .results-step,
+  .results-step::after,
+  .results-step_num { transition: none; }
+  .results-step:hover { transform: none; }
+}
+
+/* --- Breakpoints ----------------------------------------- */
+@media screen and (max-width: 991px) {
+  .section_results-hero  { padding-top: 5rem; }
+  .results-areas_grid    { grid-template-columns: 1fr; grid-row-gap: 2.5rem; }
+  .results-method_grid   { grid-template-columns: 1fr; grid-row-gap: 1.5rem; }
+  .results-voices_grid   { grid-template-columns: 1fr 1fr; }
+  .results-voices_head   { flex-direction: column; align-items: flex-start; }
+  .results-voices_head .button { margin-top: 1.5rem; }
+}
+
+@media screen and (max-width: 767px) {
+  .results-hero_metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-row-gap: 1.75rem;
+  }
+  .results-metric      { padding-right: 1rem; }
+  .results-metric_num  { font-size: 2.25rem; }
+  .results-voices_grid { grid-template-columns: 1fr; }
+  .section_results-method { padding-top: 4rem; padding-bottom: 4rem; }
+}
+
+@media screen and (max-width: 479px) {
+  .results-hero_metrics { grid-template-columns: 1fr; }
+  .results-metric       { padding-right: 0rem; }
+  .results-hero_lead    { font-size: 1.125rem; }
+}
+
+/* ===== 2026-09-22 — MOBILE PASS ==========================================
+   (1) THE HERO METRICS. Stacked one per row on a phone they became three tall
+       blocks — a 2.25rem numeral alone on its line above a two-line caption,
+       three times over, with nothing visually tying a figure to its caption.
+       They now read as a compact spec list: the numeral in a fixed column so
+       all three align, the caption beside it, and a hairline between rows
+       echoing the rule the metrics row already sits under. */
+@media screen and (max-width: 767px) {
+  .results-hero_metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-row-gap: 0rem;
+  }
+  .results-metric {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    grid-column-gap: 1rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    padding-right: 0;
+    border-bottom: 1px solid rgba(26,40,64,0.12);
+  }
+  .results-metric:first-child { padding-top: 0.25rem; }
+  .results-metric:last-child  { border-bottom: 0; padding-bottom: 0; }
+  .results-metric_num   { font-size: 2.1rem; margin-bottom: 0; }
+  .results-metric_label { max-width: none; font-size: 0.9rem; }
+}
+@media screen and (max-width: 479px) {
+  .results-metric     { grid-template-columns: 3.9rem 1fr; grid-column-gap: 0.85rem; }
+  .results-metric_num { font-size: 1.9rem; }
+}
+
+/* (2) "View all …" under each practice-area column. The two columns already
+       list every practice-area PAGE, but the category HUBS — /immigration and
+       /humanitarian — were unreachable from this page, and they are where a
+       category is seen whole. Literal arrow glyph, never a CSS unicode escape.
+       [[lesson_css-escapes-through-python-heredocs]] */
+.results-area_all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.15rem;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #891E2D;
+  text-decoration: none;
+  transition: color 220ms ease;
+}
+.results-area_all::after {
+  content: "→";
+  transition: transform 220ms ease;
+}
+.results-area_all:hover { color: #6F1824; }
+.results-area_all:hover::after { transform: translateX(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .results-area_all::after,
+  .results-area_all:hover::after { transition: none; transform: none; }
+}
