@@ -491,9 +491,18 @@ html.lenis, html.lenis body { height: auto; }
   }
   /* The logo took 205px of a 375px viewport (55%) and the hamburger sat in a 16px hit box. */
   .navbar8_component .navbar8_logo { max-width: 168px; }
-  .navbar8_component .navbar8_menu-button {
+  /* SPECIFICITY: Webflow ships `.w-nav[data-collapse="medium"] .w-nav-button { display: block }`
+     inside its own max-width:991 block -- 0,3,0. A rule written as
+     `.navbar8_component .navbar8_menu-button` is 0,2,0 and LOSES, so the button stayed a
+     BLOCK, align-items/justify-content were inert, and the 16px glyph sat at the top-left of
+     its 44px box: 14px above the bar's centre line (and the logo's), hard up under the navy
+     tap-to-call strip, and 27px in from the right against the logo's 17px on the left.
+     Matching 0,4,0 fixes the vertical offset AND the right inset in one go, because centring
+     the 24px icon in the 44px box lands it exactly 17px off the viewport edge. */
+  .navbar8_component.w-nav .navbar8_menu-button.w-nav-button {
     display: flex; align-items: center; justify-content: center; background: transparent;
-    width: 44px; height: 44px; margin-right: -0.625rem;   /* 44px = the minimum touch target */
+    width: 44px; height: 44px; padding: 0;
+    margin-right: -0.625rem;   /* pulls the 44px hit area out to the bar's 1.25rem gutter */
   }
 
   /* --- TAP-TO-CALL STRIP -----------------------------------------------------------
