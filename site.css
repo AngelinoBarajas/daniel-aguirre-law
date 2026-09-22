@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.1  (team teaser: initials discs + founder set apart) */
+/* CODE-CSS-VERSION: 2026-09-22.2  (mega-menu View all chip clears the panel bottom edge) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1639,6 +1639,10 @@ html.lenis, html.lenis body { height: auto; }
     align-items: center;
     margin-left: auto;
     margin-top: 1.15rem;
+    /* The panel has 5% SIDE padding and ZERO vertical padding, so without this the
+       chip sat 1px off the panel's bottom edge while enjoying 72px of air on the
+       right. Measured 2026-09-22: gapChipToPanelBottom 1px vs gapToRight 72px. */
+    margin-bottom: 1.75rem;
     padding: 0.55rem 1.05rem;
     border: 1px solid rgba(168,139,92,0.45);
     border-radius: 9px;
