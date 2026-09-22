@@ -76,3 +76,11 @@
   .section_about-overview { padding-bottom: 2.5rem; }
   .section_about-band { padding-bottom: 2.75rem; }
 }
+
+/* 2026-09-22 — on tablet and phone .founder_grid stacks, and the bio started
+   immediately under "Daniel Aguirre, Esq. / Attorney and Founder" with only
+   the grid's default row gap between them, so the name and role read as a
+   caption hanging off the portrait. The bio needs a break of its own. */
+@media screen and (max-width: 991px) {
+  .founder_body { margin-top: 2.75rem; }
+}
