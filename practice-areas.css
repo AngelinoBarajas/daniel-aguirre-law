@@ -372,7 +372,10 @@
   .section_service-why .why_grid > div:first-child { display: contents; }
   .section_service-why .why_grid > div:first-child > * { order: 1; }
   .section_service-why .why_stats { order: 2; margin-top: 2.25rem; }
-  .section_service-why .why_cta {
+  /* MUST be matched through the same > div:first-child > path. The generic rule two
+     lines up is 0,3,0; a plain `.section_service-why .why_cta` is 0,2,0 and LOSES to
+     my own rule, so the CTA kept order:1 and stayed above the stats. */
+  .section_service-why .why_grid > div:first-child > .why_cta {
     order: 3;
     justify-self: start;
     margin-top: 2.25rem;
