@@ -1,3 +1,4 @@
+
 /* SCHEDULE-CSS-VERSION: 2026-09-21.6 */
 /* ===========================================================================
    /schedule-consultation — page stylesheet
@@ -642,3 +643,9 @@
   .section_schedule-help { padding-bottom: 4rem; }
   .sched_rail-phone { font-size: 1.4rem; }
 }
+
+/* 2026-09-22 — room above the two CTA rows added to this page: under the three
+   What Happens Next steps, and under the three routing cards in "Not Sure Where
+   Your Case Fits?". */
+.section_schedule-next .button-row,
+.section_schedule-help .button-row { margin-top: 2.75rem; }
