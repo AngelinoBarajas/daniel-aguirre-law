@@ -296,14 +296,20 @@
 }
 .topic_chip:focus-visible { outline: 2px solid #A88B5C; outline-offset: 3px; }
 
-/* ⚠ A Topic with no Canonical Page renders href="#", which would jump the
-   reader to the top of the page. Same for an Insights card until its
-   CMS-item link is wired in the Designer. Neutralised here, but CSS cannot
-   take an anchor out of the tab order — the real fix is the Designer step
-   that splits linked and unlinked chips into two conditionally-visible
-   elements. Remove these two rules once that lands. */
-.topic_chip[href="#"] { pointer-events: none; cursor: default; color: #4A5470; }
-.topic_read-card[href="#"] { pointer-events: none; }
+/* PLAIN CHIPS — 2026-10-09. A Topic with no Canonical Page now renders as a
+   Text Block twin (a <div class="topic_chip">, no href) instead of a dead
+   <a href="#">; the Designer step landed, so the old [href="#"] stopgap is gone.
+   The quiet grey look moves with it. 0,4,0 / 0,5,0 on purpose: the template
+   FOOTER field styles `.section_service-covers .topic_chip:not([href="#"])`
+   (0,3,0) as a maroon destination, which a no-href div also matches - without
+   these rules every plain chip read as a link. */
+.section_service-covers .topic_related-row .topic_chip:not([href]),
+.section_service-covers .topic_related-row .topic_chip:not([href]):hover {
+  color: #4A5470;
+  border-color: rgba(26,40,64,0.16);
+  background-color: transparent;
+  cursor: default;
+}
 
 /* Case-result kicker: "Family-Based · 2025".
    Literal middle dot, never a CSS unicode escape — an escape written
