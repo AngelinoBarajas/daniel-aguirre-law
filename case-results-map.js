@@ -508,8 +508,13 @@
       if (hit) { cancelHoverClose(); if (hit.id !== activeId) openCluster(hit); } else closePopup();
       requestDraw();
     });
-    if (!isTouch()) {
-      canvas.addEventListener('mousemove', function (e) {
+    // Hover is decided PER EVENT from the pointer that moved, not once from `(hover: none)`.
+    // 2026-10-09: some Windows setups (touch-capable 4K screen, pen) report hover:none with a
+    // mouse attached, which switched hover off entirely — pins opened only on click. A finger
+    // reports pointerType 'touch' and is ignored here; its tap still opens a pin via 'click'.
+    {
+      canvas.addEventListener('pointermove', function (e) {
+        if (e.pointerType === 'touch') return;
         if (dragging) return;
         var s = canvasCoords(e.clientX, e.clientY), w = screenToWorld(s.x, s.y);
         canvasMouseX = w.x; canvasMouseY = w.y;
@@ -519,7 +524,8 @@
         if (hit) { cancelHoverClose(); if (hit.id !== activeId) openCluster(hit); }
         else if (activeId && !popupIsHovered) scheduleHoverClose();
       });
-      canvas.addEventListener('mouseleave', function () {
+      canvas.addEventListener('pointerleave', function (e) {
+        if (e.pointerType === 'touch') return;
         canvasMouseX = -9999; canvasMouseY = -9999; pointerOver = false;
         if (activeId && !popupIsHovered) scheduleHoverClose();
         requestDraw();   // one last frame to clear the proximity glow, then the loop idles out
