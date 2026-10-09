@@ -250,3 +250,49 @@
      and a forced 100% would stretch the shorter card for nothing. */
   .section_results-areas .results-areas_col { height: auto; }
 }
+
+/* ===== CASE CARDS — "This Case Demonstrates" + "Similar Results" (Addition 01, 2026-10-09) =====
+   Section .section_results-cases sits between the map and the disclaimer. Box styling lives in
+   real Webflow classes (case-card_*, results-cases_*); this file carries only what the Style
+   panel cannot express. The grouping + "Similar Results" links come from the inline script in
+   this page's FOOTER field (mirrored as case-results-footer.html).
+   ⚠ The list currently shows the 15 PLACEHOLDER cases on staging only, for design review.
+   Before launch the list gets the filter `Placeholder is off`, and the section then hides
+   itself until real matters exist (rule below). */
+
+/* Collection List plumbing: the cards are the grid items, including .w-dyn-item, or cards
+   come out uneven. Scoped with > so the NESTED tag list inside each card is not caught. */
+.results-cases_grid > .w-dyn-list,
+.results-cases_grid > .w-dyn-list > .w-dyn-items,
+.results-cases_grid > .w-dyn-list > .w-dyn-items > .w-dyn-item { display: contents; }
+/* the nested tag list flows straight into the flex row */
+.case-card_tags .w-dyn-list,
+.case-card_tags .w-dyn-items,
+.case-card_tags .w-dyn-item { display: contents; }
+
+/* Empty list -> no section at all (heading included). Empty tag list -> no "demonstrates" row. */
+.section_results-cases:has(.results-cases_grid > .w-dyn-list > .w-dyn-empty) { display: none; }
+.case-card_demo:has(.w-dyn-empty) { display: none; }
+.case-card_similar:not(:has(a)) { display: none; }
+
+/* Literal glyphs, never CSS unicode escapes (an escape written through a script once became an
+   octal escape and shipped a stray character). */
+.case-card_type::after { content: "·"; margin-left: 0.5rem; }
+.case-card_city::after { content: ","; }
+
+/* Compact chips inside cards; the chip is a <p>, so its default margin goes. */
+.case-card_tags .topic_chip { margin: 0; font-size: 0.8rem; line-height: 1.3; padding: 5px 11px; }
+
+/* Grouped rows, built by the footer script: label on its own line, chips below. */
+.case-card_tags[data-grouped="1"] { display: block; }
+.case-card_group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.case-card_group + .case-card_group { margin-top: 0.6rem; }
+.case-card_group-label { flex: 0 0 100%; margin: 0; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: #4A5470; }
+
+/* "Similar Results" links jump to the other card on this page. */
+.case-card_similar-link { color: #891E2D; font-size: 0.9rem; font-weight: 600; line-height: 1.4; text-decoration: none; }
+.case-card_similar-link::after { content: " →"; }
+.case-card_similar-link:hover, .case-card_similar-link:focus-visible { text-decoration: underline; }
+.case-card { scroll-margin-top: 140px; transition: box-shadow 0.4s ease, border-color 0.4s ease; }
+.case-card.is-target { border-color: rgba(168,139,92,0.65); box-shadow: 0 0 0 3px rgba(168,139,92,0.25), 0 18px 40px rgba(26,40,64,0.12); }
+@media (prefers-reduced-motion: reduce) { .case-card { transition: none; } }
