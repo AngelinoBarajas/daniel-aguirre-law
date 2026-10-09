@@ -122,9 +122,13 @@
     // nobody can see the difference between 2x and 3x here, and it is a ~2.25x pixel saving.
     var MAX_DPR_DESKTOP = 2, MAX_DPR_MOBILE = 1.5;
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, isMobile() ? MAX_DPR_MOBILE : MAX_DPR_DESKTOP);
-      W = wrap.clientWidth; H = wrap.clientHeight;
-      canvas.width = W * dpr; canvas.height = H * dpr;
+      var DPR = window.devicePixelRatio || 1;
+      dpr = Math.min(DPR, isMobile() ? MAX_DPR_MOBILE : MAX_DPR_DESKTOP);
+      // 2026-10-09: snap the CSS size to WHOLE DEVICE PIXELS. At 150% scaling a 1275px wrapper is
+      // 1912.5 device px; the backing store truncated to 1912 and the last half pixel blended with
+      // the alpha:false canvas's black default - a thin dark line down the right edge on 4K screens.
+      W = Math.floor(wrap.clientWidth * DPR) / DPR; H = Math.floor(wrap.clientHeight * DPR) / DPR;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
