@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-09-22.9  (nav: strip links keyed explicitly to .nav-condensed) */
+/* CODE-CSS-VERSION: 2026-10-08.1  (>1920: true zoom of the 1920 layout) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -455,7 +455,9 @@ html.lenis, html.lenis body { height: auto; }
 /* Ultrawide (≥1921px): expanded content inset tracks the hero's global padding clamp.
    (Condensed pill keeps its 1.75rem inner padding via higher specificity.) */
 @media (min-width: 1921px) {
-  .navbar8_component > .navbar8_container { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
+  /* 2026-10-08: rem, not a vw clamp. Above 1920 the html font scales with the viewport, so a rem
+     inset keeps the page a true zoom of the 1920 layout (see the 4K block). */
+  .navbar8_component > .navbar8_container { padding-left: 2.5rem; padding-right: 2.5rem; }
 }
 
 /* --- Tablet + mobile (≤991, hamburger) -- REBUILT 2026-09-21 ------------------------
@@ -805,7 +807,7 @@ html.lenis, html.lenis body { height: auto; }
           mask: var(--tel) center/contain no-repeat;
 }
 @media (min-width: 1921px) {
-  .navbar8_component .nav-utility_inner { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
+  .navbar8_component .nav-utility_inner { padding-left: 2.5rem; padding-right: 2.5rem; }
   .navbar8_component.nav-condensed .nav-utility_inner { padding-left: 1.75rem; padding-right: 1.75rem; }
 }
 @media (max-width: 991px) {
@@ -990,18 +992,23 @@ html.lenis, html.lenis body { height: auto; }
 .section_layout253 .button.is-link::before { display: none; }
 .section_layout253 .button.is-link:hover { color: #A88B5C; }
 
-/* ===== 4K / ultrawide scaling (≥1921px) =====
-   Tune the per-section overrides per project; the html font-size + container/padding
-   scaling is the reusable base. */
+/* ===== 4K / ultrawide scaling (≥1921px) — REWORKED 2026-10-08 =====
+   Above 1920 the page is a TRUE ZOOM of the 1920 layout: the html font grows with the viewport
+   (0.835vw = 16px at 1920, capped at 28px ≈ 3353px wide) and every width that matters is in rem,
+   so text and columns grow together.
+   WHAT WAS WRONG: text scaled with the html font but the hero (1668px), container-large (1600px →
+   1920px) and the nav/global insets (vw clamps) did not. At 2560 (a 4K screen at 150%, or a 1440p
+   monitor at 100%) the 80px hero headline sat in a fixed 478px column and broke onto six lines, and
+   the logo, the hero and the text containers started at three unrelated left edges (102/438/312px).
+   Now at 2560: headline 4 lines (same as 1920), edges 54/165/422 — the 1920 proportions ×1.33. */
 @media (min-width: 1921px) {
   html { font-size: clamp(16px, 0.835vw, 28px); }
-  .container-large { max-width: 1600px; }
-  .padding-global { padding-left: clamp(2.5rem, 4vw, 6rem); padding-right: clamp(2.5rem, 4vw, 6rem); }
+  .container-large { max-width: 80rem; }
+  .padding-global { padding-left: 2.5rem; padding-right: 2.5rem; }
   .padding-section-large { padding-top: clamp(5rem, 6vw, 10rem); padding-bottom: clamp(5rem, 6vw, 10rem); }
   .padding-section-medium { padding-top: clamp(3rem, 4vw, 7rem); padding-bottom: clamp(3rem, 4vw, 7rem); }
-}
-@media (min-width: 2560px) {
-  .container-large { max-width: 1920px; }
+  /* the logo image carries a fixed 205px width as a Webflow class */
+  .navbar8_component .navbar8_logo { width: 12.8125rem; max-width: 12.8125rem; }
 }
 
 /* ===== Mobile / tablet polish ===== */
@@ -1121,6 +1128,9 @@ html.lenis, html.lenis body { height: auto; }
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
+/* ≥1921 (2026-10-08): the same 1668px as rem, so the hero zooms with the html font. Must sit AFTER
+   the base rule above — same specificity, so source order decides. */
+@media (min-width: 1921px) { .section_hero .hero_layout { width: min(100% - 5rem, 104.25rem); } }
 /* Filter-chip entrance — staggered fade + rise. Runs on load (chips are static markup) ~0.65s
    in, so it follows the hero text/map entrance. Honors reduced-motion (below). */
 @keyframes daChipIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -2067,6 +2077,7 @@ html.lenis, html.lenis body { height: auto; }
   }
   /* 20px back from the logo. It is 205px at rest and the wordmark keeps its ratio. */
   .navbar8_component:not(.nav-condensed) .navbar8_logo { max-width: 185px; }
+  @media (min-width: 1921px) { .navbar8_component:not(.nav-condensed) .navbar8_logo { max-width: 11.5625rem; } }
   /* THE ACTUAL CAUSE OF THE WRAP, and it is not any single width:
      .navbar8_menu-left is display:block with inline-block children, so the gaps
      between them are TEXT NODES - roughly 4px each, ~28px across eight items. The
