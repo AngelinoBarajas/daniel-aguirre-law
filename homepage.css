@@ -101,7 +101,7 @@
 
 /* --- the card ---------------------------------------------------------------------- */
 .section_layout423 .layout423_card {
-  width: auto !important;          /* kills the IX2 inline width:50% grow */
+  width: auto;                     /* IX2 card grow deleted in the Designer 2026-10-09 */
   min-height: 0;
   height: auto;
   padding: 0;                      /* was 2rem — padding now lives on the content block */
@@ -162,12 +162,12 @@
    `overflow: hidden` then sliced the description mid-line and ate the CTA entirely.
    Measured: card 359px tall against a 459px scrollHeight, content-bottom 0px against a
    129px scrollHeight. It looked like a too-short card; it was a collapsed child.
-   When those IX2 interactions are finally deleted in the Designer, all THREE of these
-   !importants come out together. */
+   2026-10-09: the IX2 interactions were deleted in the Designer, so these are plain
+   declarations now, kept as a safety net. */
 .section_layout423 .layout423_card-content-bottom {
-  opacity: 1 !important;
-  transform: none !important;
-  height: auto !important;
+  opacity: 1;
+  transform: none;
+  height: auto;
 }
 
 /* The card carries .text-color-white and the heading is .heading-style-h4, which computes
@@ -267,7 +267,7 @@
    Portrait 4:5, same as .founder_portrait on /about, which carries the same photo. */
 .section_layout413 .layout413_image-wrapper {
   position: relative;
-  width: auto !important;        /* kills the IX2 inline width:200% overflow */
+  width: auto;                   /* IX2 headshot grow deleted in the Designer 2026-10-09 */
   max-width: 100%;               /* the COLUMN sizes it now - see the 0.82/1.18 grid below */
   height: auto;
   padding-top: 0;                /* Relume sets padding-top:100%; aspect-ratio owns the box now */
@@ -783,7 +783,7 @@
   /* Only size and crop here - the mount, the radius and the hover all live on the
      base rule now, so phone and desktop cannot drift apart. */
   .section_layout413 .layout413_image-wrapper {
-    width: 100% !important;          /* beats the base rule's width:auto!important */
+    width: 100%;
     max-width: 26rem;
     aspect-ratio: 3 / 2;
     margin: 0 auto 2.75rem;
