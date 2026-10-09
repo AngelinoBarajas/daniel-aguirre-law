@@ -283,11 +283,11 @@
 /* Compact chips inside cards; the chip is a <p>, so its default margin goes. */
 .case-card_tags .topic_chip { margin: 0; font-size: 0.8rem; line-height: 1.3; padding: 5px 11px; }
 
-/* Grouped rows, built by the footer script: label on its own line, chips below. */
+/* Grouped rows, built by the footer script: small label inline, then its chips. */
 .case-card_tags[data-grouped="1"] { display: block; }
-.case-card_group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.case-card_group + .case-card_group { margin-top: 0.6rem; }
-.case-card_group-label { flex: 0 0 100%; margin: 0; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: #4A5470; }
+.case-card_group { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.case-card_group + .case-card_group { margin-top: 0.45rem; }
+.case-card_group-label { flex: 0 0 auto; margin: 0 0.15rem 0 0; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: #4A5470; }
 
 /* "Similar Results" links jump to the other card on this page. */
 .case-card_similar-link { color: #891E2D; font-size: 0.9rem; font-weight: 600; line-height: 1.4; text-decoration: none; }
