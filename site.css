@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.9  (nav frozen: sticky, no morph, no auto-hide) */
+/* CODE-CSS-VERSION: 2026-10-11.10  (nav frozen + fits at every desktop width) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2229,3 +2229,27 @@ html.lenis, html.lenis body { height: auto; }
    To restore the old morph: delete that head script. Nothing in init.js was changed. */
 .navbar8_component > .navbar8_container { transition: box-shadow 0.25s ease; }
 .navbar8_component.nav-scrolled > .navbar8_container { box-shadow: 0 10px 28px rgba(26,40,64,0.12); }
+/* With the bar frozen in its AT-REST layout it has to fit at every desktop width, not just
+   until the first scroll (the old pill hid a wrap at 1100-1279: five links summed 511px into
+   502px and the bar grew 105 -> 167px). Measured fixes, 2026-10-11:
+   - >=992: the link row is a real FLEX row. As a block with inline-block children the gaps
+     between links were text nodes, ~4px each - the same trap the >=1440 rule already fixed.
+   - 992-1279: the tight padding band (was 992-1199) now runs to 1279, and the underline
+     inset follows the padding.
+   - 992-1149: Results moves up to the strip (was 992-1099). At 1100 it fit with 0px to
+     spare against the actions; at 1150 there is 31px, so 1150 is where it comes back.
+   The icon-only call button stays at 992-1099 as before. */
+@media (min-width: 992px) {
+  .navbar8_component .navbar8_menu-left { display: flex; align-items: center; flex-wrap: nowrap; }
+  .navbar8_component .navbar8_menu-left > * { flex: 0 0 auto; }
+}
+@media (min-width: 992px) and (max-width: 1279px) {
+  .navbar8_component .navbar8_link,
+  .navbar8_component .navbar8_dropdown-toggle { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .navbar8_component .navbar8_link::after { left: 0.5rem; right: 0.5rem; }
+  .navbar8_component .navbar8_logo { max-width: 168px; }
+}
+@media (min-width: 992px) and (max-width: 1149px) {
+  .navbar8_component [data-nav-overflow="results"] { display: inline-block; }
+  .navbar8_component [data-nav-primary="results"] { display: none !important; }
+}
