@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.1  (mobile hero map: pulled up, hint centred below) */
+/* CODE-CSS-VERSION: 2026-10-11.2  (mobile: all maps pulled up, hint centred below) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1168,12 +1168,10 @@ html.lenis, html.lenis body { height: auto; }
      4rem bottom padding plus the box's empty bands left ~110px between the buttons and the
      map; 1.45 is closer to CONUS's own 1.56 so less dead space top and bottom. (2) the hint
      is centred BELOW the map, not inside it: centred inside, it would sit on the Florida pin.
-     The wrap's overflow must be visible for that; the canvas is absolute and exactly fills
-     the wrap, so nothing else spills. */
+     The map rules for (2) apply to EVERY map (hero, /case-results, /reviews) and live in the
+     "ALL MAPS ON PHONES" block at the END of this file, after the /reviews variant they
+     must outrank. */
   .section_hero .hero_content { padding-bottom: 1.5rem; }
-  .section_hero .case-map.is-fill .case-map_canvas-wrap { aspect-ratio: 1.45 / 1; overflow: visible; }
-  .section_hero .case-map.is-fill .map_hint { left: 50%; transform: translateX(-50%); top: calc(100% + 0.75rem); bottom: auto; white-space: nowrap; }
-  .section_hero .case-map.is-fill .hero_filters { padding-top: 3.75rem; }
   /* Stack: text over map, full width. */
   .section_hero .hero_layout { grid-template-columns: 1fr !important; width: calc(100% - 3rem); column-gap: 0; padding-top: 0; padding-bottom: 0; }
 }
@@ -2135,4 +2133,22 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .navbar8_component .nav-utility_links { transition: none; }
+}
+
+/* ===== ALL MAPS ON PHONES (2026-10-11 QA) ==================================
+   Applies to the hero map, /case-results and /reviews.
+   - Box aspect 1.3 -> 1.45, nearer CONUS's own 1.56, so less empty band above and below
+     the country and the map reads closer to the copy above it.
+   - The "Hover a pin" hint moves BELOW the map, centred. Centred INSIDE the map it would
+     sit on the Florida pin. The wrap's overflow must be visible for that; the canvas is
+     absolute and exactly fills the wrap, so nothing else spills.
+   - The chips make room for it. The /reviews selector is listed by name because its own
+     rule (.section_reviews-map …, 0,4,0) would otherwise win and put the chips on the hint;
+     this block sits AFTER it, so the tie goes to this one. */
+@media (max-width: 991px) {
+  .case-map.is-fill .case-map_canvas-wrap { aspect-ratio: 1.45 / 1; overflow: visible; }
+  .case-map.is-fill .map_hint,
+  .section_reviews-map .case-map.is-fill .map_hint { left: 50%; right: auto; transform: translateX(-50%); top: calc(100% + 0.75rem); bottom: auto; white-space: nowrap; }
+  .case-map.is-fill .hero_filters,
+  .section_reviews-map .case-map.is-fill .hero_filters { padding-top: 3.75rem; }
 }
