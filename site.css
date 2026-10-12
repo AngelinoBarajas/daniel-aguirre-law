@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.5  (mobile nav: current page everywhere, flat strip + full-width sheet) */
+/* CODE-CSS-VERSION: 2026-10-11.6  (practice What We Handle left on phones) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2198,4 +2198,15 @@ html.lenis, html.lenis body { height: auto; }
     border: 0; border-bottom: 1px solid rgba(168,139,92,0.30);
     box-shadow: 0 18px 30px rgba(26,40,64,0.16);
   }
+}
+/* ===== Practice-area 'What We Handle' LEFT on phones (2026-10-11 QA) =================
+   The heading block and the consultation pair under the cards were centred above
+   left-aligned cards. Below 768 everything shares the cards' left edge. Scoped to
+   .section_service-included because .section_heading-center and .button-row.is-center are
+   shared classes. Lives HERE rather than practice-areas.css only so the change ships
+   without a Designer pin bump on the template (its head also holds CMS-token JSON-LD). */
+@media (max-width: 767px) {
+  .section_service-included .section_heading-center,
+  .section_service-included .section_heading-center > * { text-align: left; margin-left: 0; margin-right: 0; }
+  .section_service-included .button-row.is-center { justify-content: flex-start; }
 }
