@@ -178,3 +178,54 @@
   .expertise_term > summary > div { white-space: normal; }
   .expertise_term > summary::after { margin-left: 6px; flex: 0 0 auto; }
 }
+
+/* ===== Phone: every term is a full-width ROW that opens underneath (2026-10-11 QA) ======
+   Replaces the 2-column pill grid above. The user asked for the terms to read like the FAQ
+   accordion: one per line, full width, the definition opening beneath its own label. The
+   DETAILS element becomes the card (border, radius, fill) and the summary inside it goes
+   borderless, so the open definition sits inside the same box as its label. The linked
+   Practice Areas terms get the same row shape with a literal arrow, since they navigate
+   instead of opening. Sits at the END of the file so it outranks the 479 grid at equal
+   specificity. Desktop and tablet are untouched. */
+@media (max-width: 767px) {
+  .chip-row { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  .expertise_term,
+  .expertise_term[open] { flex: none; width: 100%; max-width: none; }
+  .expertise_term {
+    border: 1px solid rgba(26,40,64,0.14);
+    border-radius: 12px;
+    background-color: rgba(255,255,255,0.55);
+    overflow: hidden;
+    transition: border-color 200ms ease;
+  }
+  .expertise_term > summary,
+  .expertise_term[open] > summary,
+  .expertise_term > summary:hover {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+  .expertise_term > summary > div { white-space: normal; }
+  .expertise_term > summary::after { margin-left: 0; flex: 0 0 auto; font-size: 0.9em; }
+  .expertise_term[open] { border-color: rgba(168,139,92,0.55); }
+  .expertise_term[open] > summary { background-color: rgba(26,40,64,0.04); }
+  .expertise_def { padding: 4px 16px 16px; margin: 0; }
+  .chip-row .topic_chip.is-linked {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+  }
+  .chip-row .topic_chip.is-linked::after { content: "→"; margin-left: 12px; flex: 0 0 auto; }
+}
