@@ -127,7 +127,12 @@
       // 2026-10-09: snap the CSS size to WHOLE DEVICE PIXELS. At 150% scaling a 1275px wrapper is
       // 1912.5 device px; the backing store truncated to 1912 and the last half pixel blended with
       // the alpha:false canvas's black default - a thin dark line down the right edge on 4K screens.
-      W = Math.floor(wrap.clientWidth * DPR) / DPR; H = Math.floor(wrap.clientHeight * DPR) / DPR;
+      // 2026-10-11: the snap also has to hold on the BACKING STORE grid. Phones cap dpr at 1.5 while
+      // the screen is 3x, so H*dpr could land on .5, Math.round added a row the fill only half
+      // covered, and that row read as a dark bar under the map. Snap to the coarser grid (dpr), and
+      // every base fill below now runs 1px past each edge as a second guard.
+      var snap = Math.min(DPR, dpr);
+      W = Math.floor(wrap.clientWidth * snap) / snap; H = Math.floor(wrap.clientHeight * snap) / snap;
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -211,10 +216,10 @@
       bgLayer.width = bw; bgLayer.height = bh;
       var bctx = bgLayer.getContext('2d', { alpha: false });
       bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      bctx.fillStyle = '#FCF6EC'; bctx.fillRect(0, 0, W, H);
+      bctx.fillStyle = '#FCF6EC'; bctx.fillRect(-1, -1, W + 2, H + 2);
       var g = bctx.createRadialGradient(W * 0.5, H * 0.50, 0, W * 0.5, H * 0.50, W * 0.55);
       g.addColorStop(0, 'rgba(245,237,217,0.65)'); g.addColorStop(0.6, 'rgba(245,237,217,0.20)'); g.addColorStop(1, 'rgba(252,246,236,0)');
-      bctx.fillStyle = g; bctx.fillRect(0, 0, W, H);
+      bctx.fillStyle = g; bctx.fillRect(-1, -1, W + 2, H + 2);
 
       // Kept transparent and blitted AFTER the dots, so the stacking order is unchanged.
       outlineLayer = document.createElement('canvas');
@@ -371,10 +376,10 @@
       if (entranceDone && bgLayer) {
         ctx.drawImage(bgLayer, 0, 0, W, H);
       } else {
-        ctx.fillStyle = '#FCF6EC'; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#FCF6EC'; ctx.fillRect(-1, -1, W + 2, H + 2);
         var cg = ctx.createRadialGradient(W*0.5+pX*0.12, H*0.50+pY*0.12, 0, W*0.5, H*0.50, W*0.55);
         cg.addColorStop(0, 'rgba(245,237,217,0.65)'); cg.addColorStop(0.6, 'rgba(245,237,217,0.20)'); cg.addColorStop(1, 'rgba(252,246,236,0)');
-        ctx.fillStyle = cg; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = cg; ctx.fillRect(-1, -1, W + 2, H + 2);
       }
 
       ctx.save();
