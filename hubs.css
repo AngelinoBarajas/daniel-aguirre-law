@@ -297,3 +297,11 @@
    "Browse all resources" button under Related Reading. */
 .section_hub-router .button-row,
 .section_hub-reading .button-row { margin-top: 2.75rem; }
+
+/* 2026-10-11 QA: on phones the CTA rows under the router and Related Reading were
+   centred under LEFT-aligned copy and cards. Align them left to match. Desktop
+   keeps its centred rows. */
+@media screen and (max-width: 767px) {
+  .section_hub-router .button-row,
+  .section_hub-reading .button-row { justify-content: flex-start; }
+}
