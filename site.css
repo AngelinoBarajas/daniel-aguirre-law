@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.2  (mobile: all maps pulled up, hint centred below) */
+/* CODE-CSS-VERSION: 2026-10-11.3  (mobile: all maps pulled up, hint one line, smaller, below) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2148,7 +2148,7 @@ html.lenis, html.lenis body { height: auto; }
 @media (max-width: 991px) {
   .case-map.is-fill .case-map_canvas-wrap { aspect-ratio: 1.45 / 1; overflow: visible; }
   .case-map.is-fill .map_hint,
-  .section_reviews-map .case-map.is-fill .map_hint { left: 50%; right: auto; transform: translateX(-50%); top: calc(100% + 0.75rem); bottom: auto; white-space: nowrap; }
+  .section_reviews-map .case-map.is-fill .map_hint { left: 50%; right: auto; transform: translateX(-50%); top: calc(100% + 0.75rem); bottom: auto; white-space: nowrap; font-size: 0.625rem; letter-spacing: 0.02em; padding: 0.4rem 0.65rem; gap: 0.4rem; }
   .case-map.is-fill .hero_filters,
   .section_reviews-map .case-map.is-fill .hero_filters { padding-top: 3.75rem; }
 }
