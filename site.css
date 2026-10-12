@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.4  (mobile nav: current page shown everywhere, Firm label clear) */
+/* CODE-CSS-VERSION: 2026-10-11.5  (mobile nav: current page everywhere, flat docked strip) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2183,4 +2183,11 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component .navbar8_dropdown-link.w--current,
   .navbar8_component .navbar8_dropdown-link-small.w--current { background: rgba(137,30,45,0.08); color: #891E2D; }
   .navbar8_component .navbar8_dropdown-link.w--current .text-weight-semibold { color: #891E2D; font-weight: 600; }
+  /* The docked strip: flat and edge to edge on phones. The phone rule near the top of the
+     file already says this, but the desktop dock rule (radius 14px 14px 0 0, tan border,
+     max-width 80rem) comes LATER at the same specificity and won, so the rounded top
+     corners came back whenever the bar condensed. Restated here, after it. */
+  .navbar8_component.nav-condensed .nav-utility {
+    max-width: 100%; border: 0; border-radius: 0; box-shadow: none;
+  }
 }
