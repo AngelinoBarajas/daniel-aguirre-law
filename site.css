@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.8  (Results tap fill: no slide) */
+/* CODE-CSS-VERSION: 2026-10-11.9  (nav frozen: sticky, no morph, no auto-hide) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2220,3 +2220,12 @@ html.lenis, html.lenis body { height: auto; }
   .section_service-included .section_heading-center > * { text-align: left; margin-left: 0; margin-right: 0; }
   .section_service-included .button-row.is-center { justify-content: flex-start; }
 }
+/* ===== NAV FROZEN: no morph, no auto-hide, always visible (2026-10-11) ====================
+   The scroll script in the site FOOTER (init.js __daNavInit) is pre-empted by a two-line
+   script in the site HEAD that sets window.__daNavInit first, so .nav-condensed and
+   .nav-hidden are never added: the bar keeps its at-rest layout at every scroll position
+   and every link stays where it is. That head script only toggles .nav-scrolled after 8px,
+   which adds the shadow below so the sticky bar reads as floating over the page.
+   To restore the old morph: delete that head script. Nothing in init.js was changed. */
+.navbar8_component > .navbar8_container { transition: box-shadow 0.25s ease; }
+.navbar8_component.nav-scrolled > .navbar8_container { box-shadow: 0 10px 28px rgba(26,40,64,0.12); }
