@@ -575,7 +575,7 @@
     function openCluster(cl) {
       activeId = cl.id; hideTooltip();
       if (cl.cases.length === 1) { currentCluster = null; renderSingleCase(cl.cases[0]); } else { currentCluster = cl; renderClusterList(cl); }
-      positionPopup(cl.x, cl.y); popup.classList.add('visible');
+      positionPopup(cl.x, cl.y); popup.classList.add('visible'); popupOpenY = window.scrollY || 0;
     }
     function renderSingleCase(c) {
       var back = (currentCluster && currentCluster.cases.length > 1) ? '<button class="popup-back" onclick="window.__daMap.backToClusterList()">' + SVG_BACK + '<span>Back to all ' + currentCluster.cases.length + ' cases</span></button>' : '';
@@ -617,6 +617,15 @@
       popup.style.opacity = '';
     }
     function closePopup() { if (!popup) return; popup.classList.remove('visible'); activeId = null; currentCluster = null; requestDraw(); }
+    // 2026-10-11: close an open popup once the PAGE scrolls 60px from where it opened. The popup
+    // lives in a fixed layer (portaled to escape the map's clip), so on a phone it stayed on screen
+    // while the map scrolled away under it. 60px of slack so a nudge does not dismiss it; scrolling
+    // the cluster list INSIDE the popup does not move the page, so it never triggers this.
+    var popupOpenY = 0;
+    window.addEventListener('scroll', function () {
+      if (!popup || !popup.classList.contains('visible')) return;
+      if (Math.abs((window.scrollY || 0) - popupOpenY) > 60) closePopup();
+    }, { passive: true });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (zoom > 1) resetView(); else closePopup(); } });
     window.__daMap = {
       closePopup: closePopup, drillIntoCase: drillIntoCase, backToClusterList: backToClusterList,
