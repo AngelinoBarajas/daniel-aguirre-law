@@ -649,3 +649,56 @@
    Your Case Fits?". */
 .section_schedule-next .button-row,
 .section_schedule-help .button-row { margin-top: 2.75rem; }
+
+/* ===== Reassurance row ICONS (2026-10-11 QA) =================================
+   Each item gets a navy chip with a tan line glyph, the chip language of the
+   practice-area stat cards, so the three points read as features rather than a
+   loose list. Glyph = data-URI SVG as a MASK over `background: currentColor`
+   (same technique as the rail icons above): lock / two speech bubbles / scales.
+   The item becomes a 2-column grid: chip left, title + text right.
+   ⚠ :nth-child here ON PURPOSE, unlike the rail. These three items carry no
+   distinguishing class or child, and set_attributes on this page fails with a
+   component-map Conflict, so there is nothing structural to key on. If the
+   items are ever reordered in the Designer, reorder the three --assure-icon
+   lines to match. Same failure guard as the rail: `background` is set only where
+   an icon matched, so a 4th item gets an empty chip, never a solid tan square. */
+.sched-assure {
+  --assure-lock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E");
+  --assure-chat: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z'/%3E%3Cpath d='M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1'/%3E%3C/svg%3E");
+  --assure-scale: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/%3E%3Cpath d='m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/%3E%3Cpath d='M7 21h10'/%3E%3Cpath d='M12 3v18'/%3E%3Cpath d='M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2'/%3E%3C/svg%3E");
+}
+.sched-assure_item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: start;
+}
+.sched-assure_title,
+.sched-assure_text { grid-column: 2; }
+.sched-assure_item::before,
+.sched-assure_item::after {
+  content: "";
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: start;
+}
+.sched-assure_item::before {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background-image: linear-gradient(160deg, #22324F 0%, #16223A 100%);
+  box-shadow: 0 4px 10px rgba(26,40,64,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.sched-assure_item::after {
+  width: 18px;
+  height: 18px;
+  margin: 10px;
+  color: #BFA374;
+  -webkit-mask: var(--assure-icon, none) center/contain no-repeat;
+          mask: var(--assure-icon, none) center/contain no-repeat;
+}
+.sched-assure_item:nth-child(1)::after { --assure-icon: var(--assure-lock); background: currentColor; }
+.sched-assure_item:nth-child(2)::after { --assure-icon: var(--assure-chat); background: currentColor; }
+.sched-assure_item:nth-child(3)::after { --assure-icon: var(--assure-scale); background: currentColor; }
+/* the title sits level with the middle of the chip, not its top edge */
+.sched-assure_title { margin-top: 0.15rem; }
