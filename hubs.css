@@ -87,9 +87,11 @@
 .hub-head.is-center .hub-lead { margin-left: auto; margin-right: auto; }
 
 /* --- the service cards ------------------------------------------------- */
+/* 2026-10-12: grid minimums in rem, not px. Identical at <=1920 (16px root); above 1920 the root
+   font scales, so columns stay as wide as at 1920 instead of squeezing into 5 narrow cards on 4K. */
 .hub-svc_grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(19.375rem, 1fr));
   gap: 1.25rem;
 }
 .hub-svc_card {
@@ -167,7 +169,7 @@
 .section_hub-router .hub-lead { color: rgba(252,246,236,0.78); }
 .hub-router_list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(18.125rem, 1fr));
   gap: 0.9rem;
 }
 .hub-router_item {
@@ -200,7 +202,7 @@
 /* --- related reading --------------------------------------------------- */
 .hub-read_grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
   gap: 1.25rem;
 }
 .hub-read_card {
@@ -237,7 +239,7 @@
 /* --- the resources strip ----------------------------------------------- */
 .hub-res_row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(16.25rem, 1fr));
   gap: 1rem;
   margin-top: 1.5rem;
 }
