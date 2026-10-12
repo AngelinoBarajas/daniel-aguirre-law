@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-12.2  (homepage hero: more space under the map) */
+/* CODE-CSS-VERSION: 2026-10-12.3  (mega menu View all chip on the left) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1696,7 +1696,8 @@ html.lenis, html.lenis body { height: auto; }
     align-self: flex-end;
     display: inline-flex;
     align-items: center;
-    margin-left: auto;
+    margin-left: 0;   /* 2026-10-12: LEFT under the columns (was margin-left:auto, far right) */
+    margin-right: auto;
     margin-top: 1.15rem;
     /* The panel has 5% SIDE padding and ZERO vertical padding, so without this the
        chip sat 1px off the panel's bottom edge while enjoying 72px of air on the
