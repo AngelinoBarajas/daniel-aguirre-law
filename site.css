@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-12.1  (FAQ answer padding top + bottom) */
+/* CODE-CSS-VERSION: 2026-10-12.2  (homepage hero: more space under the map) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2271,6 +2271,6 @@ html.lenis, html.lenis body { height: auto; }
    needed. Measured after: gap 120px at 1440x900, 107px at 2000x1100. Phones unchanged. */
 @media (min-width: 992px) {
   .section_hero, .section_hero .hero_layout { min-height: 0; }
-  .section_hero .hero_layout { padding-top: 3rem; padding-bottom: 2.5rem; }
+  .section_hero .hero_layout { padding-top: 3rem; padding-bottom: 4rem; } /* 2026-10-12: 2.5 -> 4rem, a bit more air under the map */
   .section_hero .hero_content { transform: none; padding-top: 0 !important; padding-bottom: 0 !important; }
 }
