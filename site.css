@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.10  (nav frozen + fits at every desktop width) */
+/* CODE-CSS-VERSION: 2026-10-11.11  (homepage hero sized to content on desktop) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2252,4 +2252,16 @@ html.lenis, html.lenis body { height: auto; }
 @media (min-width: 992px) and (max-width: 1149px) {
   .navbar8_component [data-nav-overflow="results"] { display: inline-block; }
   .navbar8_component [data-nav-primary="results"] { display: none !important; }
+}
+/* ===== HOMEPAGE HERO: size to its content on desktop (2026-10-11) =====================
+   The hero AND its layout carried min-height:100svh (Webflow classes), the copy column
+   carried 4.5rem of padding above and below, and the copy was lifted translateY(-70px)
+   inside that tall box, which left 70px of phantom space under it. Together: 255px of
+   empty cream between the filter chips and 'Trusted & Recognized' at 1440x900, more on a
+   taller screen. With the nav now sticky and always visible, a full-viewport hero is not
+   needed. Measured after: gap 120px at 1440x900, 107px at 2000x1100. Phones unchanged. */
+@media (min-width: 992px) {
+  .section_hero, .section_hero .hero_layout { min-height: 0; }
+  .section_hero .hero_layout { padding-top: 3rem; padding-bottom: 2.5rem; }
+  .section_hero .hero_content { transform: none; padding-top: 0 !important; padding-bottom: 0 !important; }
 }
