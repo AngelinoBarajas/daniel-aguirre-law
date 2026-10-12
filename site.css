@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-12.3  (mega menu View all chip on the left) */
+/* CODE-CSS-VERSION: 2026-10-12.4  (practice areas: What this covers card dark) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2274,4 +2274,38 @@ html.lenis, html.lenis body { height: auto; }
   .section_hero, .section_hero .hero_layout { min-height: 0; }
   .section_hero .hero_layout { padding-top: 3rem; padding-bottom: 4rem; } /* 2026-10-12: 2.5 -> 4rem, a bit more air under the map */
   .section_hero .hero_content { transform: none; padding-top: 0 !important; padding-bottom: 0 !important; }
+}
+
+/* ===== PRACTICE AREAS: "What this covers" card goes DARK (2026-10-12) =====================
+   Navy card (the .navy-card recipe) with light text. Lives HERE, not in practice-areas.css,
+   because that template's head holds CMS-token JSON-LD and its pin is bumped by hand in the
+   Designer. This file loads FIRST, so every rule out-ranks what follows it:
+     template FOOTER  .section_service-covers .topic_chip:not([href="#"])        0,3,0 (maroon)
+     practice-areas   .section_service-covers .topic_related-row .topic_chip:not([href]) 0,4,0
+   Plain chips (div, no href) = quiet cream outline. Linked chips (a[href]) = tan, they go somewhere. */
+.section_service-covers .container-medium.glass.glass-pad {
+  background-color: #16223A;
+  background-image: linear-gradient(160deg, #1E2C46 0%, #16223A 100%);
+  border-color: rgba(252,246,236,0.12);
+  box-shadow: 0 24px 54px rgba(6,12,28,0.28), 0 4px 14px rgba(6,12,28,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.section_service-covers .container-medium.glass .eyebrow { color: #C9A86E; }
+.section_service-covers .container-medium.glass .covers_lead { color: rgba(252,246,236,0.80); }
+.section_service-covers .container-medium.glass .topic_group-label { color: rgba(252,246,236,0.62); }
+.section_service-covers .container-medium.glass .topic_group-row + .topic_group-row { border-top-color: rgba(252,246,236,0.10); }
+.section_service-covers .container-medium.glass .topic_related-row .topic_chip:not([href]),
+.section_service-covers .container-medium.glass .topic_related-row .topic_chip:not([href]):hover {
+  color: rgba(252,246,236,0.90);
+  border-color: rgba(252,246,236,0.20);
+  background-color: rgba(255,255,255,0.04);
+}
+.section_service-covers .container-medium.glass .topic_related-row a.topic_chip[href] {
+  color: #E2C68F;
+  border-color: rgba(226,198,143,0.45);
+  background-color: rgba(226,198,143,0.08);
+}
+.section_service-covers .container-medium.glass .topic_related-row a.topic_chip[href]:hover {
+  color: #F0D9B0;
+  border-color: rgba(226,198,143,0.75);
+  background-color: rgba(226,198,143,0.16);
 }
