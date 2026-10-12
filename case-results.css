@@ -304,3 +304,16 @@
   .results-cases_grid.is-collapsed .case-card.is-extra { display: none; }
   .section_results-cases .button.case-cards_more { display: flex; justify-content: center; width: 100%; margin-top: 1.5rem; }
 }
+
+/* ===== 2026-10-11 QA: "Read all reviews" moves BELOW the three review cards on phones.
+   It sits in .results-voices_head beside the heading, which on desktop is a row with the
+   button on the right. Below 768 the head becomes display:contents so the heading copy, the
+   grid and the button can be ordered as siblings of one flex column; the button is centred,
+   matching the homepage's own "Read all reviews". Desktop is untouched. */
+@media (max-width: 767px) {
+  .section_results-voices .container-large { display: flex; flex-direction: column; }
+  .section_results-voices .results-voices_head { display: contents; }
+  .section_results-voices .results-voices_head-copy { order: 0; margin-bottom: 2.75rem; }
+  .section_results-voices .results-voices_grid { order: 1; }
+  .section_results-voices .results-voices_head > .button { order: 2; align-self: center; margin-top: 2rem; }
+}
