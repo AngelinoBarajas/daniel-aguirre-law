@@ -344,3 +344,11 @@
   .results-metric_num   { font-size: 1.75rem; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; }
   .results-metric_label { font-size: 0.9rem; line-height: 1.45; margin: 0; }
 }
+
+/* 2026-10-11 QA: "View all … →" broke its arrow onto a second line on a real phone
+   (measured fine at 375 in emulation: 240px of text in a 278px box, so the user's
+   rendering runs wider). Keep the label on one line and trim it to 14px on small
+   phones, so the arrow can never be stranded. */
+@media screen and (max-width: 479px) {
+  .section_results-areas .results-area_all { white-space: nowrap; font-size: 0.875rem; }
+}
