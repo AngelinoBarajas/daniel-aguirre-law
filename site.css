@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.7  (Firm label clear of the Results tap fill) */
+/* CODE-CSS-VERSION: 2026-10-11.8  (Results tap fill: no slide) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2173,6 +2173,10 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link:active {
     background: linear-gradient(#1A2840, #1A2840) left bottom / 100% calc(100% - 1.55rem) no-repeat;
   }
+  /* No background TRANSITION on this row: the rows' `transition: background .18s` also
+     animated the clipped fill's SIZE, so a tap showed the navy start full-height over the
+     label and slide down to Results. Colour still fades; the fill appears in place. */
+  .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link { transition: color 0.18s ease; }
   .navbar8_component .navbar8_menu-left > .navbar8_menu-dropdown + .navbar8_link.w--current::before {
     top: calc(1.55rem + 0.6rem); bottom: 0.6rem;
   }
