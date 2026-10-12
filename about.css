@@ -99,3 +99,17 @@
 @media screen and (max-width: 991px) {
   .founder_body { margin-top: 2.75rem; }
 }
+
+/* ===== TEAM CARDS WITH HEADSHOTS (2026-10-11) =====================================
+   Each card now opens with .team_photo: a 4:5 portrait bound to the CMS Headshot field,
+   in the site's frame (square corners, tan corner brackets, faint tan hairline).
+   No photo yet? Webflow tags the empty image .w-dyn-bind-empty; it is hidden and the
+   initials fill the same frame instead (large tan Lora on a warm panel), so every card
+   keeps the same shape. Adding a photo in the CMS swaps it in with no other change. */
+.team_photo{position:relative;overflow:visible}
+.team_photo::before{content:"";position:absolute;inset:-10px;pointer-events:none;z-index:0;background:linear-gradient(#A88B5C,#A88B5C) left top / 36px 2px no-repeat,linear-gradient(#A88B5C,#A88B5C) left top / 2px 36px no-repeat,linear-gradient(#A88B5C,#A88B5C) right bottom / 36px 2px no-repeat,linear-gradient(#A88B5C,#A88B5C) right bottom / 2px 36px no-repeat}
+.team_photo::after{content:"";position:absolute;inset:0;border:1px solid rgba(168,139,92,.30);pointer-events:none;z-index:3}
+.team_photo .team_photo-img{position:relative;z-index:2}
+.team_photo .team_photo-img.w-dyn-bind-empty{display:none}
+.team_photo .team_monogram{position:absolute;inset:0;z-index:1;width:auto;height:auto;margin:0;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:4.25rem;font-weight:500;letter-spacing:.04em;color:#A88B5C;background:linear-gradient(160deg,#F6EEE1 0%,#EFE3CF 100%);box-shadow:none}
+@media(max-width:479px){.team_photo::before{inset:-8px;background:linear-gradient(#A88B5C,#A88B5C) left top / 26px 2px no-repeat,linear-gradient(#A88B5C,#A88B5C) left top / 2px 26px no-repeat,linear-gradient(#A88B5C,#A88B5C) right bottom / 26px 2px no-repeat,linear-gradient(#A88B5C,#A88B5C) right bottom / 2px 26px no-repeat}}
