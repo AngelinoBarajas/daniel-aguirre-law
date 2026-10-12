@@ -722,12 +722,8 @@
    column and read as stray, unbalanced items. Centred they read as a deliberate pair.
    The body copy stays LEFT aligned on purpose: these paragraphs run 4-6 lines, and centred
    ragged-both-edges body text is measurably harder to read. Desktop is untouched. */
-@media (max-width: 767px) {
-  .section_layout408 .button-group {
-    justify-content: center;
-    width: 100%;
-  }
-}
+/* 2026-10-11 QA: REVERSED at the user's request. The buttons now sit LEFT, flush with the
+   left-aligned copy above them, which is Relume's own flex-start. Rule removed, not overridden. */
 
 /* ===== 2026-09-22 — MOBILE PASS =========================================
    ⚠ THE VALUES-BAND TILING FIX IS NOT HERE. It was briefly page-level, which was
