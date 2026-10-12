@@ -30,7 +30,12 @@
 .founder_badge{filter:saturate(.25);transition:opacity .3s ease,filter .3s ease}
 .founder_badge:hover{opacity:1;filter:saturate(1)}
 
-.section_about-quote{position:relative;overflow:hidden;background:linear-gradient(165deg,#182742 0%,#111d33 100%)}
+/* 2026-10-11: the navy gradient became a licensed, already-dark flag photo (Adobe Stock
+   #193647861, a Webflow ASSET - licensed stock never goes in the public repo). No overlay:
+   its brightest pixel is ~44/255, so the white quote and tan name keep their contrast.
+   #16223A shows while it loads. center/cover: desktop shows the middle strip, phones the
+   middle square where the stars meet the stripes. */
+.section_about-quote{position:relative;overflow:hidden;background:#16223A url("https://cdn.prod.website-files.com/69f4f199b4ee79bb37a02df8/6acc4e6471dba78075fa1846_about-quote-flag_AdobeStock_193647861.jpg") center/cover no-repeat}
 .section_about-quote::before{content:"\201C";position:absolute;left:50%;top:-.18em;transform:translateX(-50%);font-family:"Lora",Georgia,serif;font-size:clamp(14rem,30vw,26rem);line-height:1;color:rgba(168,139,92,.13);pointer-events:none}
 .about-quote_text,.about-quote_cite{position:relative}
 .about-quote_text{font-family:"Lora",Georgia,serif;font-size:clamp(1.85rem,4.4vw,3.4rem);text-wrap:balance}
