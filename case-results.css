@@ -354,3 +354,9 @@
 @media screen and (max-width: 479px) {
   .section_results-areas .results-area_all { white-space: nowrap; font-size: 0.875rem; }
 }
+
+/* 2026-10-12: the filter chips under the map are CENTERED on desktop (were left-aligned,
+   which read off-balance under a centered map). Phones keep the base left-aligned wrap. */
+@media screen and (min-width: 992px) {
+  .section_results-map .case-map.is-fill .hero_filters { justify-content: center; }
+}
