@@ -171,7 +171,9 @@
   gap: 0.9rem;
 }
 .hub-router_item {
-  display: block;
+  /* 2026-10-12: flex column so the link sits at the same spot on every card */
+  display: flex;
+  flex-direction: column;
   text-decoration: none;
   padding: 1.15rem 1.25rem;
   border-radius: 12px;
@@ -193,7 +195,7 @@
   color: #FCF6EC;
   margin-bottom: 0.35rem;
 }
-.hub-router_a { font-size: 0.81rem; font-weight: 600; color: #A88B5C; letter-spacing: 0.02em; }
+.hub-router_a { margin-top: auto; font-size: 0.81rem; font-weight: 600; color: #A88B5C; letter-spacing: 0.02em; }
 
 /* --- related reading --------------------------------------------------- */
 .hub-read_grid {
