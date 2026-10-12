@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-11.12  (framed images: square + corner brackets) */
+/* CODE-CSS-VERSION: 2026-10-12.1  (FAQ answer padding top + bottom) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -1905,6 +1905,9 @@ html.lenis, html.lenis body { height: auto; }
 .faq_question:focus-visible { outline: 2px solid #A88B5C; outline-offset: -2px; }
 .faq_item[open] > .faq_question,
 .faq_item.is-open .faq_question { padding-bottom: 0.9rem; }
+/* 2026-10-12: the answer started right under the question row's grey hover tint, and sat
+   close to the card's bottom edge. Breathing room on both sides (0,2,0 beats the Webflow class). */
+.faq_item .faq_answer-inner { padding-top: 1.1rem; padding-bottom: 1.9rem; }
 
 /* 4 - answer typography, previously defined only on the practice-area pages */
 .faq_answer-inner p {
