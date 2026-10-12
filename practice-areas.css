@@ -435,3 +435,29 @@
     box-shadow: 0 22px 44px rgba(6,12,28,0.28), 0 4px 10px rgba(6,12,28,0.20);
   }
 }
+
+/* ===== Phone: "What this covers" chips become FULL-WIDTH ROWS (2026-10-11 QA) =========
+   Same treatment as the /expertise terms: one chip per line, full width, 12px radius,
+   the label left and (for linked practice areas) a literal arrow right. Supersedes the
+   09-22 "share a row" sizing above. Every selector carries .container-medium to reach
+   0,3,0, because the chip sizing and .topic_group-row live in the template FOOTER field,
+   which loads AFTER this file. The card's padding drops 32 -> 22/18px so the rows get
+   the width. Desktop and tablet untouched. */
+@media screen and (max-width: 767px) {
+  .section_service-covers .container-medium.glass { padding: 22px 18px; }
+  .section_service-covers .container-medium .topic_group-row { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 8px; padding: 10px 0; }
+  .section_service-covers .container-medium .topic_group-label { width: auto; margin: 0 0 2px; }
+  .section_service-covers .container-medium .topic_chip {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+  .section_service-covers .container-medium a.topic_chip::after { content: "→"; flex: 0 0 auto; }
+}
