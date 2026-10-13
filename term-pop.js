@@ -1,6 +1,6 @@
 /* term-pop.js — Topicweave term pop-ups for Daniel Aguirre Law (spec: cks-v3/docs/term-links-and-connections-spec.md).
    Term links are real <a> tags in CMS rich text. This script only adds the definition pop-up.
-   Data: the hidden .tw-terms block on the page (Topics Collection List: .tw-terms_link href = Canonical Page,
+   Data: the hidden .tw-terms block on the page (Topics Collection List: .tw-terms_url text = Canonical Page,
    .tw-terms_name, .tw-terms_def; labels .tw-terms_eyebrow / .tw-terms_more are static text, localized per locale).
    No words are hard-coded here. Namespace .tw-* (the map already owns .popup / .pin-tooltip). */
 (function () {
@@ -21,8 +21,9 @@
     if (!data) return;
     var terms = {};
     data.querySelectorAll('.w-dyn-item').forEach(function (it) {
-      var a = it.querySelector('.tw-terms_link'), def = txt(it.querySelector('.tw-terms_def'));
-      var key = a && norm(a.getAttribute('href'));
+      // URL comes from a text-bound <p> (a CMS Link field bound through the MCP renders href="#").
+      var def = txt(it.querySelector('.tw-terms_def'));
+      var key = norm(txt(it.querySelector('.tw-terms_url')));
       if (key && key !== '/' && def) terms[key] = { name: txt(it.querySelector('.tw-terms_name')), def: def };
     });
     var here = norm(location.pathname);
