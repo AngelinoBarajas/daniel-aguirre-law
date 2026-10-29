@@ -176,7 +176,7 @@
 .section_layout423 .layout423_card,
 .section_layout423 .layout423_card [class*="heading-style"] { color: #1A2840; }
 .section_layout423 .layout423_card p { color: #4A5470; font-size: 0.95rem; line-height: 1.6; }
-.section_layout423 .layout423_card .text-style-tagline { color: #1A2840; }
+.section_layout423 .layout423_card .text-style-tagline { color: #891E2D; }   /* red on light, matches site kickers (2026-10-29) */
 
 /* CTA reads as a text link, not a solid maroon block inside a card. The global .button
    fill-sweep runs on ::before and this combo is not in its :not() exclusion list, so the

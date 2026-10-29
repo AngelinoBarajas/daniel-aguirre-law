@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.6  (kickers: one tan, 16px gap everywhere) */
+/* CODE-CSS-VERSION: 2026-10-29.7  (kickers red on light + section-opener flair) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -918,7 +918,7 @@ html.lenis, html.lenis body { height: auto; }
 .navbar8_component .es-embed-root:hover { background: rgba(255,255,255,0.85); border-color: rgba(168,139,92,0.55); }
 
 /* ===== Kickers / taglines — SITE-WIDE =====
-   One system for both kicker classes: ALWAYS uppercase, NAVY on light grounds,
+   One system for both kicker classes: ALWAYS uppercase, RED (#891E2D) on light grounds,
    TAN/gold on dark. Relume's `.text-style-tagline` shipped black + sentence case;
    our `.eyebrow` was tan everywhere, including on light sections where it was too
    pale. Dark grounds are addressed by section, so no markup needs new classes. */
@@ -929,7 +929,7 @@ html.lenis, html.lenis body { height: auto; }
   font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.5;
-  color: #1A2840;
+  color: #891E2D;   /* RED on light (2026-10-29, was navy); tan on dark below */
 }
 .section-dark .eyebrow,
 .section-dark .text-style-tagline,
@@ -2482,3 +2482,23 @@ html.lenis, html.lenis body { height: auto; }
 .text-style-tagline + .spacer-xsmall,
 .text-style-tagline + .spacer-xxsmall { display: none; }
 .margin-bottom.margin-small > .text-style-tagline:only-child { margin-bottom: 0; }
+
+/* ===== Section-opener FLAIR (2026-10-29) =====================================================
+   The 56x2 tan fade that hub pages draw with a .hub-rule element, now on EVERY section-opening
+   kicker, drawn as ::before so no markup changes. RULE: one per section header, light or dark.
+   NOT in heroes (breadcrumb + headline already open the page), NOT inside cards, NOT in the nav,
+   footer or forms, and not where a .hub-rule element already draws it. Centered headers get a
+   centered line. To turn the whole thing off, delete this block. */
+.eyebrow::before,
+.text-style-tagline::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: 0 0 1.25rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
+}
+:is(.section_hero, [class*="-hero"], .glass, [class*="_card"], .hub-head, .navbar8_component,
+    footer, form, .w-form, .sched_rail) :is(.eyebrow, .text-style-tagline)::before { content: none; }
+:is(.align-center, .text-align-center, .section_heading-center, .is-center)
+    :is(.eyebrow, .text-style-tagline)::before { margin-left: auto; margin-right: auto; }
