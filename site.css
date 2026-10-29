@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.1  (WhatsApp side tab + strip booking link) */
+/* CODE-CSS-VERSION: 2026-10-29.2  (back-to-top as an edge tab matching WhatsApp) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2404,4 +2404,32 @@ html.lenis, html.lenis body { height: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .wa-tab, .wa-tab_hint { transition: none; }
+}
+
+/* ===== Back-to-top as an EDGE TAB matching .wa-tab (2026-10-29) ==============================
+   Was a frosted cream circle inset 2rem from the corner. Now it docks flush to the right edge
+   like the WhatsApp tab: navy, tan hairline (no right border), white arrow, cream label,
+   burgundy on hover. Same 42px width as .wa-tab so the two line up as a set on phones, where
+   .wa-tab sits directly above it (8px gap). Visibility (opacity/.is-visible) is untouched. */
+.back-to-top {
+  right: 0; bottom: 2rem;
+  width: 42px; height: 52px;
+  border-radius: 10px 0 0 10px;
+  background: #1A2840;
+  border: 1px solid rgba(168,139,92,0.55); border-right: 0;
+  color: #FFFFFF;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  box-shadow: -6px 10px 26px rgba(26,40,64,0.22);
+}
+.back-to-top_label { color: #FCF6EC; }
+.back-to-top:hover {
+  background: #891E2D; border-color: #891E2D; color: #FFFFFF;
+  transform: none; box-shadow: -6px 10px 26px rgba(137,30,45,0.28);
+}
+.back-to-top:hover .back-to-top_label { color: #FCF6EC; }
+.back-to-top:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
+@media (max-width: 767px) { .wa-tab { bottom: calc(2rem + 52px + 8px); } }
+@media (max-width: 478px) {
+  .back-to-top { width: 42px; height: 48px; right: 0; bottom: 1.5rem; }
+  .wa-tab { bottom: calc(1.5rem + 48px + 8px); }
 }
