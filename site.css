@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.2  (back-to-top as an edge tab matching WhatsApp) */
+/* CODE-CSS-VERSION: 2026-10-29.3  (WhatsApp tab label reads top to bottom) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2315,7 +2315,7 @@ html.lenis, html.lenis body { height: auto; }
    .wa-tab lives in the FOOTER component (so it is on every page that has the footer) but is
    position:fixed, so where it sits in the DOM does not matter. Navy tab, tan hairline, the
    OFFICIAL WhatsApp glyph in white (Simple Icons, CC0) as a MASK over a white fill.
-   Desktop/tablet: right edge, vertical middle, label reads bottom-to-top; hover/focus turns it
+   Desktop/tablet: right edge, vertical middle, label reads top-to-bottom; hover/focus turns it
    burgundy and shows a cream hint card (number + "Replies during office hours").
    Phones (<768): icon only, stacked above .back-to-top (bottom 2rem, 56px; 1.5rem, 48px <=478).
    z-index 998: under .back-to-top (999) and the nav + open sheet (1000).
@@ -2342,7 +2342,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 .wa-tab_label {
   display: block;
-  writing-mode: vertical-rl; transform: rotate(180deg);
+  writing-mode: vertical-rl;   /* reads top to bottom, under the icon */
   font-family: Inter, sans-serif; font-size: 0.6875rem; font-weight: 600;
   letter-spacing: 0.14em; text-transform: uppercase; line-height: 1;
   color: #FCF6EC;
