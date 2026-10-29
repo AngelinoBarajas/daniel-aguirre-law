@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.5  (404 route cards read as links on phones) */
+/* CODE-CSS-VERSION: 2026-10-29.6  (kickers: one tan, 16px gap everywhere) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -935,7 +935,7 @@ html.lenis, html.lenis body { height: auto; }
 .section-dark .text-style-tagline,
 .section_layout253 .eyebrow,
 .section_layout253 .text-style-tagline,
-.section_layout408 .text-style-tagline,
+.section_layout408 .layout408_card .text-style-tagline,   /* cards only: the header sits on cream (2026-10-29) */
 .section_contact2 .text-style-tagline,
 .section_about-quote .eyebrow,
 .text-color-alternate.text-style-tagline {
@@ -2289,7 +2289,7 @@ html.lenis, html.lenis body { height: auto; }
   border-color: rgba(252,246,236,0.12);
   box-shadow: 0 24px 54px rgba(6,12,28,0.28), 0 4px 14px rgba(6,12,28,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
 }
-.section_service-covers .container-medium.glass .eyebrow { color: #C9A86E; }
+.section_service-covers .container-medium.glass .eyebrow { color: #A88B5C; }   /* was #C9A86E; one tan site-wide (2026-10-29) */
 .section_service-covers .container-medium.glass .covers_lead { color: rgba(252,246,236,0.80); }
 .section_service-covers .container-medium.glass .topic_group-label { color: rgba(252,246,236,0.62); }
 .section_service-covers .container-medium.glass .topic_group-row + .topic_group-row { border-top-color: rgba(252,246,236,0.10); }
@@ -2472,3 +2472,13 @@ html.lenis, html.lenis body { height: auto; }
 @media (hover: none), (pointer: coarse) {
   .notfound_route:hover { transform: none; box-shadow: 0 16px 40px 0 rgba(26,40,64,0.14), 0 3px 10px 0 rgba(26,40,64,0.07), inset 0 1px 0 0 rgba(255,255,255,0.95); }
 }
+
+/* ===== Kicker SPACING matches .eyebrow (2026-10-29) ==========================================
+   Every .eyebrow sits 16px above its heading. Relume's .text-style-tagline (homepage, Values band)
+   sat 0-8px above it, spaced by a .spacer-xsmall/.spacer-xxsmall block or nothing at all. Give the
+   tagline the same 1rem, hide the spacer that follows it, and leave the hero alone: its tagline is
+   the only child of a .margin-bottom.margin-small wrapper that already supplies the 16px. */
+.text-style-tagline { margin-bottom: 1rem; }
+.text-style-tagline + .spacer-xsmall,
+.text-style-tagline + .spacer-xxsmall { display: none; }
+.margin-bottom.margin-small > .text-style-tagline:only-child { margin-bottom: 0; }
