@@ -2499,6 +2499,6 @@ html.lenis, html.lenis body { height: auto; }
   background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
 }
 :is(.section_hero, [class*="-hero"], .glass, [class*="_card"], .hub-head, .navbar8_component,
-    footer, form, .w-form, .sched_rail) :is(.eyebrow, .text-style-tagline)::before { content: none; }
+    footer, form, .w-form, .sched_rail, .notfound_inner) :is(.eyebrow, .text-style-tagline)::before { content: none; }
 :is(.align-center, .text-align-center, .section_heading-center, .is-center)
     :is(.eyebrow, .text-style-tagline)::before { margin-left: auto; margin-right: auto; }
