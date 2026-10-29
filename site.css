@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.3  (WhatsApp tab label reads top to bottom) */
+/* CODE-CSS-VERSION: 2026-10-29.4  (edge tabs: no sticky hover on touch, fixed on phone scroll) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2360,10 +2360,14 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 0; pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.wa-tab:hover,
 .wa-tab:focus-visible { background-color: #891E2D; border-color: #891E2D; padding-right: 0.85rem; }
-.wa-tab:hover .wa-tab_hint,
 .wa-tab:focus-visible .wa-tab_hint { opacity: 1; transform: translate(0, -50%); }
+/* Hover ONLY where there is a real pointer: on phones :hover sticks after a tap, which left
+   the tab burgundy until the next tap elsewhere (2026-10-29). */
+@media (hover: hover) and (pointer: fine) {
+  .wa-tab:hover { background-color: #891E2D; border-color: #891E2D; padding-right: 0.85rem; }
+  .wa-tab:hover .wa-tab_hint { opacity: 1; transform: translate(0, -50%); }
+}
 .wa-tab:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
 @media (max-width: 767px) {
   .wa-tab {
@@ -2373,6 +2377,7 @@ html.lenis, html.lenis body { height: auto; }
   }
   .wa-tab:hover,
   .wa-tab:focus-visible { padding-right: 0.55rem; }
+  .wa-tab { height: 46px; }
   .wa-tab_label,
   .wa-tab_hint { display: none; }
 }
@@ -2422,14 +2427,38 @@ html.lenis, html.lenis body { height: auto; }
   box-shadow: -6px 10px 26px rgba(26,40,64,0.22);
 }
 .back-to-top_label { color: #FCF6EC; }
-.back-to-top:hover {
-  background: #891E2D; border-color: #891E2D; color: #FFFFFF;
-  transform: none; box-shadow: -6px 10px 26px rgba(137,30,45,0.28);
+@media (hover: hover) and (pointer: fine) {
+  .back-to-top:hover {
+    background: #891E2D; border-color: #891E2D; color: #FFFFFF;
+    transform: none; box-shadow: -6px 10px 26px rgba(137,30,45,0.28);
+  }
+  .back-to-top:hover .back-to-top_label { color: #FCF6EC; }
 }
-.back-to-top:hover .back-to-top_label { color: #FCF6EC; }
+/* The ORIGINAL hover rule near the top of this file is unconditional; on touch it would stick
+   after a tap, so restate the resting look for touch devices. */
+@media (hover: none), (pointer: coarse) {
+  .back-to-top:hover {
+    background: #1A2840; border-color: rgba(168,139,92,0.55); color: #FFFFFF;
+    transform: none; box-shadow: -6px 10px 26px rgba(26,40,64,0.22);
+  }
+}
 .back-to-top:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
 @media (max-width: 767px) { .wa-tab { bottom: calc(2rem + 52px + 8px); } }
 @media (max-width: 478px) {
   .back-to-top { width: 42px; height: 48px; right: 0; bottom: 1.5rem; }
   .wa-tab { bottom: calc(1.5rem + 48px + 8px); }
+}
+/* Phones: anchor both tabs from the TOP using svh (the viewport height with the browser bars
+   SHOWN). Bottom-anchored fixed elements ride up and down as the address bar hides/shows on
+   scroll; top-anchored ones stay put on screen (2026-10-29). Fallback = the bottom values above.
+   .wa-tab is 46px tall here (fixed above), .back-to-top 52px (48px <=478), 8px gap. */
+@supports (height: 100svh) {
+  @media (max-width: 767px) {
+    .back-to-top { bottom: auto; top: calc(100svh - 2rem - 52px); }
+    .wa-tab { bottom: auto; top: calc(100svh - 2rem - 52px - 8px - 46px); }
+  }
+  @media (max-width: 478px) {
+    .back-to-top { top: calc(100svh - 1.5rem - 48px); }
+    .wa-tab { top: calc(100svh - 1.5rem - 48px - 8px - 46px); }
+  }
 }
