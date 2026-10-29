@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.4  (edge tabs: no sticky hover on touch, fixed on phone scroll) */
+/* CODE-CSS-VERSION: 2026-10-29.5  (404 route cards read as links on phones) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2461,4 +2461,14 @@ html.lenis, html.lenis body { height: auto; }
     .back-to-top { top: calc(100svh - 1.5rem - 48px); }
     .wa-tab { top: calc(100svh - 1.5rem - 48px - 8px - 46px); }
   }
+}
+
+/* ===== 404 route cards read as links on phones (2026-10-29) ==================================
+   On touch there is no hover lift, so the cards looked like plain text boxes. Each card now has a
+   burgundy "… →" line (.notfound_route-go, Webflow class) and a tan left edge, plus a pressed
+   state. The hover lift stays for real pointers only. */
+.notfound_route { border-left-width: 3px; border-left-color: #A88B5C; }
+.notfound_route:active { border-color: rgba(168,139,92,0.6); border-left-color: #891E2D; }
+@media (hover: none), (pointer: coarse) {
+  .notfound_route:hover { transform: none; box-shadow: 0 16px 40px 0 rgba(26,40,64,0.14), 0 3px 10px 0 rgba(26,40,64,0.07), inset 0 1px 0 0 rgba(255,255,255,0.95); }
 }
