@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-12.4  (practice areas: What this covers card dark) */
+/* CODE-CSS-VERSION: 2026-10-29.1  (WhatsApp side tab + strip booking link) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2308,4 +2308,100 @@ html.lenis, html.lenis body { height: auto; }
   color: #F0D9B0;
   border-color: rgba(226,198,143,0.75);
   background-color: rgba(226,198,143,0.16);
+}
+
+/* ===== WhatsApp side tab + strip booking link (2026-10-29) ==================================
+   Daniel said yes to a WhatsApp button on the office number (review answer q-12).
+   .wa-tab lives in the FOOTER component (so it is on every page that has the footer) but is
+   position:fixed, so where it sits in the DOM does not matter. Navy tab, tan hairline, the
+   OFFICIAL WhatsApp glyph in white (Simple Icons, CC0) as a MASK over a white fill.
+   Desktop/tablet: right edge, vertical middle, label reads bottom-to-top; hover/focus turns it
+   burgundy and shows a cream hint card (number + "Replies during office hours").
+   Phones (<768): icon only, stacked above .back-to-top (bottom 2rem, 56px; 1.5rem, 48px <=478).
+   z-index 998: under .back-to-top (999) and the nav + open sheet (1000).
+   .nav-utility_book = "Book a consultation" next to the number in the navy tap-to-call strip,
+   phones and tablets only (desktop has the red Schedule button in the bar). */
+.wa-tab {
+  --wa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z'/%3E%3C/svg%3E");
+  position: fixed; right: 0; top: 50%; z-index: 998;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+  padding: 0.9rem 0.6rem 1rem;
+  background-color: #1A2840;
+  border: 1px solid rgba(168,139,92,0.55); border-right: 0;
+  border-radius: 10px 0 0 10px;
+  box-shadow: -6px 10px 26px rgba(26,40,64,0.22);
+  color: #FCF6EC; text-decoration: none;
+  transition: background-color 0.25s ease, border-color 0.25s ease, padding 0.25s ease;
+}
+.wa-tab_icon {
+  display: block; width: 22px; height: 22px; flex: 0 0 22px;
+  background-color: #FFFFFF;
+  -webkit-mask: var(--wa) center/contain no-repeat;
+          mask: var(--wa) center/contain no-repeat;
+}
+.wa-tab_label {
+  display: block;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-family: Inter, sans-serif; font-size: 0.6875rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; line-height: 1;
+  color: #FCF6EC;
+}
+.wa-tab_hint {
+  display: block;
+  position: absolute; right: calc(100% + 0.75rem); top: 50%;
+  transform: translate(6px, -50%);
+  white-space: nowrap;
+  padding: 0.55rem 0.85rem;
+  background-color: #FCF6EC; color: #1A2840;
+  border: 1px solid rgba(168,139,92,0.45); border-radius: 6px;
+  font-family: Inter, sans-serif; font-size: 0.8125rem; font-weight: 600; line-height: 1.3;
+  box-shadow: 0 8px 22px rgba(26,40,64,0.16);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.wa-tab:hover,
+.wa-tab:focus-visible { background-color: #891E2D; border-color: #891E2D; padding-right: 0.85rem; }
+.wa-tab:hover .wa-tab_hint,
+.wa-tab:focus-visible .wa-tab_hint { opacity: 1; transform: translate(0, -50%); }
+.wa-tab:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
+@media (max-width: 767px) {
+  .wa-tab {
+    top: auto; transform: none;
+    bottom: calc(2rem + 56px + 12px);
+    padding: 0.7rem 0.55rem 0.7rem 0.65rem;
+  }
+  .wa-tab:hover,
+  .wa-tab:focus-visible { padding-right: 0.55rem; }
+  .wa-tab_label,
+  .wa-tab_hint { display: none; }
+}
+@media (max-width: 478px) { .wa-tab { bottom: calc(1.5rem + 48px + 12px); } }
+@media (hover: none) { .wa-tab_hint { display: none; } }
+@media print { .wa-tab { display: none; } }
+
+.navbar8_component .nav-utility_book { display: none; }
+@media (max-width: 991px) {
+  .navbar8_component .nav-utility_inner,
+  .navbar8_component.nav-condensed .nav-utility_inner { gap: 0 1rem; }
+  .navbar8_component .nav-utility_book {
+    display: inline-flex; align-items: center;
+    padding-left: 1rem; border-left: 1px solid rgba(168,139,92,0.45);
+    font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; line-height: 1.2;
+    color: #FCF6EC; text-decoration: none;
+  }
+  .navbar8_component .nav-utility_book::before {
+    --cal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V2Zm12 8H5v10h14V10Z'/%3E%3C/svg%3E");
+    content: ""; display: inline-block; width: 13px; height: 13px; margin-right: 0.5rem;
+    flex: 0 0 13px; background: #A88B5C;
+    -webkit-mask: var(--cal) center/contain no-repeat;
+            mask: var(--cal) center/contain no-repeat;
+  }
+}
+@media (max-width: 359px) {
+  .navbar8_component .nav-utility_tel::before,
+  .navbar8_component .nav-utility_book::before { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wa-tab, .wa-tab_hint { transition: none; }
 }
