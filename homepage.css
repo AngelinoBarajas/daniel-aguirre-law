@@ -794,3 +794,8 @@
      the one on /about, which fills its column at every phone width. */
   .section_layout413 .layout413_image-wrapper { margin-bottom: 2.25rem; }
 }
+
+/* 2026-10-29 · Form matches /schedule-consultation: every choice is a pill radio now (language,
+   situation, referral were <select>s). The Situation group has 13 options, so it stays FULL
+   width (.is-full) instead of pairing up like the two short radio groups above. */
+.section_contact2 .contact2_form-grid .landing_field.is-span-2.is-full { grid-column: 1 / -1; }
