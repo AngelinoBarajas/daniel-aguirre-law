@@ -94,6 +94,12 @@
   grid-template-columns: repeat(auto-fit, minmax(19.375rem, 1fr));
   gap: 1.25rem;
 }
+/* 2026-10-29: a group with ONE card (/services #court) keeps the two-column track, so the
+   card is half width like the 2-card #citizenship group above it instead of stretching full
+   width. Phones (one column anyway) are unchanged. */
+@media (min-width: 768px) {
+  .hub-svc_grid:has(> .hub-svc_card:only-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .hub-svc_card {
   display: flex;
   flex-direction: column;
