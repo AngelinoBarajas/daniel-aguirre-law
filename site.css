@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.8  (footer WhatsApp link beside the phone) */
+/* CODE-CSS-VERSION: 2026-10-29.9  (no flair inside .cta_inner) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2488,7 +2488,8 @@ html.lenis, html.lenis body { height: auto; }
    kicker, drawn as ::before so no markup changes. RULE: one per section header, light or dark.
    NOT in heroes (breadcrumb + headline already open the page), NOT inside cards, NOT in the nav,
    footer or forms, and not where a .hub-rule element already draws it. Centered headers get a
-   centered line. To turn the whole thing off, delete this block. */
+   centered line. .cta_inner draws its own centered line above the kicker, so it is excluded
+   too (2026-10-29: the CTA band showed two lines). To turn the whole thing off, delete this block. */
 .eyebrow::before,
 .text-style-tagline::before {
   content: "";
@@ -2499,7 +2500,7 @@ html.lenis, html.lenis body { height: auto; }
   background-image: linear-gradient(90deg, rgba(168,139,92,0), #A88B5C, rgba(168,139,92,0));
 }
 :is(.section_hero, [class*="-hero"], .glass, [class*="_card"], .hub-head, .navbar8_component,
-    footer, form, .w-form, .sched_rail, .notfound_inner) :is(.eyebrow, .text-style-tagline)::before { content: none; }
+    footer, form, .w-form, .sched_rail, .notfound_inner, .cta_inner) :is(.eyebrow, .text-style-tagline)::before { content: none; }
 :is(.align-center, .text-align-center, .section_heading-center, .is-center)
     :is(.eyebrow, .text-style-tagline)::before { margin-left: auto; margin-right: auto; }
 

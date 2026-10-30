@@ -435,7 +435,6 @@
     box-shadow: 0 22px 44px rgba(6,12,28,0.28), 0 4px 10px rgba(6,12,28,0.20);
   }
 }
-
 /* ===== Phone: "What this covers" chips become FULL-WIDTH ROWS (2026-10-11 QA) =========
    Same treatment as the /expertise terms: one chip per line, full width, 12px radius,
    the label left and (for linked practice areas) a literal arrow right. Supersedes the
@@ -461,3 +460,52 @@
   }
   .section_service-covers .container-medium a.topic_chip::after { content: "→"; flex: 0 0 auto; }
 }
+
+/* ===== Stat cards get a TITLE (2026-10-29) ===============================================
+   Each card now reads: icon chip + small tan title on one row, the figure as a serif line,
+   then its clause underneath. .stat_title is a TextBlock added after .stat_icon in the
+   template (Experience / Reach / Location / Credentials). The card becomes a 2-column grid
+   so the title sits beside the chip; figure and clause span both columns. Rows of the
+   2x2 grid are equal height so the bottom pair no longer outgrows the top pair. */
+.section_service-why .why_stats { grid-auto-rows: 1fr; }
+.section_service-why .stat_card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto 1fr;
+  column-gap: 0.85rem;
+  align-content: start;
+  padding: 1.6rem 1.6rem 1.7rem;
+}
+.section_service-why .stat_icon { grid-column: 1; grid-row: 1; margin-bottom: 0; }
+.section_service-why .stat_title {
+  grid-column: 2; grid-row: 1; align-self: center;
+  font-family: Inter, sans-serif; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.2;
+  color: #A88B5C;
+}
+.section_service-why .stat_number {
+  grid-column: 1 / -1; grid-row: 2;
+  display: block; margin: 1.35rem 0 0.4rem;
+  font-family: Lora, Georgia, 'Times New Roman', serif;
+  font-size: 1.65rem; line-height: 1.15; font-weight: 600; letter-spacing: -0.005em;
+  color: #FCF6EC;
+}
+.section_service-why .stat_label {
+  grid-column: 1 / -1; grid-row: 3;
+  display: block; font-size: 0.95rem; line-height: 1.55;
+  color: rgba(252,246,236,0.78);
+}
+/* a thin tan rule between the header row and the figure */
+.section_service-why .stat_card::after {
+  content: ""; grid-column: 1 / -1; grid-row: 2; align-self: start;
+  height: 1px; margin-top: 0.7rem;
+  background-image: linear-gradient(90deg, rgba(168,139,92,0.55), rgba(168,139,92,0) 85%);
+}
+@media screen and (max-width: 767px) {
+  .section_service-why .stat_card { padding: 1.15rem 1rem 1.2rem; column-gap: 0.6rem; }
+  .section_service-why .stat_title { font-size: 0.62rem; letter-spacing: 0.12em; }
+  .section_service-why .stat_number { font-size: 1.2rem; margin-top: 1rem; }
+  .section_service-why .stat_label { font-size: 0.82rem; line-height: 1.45; }
+  .section_service-why .stat_card::after { margin-top: 0.5rem; }
+}
+
