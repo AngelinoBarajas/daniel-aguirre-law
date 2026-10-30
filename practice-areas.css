@@ -488,6 +488,7 @@
   display: block; margin: 1.35rem 0 0.4rem;
   font-family: Lora, Georgia, 'Times New Roman', serif;
   font-size: 1.65rem; line-height: 1.15; font-weight: 600; letter-spacing: -0.005em;
+  font-variant-numeric: normal; /* tabular figures in Lora widen the space after "15+" */
   color: #FCF6EC;
 }
 .section_service-why .stat_label {
@@ -507,5 +508,14 @@
   .section_service-why .stat_number { font-size: 1.2rem; margin-top: 1rem; }
   .section_service-why .stat_label { font-size: 0.82rem; line-height: 1.45; }
   .section_service-why .stat_card::after { margin-top: 0.5rem; }
+}
+/* Narrow phones: a two-up card is ~165px, too tight for "CREDENTIALS" beside the chip,
+   so the title drops under the chip and the hairline follows it. */
+@media screen and (max-width: 478px) {
+  .section_service-why .stat_card { grid-template-columns: 1fr; grid-template-rows: auto auto auto 1fr; }
+  .section_service-why .stat_title { grid-column: 1; grid-row: 2; margin-top: 0.7rem; }
+  .section_service-why .stat_number { grid-row: 3; margin-top: 1rem; }
+  .section_service-why .stat_label { grid-row: 4; }
+  .section_service-why .stat_card::after { grid-row: 3; margin-top: 0.45rem; }
 }
 
