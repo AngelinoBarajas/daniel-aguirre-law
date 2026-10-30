@@ -160,16 +160,52 @@
   padding-top: 0.18rem;
 }
 .hub-svc_v { color: #2C3D5C; }
+/* 2026-10-30: the "Explore …" link is a footer row, not a loose burgundy line. Hairline on
+   top, navy label on the left, a round arrow button on the right (tan outline at rest,
+   burgundy fill on hover). The typed "→" was removed from all 22 labels; the arrow is
+   drawn here so its color can change. The whole card is already the <a>. */
 .hub-svc_go {
-  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.35rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid rgba(168,139,92,0.28);
   font-size: 0.87rem;
   font-weight: 600;
-  color: #891E2D;
-  transition: transform 0.3s ease;
+  letter-spacing: 0.01em;
+  color: #1A2840;
+  transition: color 0.3s ease;
+}
+.hub-svc_go::after {
+  content: "";
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(168,139,92,0.6);
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A88B5C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+.hub-svc_card:hover .hub-svc_go,
+.hub-svc_card:focus-visible .hub-svc_go { color: #891E2D; }
+.hub-svc_card:hover .hub-svc_go::after,
+.hub-svc_card:focus-visible .hub-svc_go::after {
+  background-color: #891E2D;
+  border-color: #891E2D;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
 }
 @media (prefers-reduced-motion: no-preference) {
-  .hub-svc_card:hover .hub-svc_go { transform: translateX(4px); }
+  .hub-svc_card:hover .hub-svc_go::after { transform: translateX(3px); }
 }
+/* the meta block above already ends the card body; the footer's own hairline replaces
+   the extra gap so the two lines don't crowd */
+.hub-svc_meta + .hub-svc_go { margin-top: 0.15rem; }
 
 /* --- the situation router (dark) --------------------------------------- */
 .section_hub-router .hub-lead { color: rgba(252,246,236,0.78); }
@@ -307,7 +343,6 @@
    "Browse all resources" button under Related Reading. */
 .section_hub-router .button-row,
 .section_hub-reading .button-row { margin-top: 2.75rem; }
-
 /* 2026-10-11 QA: on phones the CTA rows under the router and Related Reading were
    centred under LEFT-aligned copy and cards. Align them left to match. Desktop
    keeps its centred rows. */
@@ -315,3 +350,4 @@
   .section_hub-router .button-row,
   .section_hub-reading .button-row { justify-content: flex-start; }
 }
+
