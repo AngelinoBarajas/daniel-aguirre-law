@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-11-03.1  (native locale switcher replaces Elfsight pill) */
+/* CODE-CSS-VERSION: 2026-11-03.2  (locale switcher + one-line navbar CTA) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -905,6 +905,9 @@ html.lenis, html.lenis body { height: auto; }
    current language filled navy. Scoped to the navbar. */
 @media (min-width: 992px) {
   .navbar8_component .navbar8_menu-right { align-items: center; }
+  /* The switcher takes ~80px; without this the CTA wrapped to two lines at 1280 (both
+     languages) and 1440 (Spanish). Measured 992-1440: one line, nothing past the container. */
+  .navbar8_component .navbar8_menu-right > .button { white-space: nowrap; }
 }
 .navbar8_component .w-locales-list { display: flex; align-items: center; }
 .navbar8_component .w-locales-items {
