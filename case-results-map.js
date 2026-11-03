@@ -48,6 +48,22 @@
 
     function byId(id) { return document.getElementById(id); }
     function setText(id, t) { var el = byId(id); if (el) el.textContent = t; }
+    // Words by page language (2026-11-03). Webflow sets <html lang="es"> on /es pages.
+    // TYPES_ES maps the English case type (the filter key, kept in data-type and the CMS) to the
+    // label shown on Spanish pages, so filters keep matching while visitors read Spanish.
+    var ES = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
+    var TX = ES ? {
+      read: 'Ver el caso completo', back: function (n) { return 'Volver a los ' + n + ' casos'; },
+      cases: function (n) { return n + ' casos'; }, hint: 'Toque un caso para ver los detalles',
+      close: 'Cerrar', down: 'El mapa no está disponible. Revise su conexión.'
+    } : {
+      read: 'Read full case', back: function (n) { return 'Back to all ' + n + ' cases'; },
+      cases: function (n) { return n + ' cases'; }, hint: 'Tap any case to view full details',
+      close: 'Close', down: 'Map unavailable — check connection.'
+    };
+    var TYPES_ES = { 'Asylum': 'Asilo', 'Family-Based': 'Familiar', 'Removal Defense': 'Defensa contra la Deportación',
+      'Work Visa': 'Visa de Trabajo', 'Work Authorization': 'Permiso de Trabajo', 'Employment-Based': 'Por Empleo', 'Humanitarian': 'Humanitario' };
+    function typeLabel(t) { return (ES && TYPES_ES[t]) || t; }
     // No "Loading map…" text — the map zooms + fades in on its own (entrance animation in draw()).
     setText('loadingMsg', ''); setText('loading-msg', '');
 
@@ -578,20 +594,20 @@
       positionPopup(cl.x, cl.y); popup.classList.add('visible'); popupOpenY = window.scrollY || 0;
     }
     function renderSingleCase(c) {
-      var back = (currentCluster && currentCluster.cases.length > 1) ? '<button class="popup-back" onclick="window.__daMap.backToClusterList()">' + SVG_BACK + '<span>Back to all ' + currentCluster.cases.length + ' cases</span></button>' : '';
+      var back = (currentCluster && currentCluster.cases.length > 1) ? '<button class="popup-back" onclick="window.__daMap.backToClusterList()">' + SVG_BACK + '<span>' + TX.back(currentCluster.cases.length) + '</span></button>' : '';
       popupBody.innerHTML = back +
-        '<div class="popup-head"><span class="popup-type">' + escHtml(c.type) + '</span><button class="popup-close" onclick="window.__daMap.closePopup()" aria-label="Close">&times;</button></div>' +
+        '<div class="popup-head"><span class="popup-type">' + escHtml(typeLabel(c.type)) + '</span><button class="popup-close" onclick="window.__daMap.closePopup()" aria-label="' + TX.close + '">&times;</button></div>' +
         '<div class="popup-title">' + escHtml(c.title) + '</div>' +
         '<div class="popup-location">' + SVG_LOC + '<span>' + escHtml(c.city) + ', ' + escHtml(c.state) + ' &middot; ' + c.year + '</span></div>' +
         '<div class="popup-outcome"><div class="check-mark">&check;</div><span>' + escHtml(c.outcome) + '</span></div>' +
         '<div class="popup-summary">' + escHtml(c.summary) + '</div><div class="popup-divider"></div>' +
-        '<a class="popup-link" href="' + escHtml(c.slug) + '"><span>Read full case</span>' + SVG_ARROW + '</a>';
+        '<a class="popup-link" href="' + escHtml(c.slug) + '"><span>' + TX.read + '</span>' + SVG_ARROW + '</a>';
     }
     function renderClusterList(cl) {
       var rows = cl.cases.map(function (c) {
-        return '<div class="popup-cluster-row" onclick="window.__daMap.drillIntoCase(' + c.id + ')"><div class="popup-cluster-row-head"><span class="popup-cluster-row-type">' + escHtml(c.type) + '</span><span class="popup-cluster-row-year">' + c.year + '</span></div><div class="popup-cluster-row-title">' + escHtml(c.title) + '</div><div class="popup-cluster-row-outcome"><span class="check-mark">&check;</span><span>' + escHtml(c.outcome) + '</span></div></div>';
+        return '<div class="popup-cluster-row" onclick="window.__daMap.drillIntoCase(' + c.id + ')"><div class="popup-cluster-row-head"><span class="popup-cluster-row-type">' + escHtml(typeLabel(c.type)) + '</span><span class="popup-cluster-row-year">' + c.year + '</span></div><div class="popup-cluster-row-title">' + escHtml(c.title) + '</div><div class="popup-cluster-row-outcome"><span class="check-mark">&check;</span><span>' + escHtml(c.outcome) + '</span></div></div>';
       }).join('');
-      popupBody.innerHTML = '<div class="popup-head"><div class="popup-cluster-meta"><span class="popup-type popup-type-cluster">' + cl.cases.length + ' cases</span><div class="popup-cluster-location">' + escHtml(cl.cases[0].city) + ', ' + escHtml(cl.cases[0].state) + '</div></div><button class="popup-close" onclick="window.__daMap.closePopup()" aria-label="Close">&times;</button></div><div class="popup-cluster-hint">Tap any case to view full details</div><div class="popup-cluster-list">' + rows + '</div>';
+      popupBody.innerHTML = '<div class="popup-head"><div class="popup-cluster-meta"><span class="popup-type popup-type-cluster">' + TX.cases(cl.cases.length) + '</span><div class="popup-cluster-location">' + escHtml(cl.cases[0].city) + ', ' + escHtml(cl.cases[0].state) + '</div></div><button class="popup-close" onclick="window.__daMap.closePopup()" aria-label="' + TX.close + '">&times;</button></div><div class="popup-cluster-hint">' + TX.hint + '</div><div class="popup-cluster-list">' + rows + '</div>';
     }
     function drillIntoCase(caseId) { var c = null; for (var i = 0; i < CASES.length; i++) if (CASES[i].id === caseId) c = CASES[i]; if (!c) return; renderSingleCase(c); if (currentCluster) positionPopup(currentCluster.x, currentCluster.y); }
     function backToClusterList() { if (!currentCluster) return; renderClusterList(currentCluster); positionPopup(currentCluster.x, currentCluster.y); }
@@ -678,7 +694,7 @@
         }
       } catch (err) {
         console.error('Case map load error:', err);
-        var m = byId('loadingMsg') || byId('loading-msg'); if (m) m.textContent = 'Map unavailable — check connection.';
+        var m = byId('loadingMsg') || byId('loading-msg'); if (m) m.textContent = TX.down;
       }
     })();
   }
@@ -687,7 +703,7 @@
     if (!document.getElementById('mapCanvas')) return;
     ensureDeps().then(init).catch(function (err) {
       console.error('Case map deps failed:', err);
-      var m = document.getElementById('loadingMsg') || document.getElementById('loading-msg'); if (m) m.textContent = 'Map unavailable — check connection.';
+      var m = document.getElementById('loadingMsg') || document.getElementById('loading-msg'); if (m) m.textContent = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0 ? 'El mapa no está disponible. Revise su conexión.' : 'Map unavailable — check connection.';
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
