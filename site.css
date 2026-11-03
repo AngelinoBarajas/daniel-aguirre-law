@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-10-29.9  (no flair inside .cta_inner) */
+/* CODE-CSS-VERSION: 2026-11-03.1  (native locale switcher replaces Elfsight pill) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -897,25 +897,41 @@ html.lenis, html.lenis body { height: auto; }
   .navbar8_component .nav_call-button::after { transition: none; }
 }
 
-/* ===== Navbar language toggle — Elfsight translator (light-DOM: .es-embed-root) =====
-   The widget renders in the LIGHT DOM (no shadow root), so these rules reach it. Placement:
-   an HTML Embed in .navbar8_menu-right, BEFORE the CTA button. Scoped to the navbar. The
-   flag/dropdown INTERNALS need the widget's real selectors (couldn't capture in the headless
-   pane); this frames + aligns the toggle and tints its text. */
-/* Centre the toggle (and the CTA) vertically — menu-right was align:stretch.
-   SCOPED to >=992 on 2026-09-21: unscoped, this silently overrode the `align-items: stretch`
-   the mobile actions block sets, so the sheet's CTA rendered at content width while the call
-   button filled -- the mismatch the mobile block's own comment warns about. */
+/* ===== Navbar language switcher — Webflow Localization (Locales List, 2026-11-03) =====
+   Native Locales List in .navbar8_menu-right, BEFORE the call button (replaced the Elfsight
+   pill). Webflow outputs .w-locales-list > .w-locales-items > .w-locales-item > a, with
+   hreflang and .w--current on the active language; each link points to the SAME page in the
+   other locale. Text is the locale tag (en / es), shown uppercase. Cream-glass pill, the
+   current language filled navy. Scoped to the navbar. */
 @media (min-width: 992px) {
   .navbar8_component .navbar8_menu-right { align-items: center; }
-  .navbar8_component .navbar8_menu-right > .w-embed { display: flex; align-items: center; }
 }
-/* Match the nav: Inter + navy text (cascades to the light-DOM toggle text) */
-.navbar8_component .es-embed-root { display: inline-flex; align-items: center; line-height: 1; font-family: "Inter", sans-serif; color: #1A2840; }
-.navbar8_component .es-embed-root * { font-family: inherit; }
-/* Subtle cream-glass pill to match the bar — DELETE this rule for a plain (no-frame) toggle */
-.navbar8_component .es-embed-root { background: rgba(255,255,255,0.55); border: 1px solid rgba(168,139,92,0.30); border-radius: 100px; padding: 0.3rem 0.6rem; transition: background 0.15s ease, border-color 0.15s ease; }
-.navbar8_component .es-embed-root:hover { background: rgba(255,255,255,0.85); border-color: rgba(168,139,92,0.55); }
+.navbar8_component .w-locales-list { display: flex; align-items: center; }
+.navbar8_component .w-locales-items {
+  display: inline-flex; align-items: center; gap: 2px; margin: 0; padding: 3px; list-style: none;
+  background: rgba(255,255,255,0.55); border: 1px solid rgba(168,139,92,0.30); border-radius: 100px;
+}
+.navbar8_component .w-locales-item { display: flex; }
+.navbar8_component .w-locales-item a {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 2.1rem; min-height: 1.75rem;
+  padding: 0 0.55rem; border-radius: 100px;
+  font-family: "Inter", sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; line-height: 1; text-decoration: none;
+  color: rgba(26,40,64,0.62); transition: background 0.15s ease, color 0.15s ease;
+}
+.navbar8_component .w-locales-item a.w--current { background: #1A2840; color: #FCF6EC; }
+.navbar8_component .w-locales-item a:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .navbar8_component .w-locales-item a:not(.w--current):hover { color: #1A2840; background: rgba(255,255,255,0.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navbar8_component .w-locales-item a { transition: none; }
+}
+/* Phone sheet (<=992): centred above the two actions; taps are 44px tall. */
+@media (max-width: 991px) {
+  .navbar8_component .navbar8_menu-right > .w-locales-list { order: 0; justify-content: center; }
+  .navbar8_component .w-locales-item a { min-height: 2.75rem; min-width: 3.25rem; font-size: 0.8rem; }
+}
 
 /* ===== Kickers / taglines — SITE-WIDE =====
    One system for both kicker classes: ALWAYS uppercase, RED (#891E2D) on light grounds,
