@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-11-03.2  (locale switcher + one-line navbar CTA) */
+/* CODE-CSS-VERSION: 2026-11-04.1  (footer bottom bar: same 2-row layout EN/ES) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2547,4 +2547,14 @@ html.lenis, html.lenis body { height: auto; }
 }
 @media (hover: hover) and (pointer: fine) { .footer_wa:hover { color: #BFA374; } }
 .footer_wa:focus-visible { outline: 2px solid #A88B5C; outline-offset: 3px; }
+
+/* Footer bottom bar: same two-row layout in every language (2026-11-04).
+   Row 1: copyright | legal links. Row 2: credits | location. */
+@media (min-width: 992px) {
+  .footer_bottom { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 2.5rem; row-gap: 1rem; align-items: start; }
+  .footer_bottom > :nth-child(1) { grid-column: 1; grid-row: 1; }
+  .footer_bottom > .footer_legal { grid-column: 2; grid-row: 1; justify-content: flex-end; }
+  .footer_bottom > :nth-child(3) { grid-column: 2; grid-row: 2; justify-self: end; text-align: right; }
+  .footer_bottom > :nth-child(4) { grid-column: 1; grid-row: 2; }
+}
 
