@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-11-07.1  (WhatsApp panel: on-page draft, opens WhatsApp) */
+/* CODE-CSS-VERSION: 2026-11-07.2  (WhatsApp panel: Daniel photo avatar) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2577,6 +2577,8 @@ html.lenis, html.lenis body { height: auto; }
 .wa-panel.is-open { opacity: 1; visibility: visible; transform: translate(0, -50%); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s; }
 .wa-panel_head { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.1rem; background: #1A2840; color: #fff; }
 .wa-panel_avatar { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #A88B5C; color: #fff; display: grid; place-items: center; font: 600 0.95rem/1 Lora, serif; }
+.wa-panel_avatar { position: relative; overflow: hidden; box-shadow: 0 0 0 2px #A88B5C; }
+.wa-panel_photo { position: absolute; left: -45%; top: -22%; width: 190%; height: auto; max-width: none; }
 .wa-panel_title { margin: 0; color: #fff; font: 600 1rem/1.3 Lora, serif; }
 .wa-panel_sub { display: block; margin-top: 0.15rem; font-size: 0.75rem; opacity: 0.8; }
 .wa-panel_close { margin-left: auto; flex: none; width: 2rem; height: 2rem; padding: 0; border: 0; background: transparent; color: #fff; font-size: 1.5rem; line-height: 1; cursor: pointer; }

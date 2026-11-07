@@ -9,6 +9,7 @@
   window.__daWaPanel = true;
 
   var NUM = '12032138703';
+  var PHOTO = 'https://cdn.prod.website-files.com/69f4f199b4ee79bb37a02df8/6a5eeaebfdf8a6920c289ad1_Aguirre_Daniel.jpg'; /* same file as /about .founder_portrait-img */
   var QR_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
   var QR_SRI = 'sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU';
   var es = /^es/i.test(document.documentElement.lang || '') || /^\/es(\/|$)/.test(location.pathname);
@@ -77,7 +78,7 @@
     panel.setAttribute('data-lenis-prevent', '');
     var chips = T.chips.map(function (c) { return '<button type="button" class="wa-panel_chip">' + esc(c) + '</button>'; }).join('');
     panel.innerHTML =
-      '<div class="wa-panel_head"><div class="wa-panel_avatar" aria-hidden="true">DA</div>' +
+      '<div class="wa-panel_head"><div class="wa-panel_avatar" aria-hidden="true">DA<img class="wa-panel_photo" src="' + PHOTO + '" alt="" width="80" height="80" decoding="async"></div>' +
       '<div><p class="wa-panel_title" id="wa-panel-title">' + esc(T.title) + '</p><span class="wa-panel_sub">' + esc(T.sub) + '</span></div>' +
       '<button type="button" class="wa-panel_close" aria-label="' + esc(T.close) + '">&times;</button></div>' +
       '<div class="wa-panel_body"><p class="wa-panel_intro">' + esc(T.intro) + '</p>' +
@@ -89,6 +90,8 @@
       '<p class="wa-panel_fine">' + esc(T.fine) + '</p></div>';
     document.body.appendChild(backdrop);
     document.body.appendChild(panel);
+    var ph = panel.querySelector('.wa-panel_photo');
+    ph.addEventListener('error', function () { ph.remove(); }); /* "DA" initials show instead */
     msg = panel.querySelector('.wa-panel_msg');
     go = panel.querySelector('.wa-panel_go');
     qrWrap = panel.querySelector('.wa-panel_qr');
