@@ -1,4 +1,4 @@
-/* CODE-CSS-VERSION: 2026-11-04.1  (footer bottom bar: same 2-row layout EN/ES) */
+/* CODE-CSS-VERSION: 2026-11-07.1  (WhatsApp panel: on-page draft, opens WhatsApp) */
 /* ===== Relume variable shim =====
    Pasted Relume components bind to vars this project doesn't define; Webflow emits them
    as var(--<unknown|relume-variable-*>). Defining those exact names resolves every current
@@ -2557,4 +2557,57 @@ html.lenis, html.lenis body { height: auto; }
   .footer_bottom > :nth-child(3) { grid-column: 2; grid-row: 2; justify-self: end; text-align: right; }
   .footer_bottom > :nth-child(4) { grid-column: 1; grid-row: 2; }
 }
+
+/* ===== WhatsApp panel (2026-11-07) ============================================================
+   Opens from ANY link to wa.me/12032138703 (.wa-tab edge tab, .footer_wa, /schedule rail).
+   Built by wa-panel.js on the CDN; the links stay real wa.me links, so with no JS they still
+   open WhatsApp directly. The message box is a DRAFT only: nothing is sent or stored by the
+   site. "Continue in WhatsApp" hands the text to WhatsApp (wa.me?text=), the visitor presses
+   Send there. Desktop also shows a QR code so they can continue on their phone instead of
+   signing in to WhatsApp Web. Phones (<768): bottom sheet with a dim backdrop, no QR. */
+.wa-panel_backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(26, 40, 64, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+.wa-panel {
+  position: fixed; z-index: 1001; right: 56px; top: 50%;
+  width: 22rem; max-width: calc(100vw - 72px); max-height: calc(100vh - 2rem); overflow-y: auto;
+  background: #fff; color: #2a2f3a; border: 1px solid #e6dccb; box-shadow: 0 18px 40px rgba(26, 40, 64, 0.18);
+  font-family: Inter, sans-serif; font-size: 0.875rem; line-height: 1.5; text-align: left;
+  opacity: 0; visibility: hidden; transform: translate(12px, -50%);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+}
+.wa-panel.is-open { opacity: 1; visibility: visible; transform: translate(0, -50%); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s; }
+.wa-panel_head { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.1rem; background: #1A2840; color: #fff; }
+.wa-panel_avatar { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #A88B5C; color: #fff; display: grid; place-items: center; font: 600 0.95rem/1 Lora, serif; }
+.wa-panel_title { margin: 0; color: #fff; font: 600 1rem/1.3 Lora, serif; }
+.wa-panel_sub { display: block; margin-top: 0.15rem; font-size: 0.75rem; opacity: 0.8; }
+.wa-panel_close { margin-left: auto; flex: none; width: 2rem; height: 2rem; padding: 0; border: 0; background: transparent; color: #fff; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.wa-panel_close:focus-visible { outline: 2px solid #A88B5C; outline-offset: 2px; }
+.wa-panel_body { padding: 1rem 1.1rem 1.1rem; }
+.wa-panel_intro { margin: 0 0 0.9rem; padding: 0.65rem 0.75rem; background: #FCF6EC; border: 1px solid #e6dccb; }
+.wa-panel_label { display: block; margin: 0 0 0.35rem; font-size: 0.75rem; font-weight: 600; color: #4a4f58; }
+.wa-panel_msg { display: block; width: 100%; min-height: 4.75rem; margin: 0; padding: 0.6rem; border: 1px solid #d9cdb8; border-radius: 0; background: #fff; color: #2a2f3a; font: 0.875rem/1.45 Inter, sans-serif; resize: vertical; }
+.wa-panel_msg:focus { outline: 2px solid #A88B5C; outline-offset: 0; border-color: #A88B5C; }
+.wa-panel_chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.9rem; }
+.wa-panel_chip { padding: 0.3rem 0.55rem; border: 1px solid #e6dccb; border-radius: 4px; background: #fff; color: #1A2840; font: 0.75rem/1.3 Inter, sans-serif; cursor: pointer; }
+.wa-panel_chip:focus-visible { outline: 2px solid #A88B5C; outline-offset: 1px; }
+.wa-panel_go { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.75rem; background: #25D366; color: #073b1d; font-weight: 600; font-size: 0.95rem; text-decoration: none; }
+.wa-panel_go:focus-visible { outline: 2px solid #1A2840; outline-offset: 2px; }
+.wa-panel_go-icon { width: 1.15rem; height: 1.15rem; flex: none; }
+.wa-panel_qr { display: flex; gap: 0.85rem; align-items: center; margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid #e6dccb; }
+.wa-panel_qr-code { flex: none; width: 6rem; height: 6rem; }
+.wa-panel_qr-code img, .wa-panel_qr-code canvas { display: block; width: 6rem !important; height: 6rem !important; }
+.wa-panel_qr p { margin: 0; font-size: 0.78rem; color: #5b5f68; }
+.wa-panel_fine { margin: 0.8rem 0 0; font-size: 0.72rem; color: #5b5f68; }
+@media (hover: hover) and (pointer: fine) {
+  .wa-panel_chip:hover { border-color: #A88B5C; }
+  .wa-panel_go:hover { background: #1fbd5a; }
+}
+@media (max-width: 767px) {
+  .wa-panel_backdrop.is-open { opacity: 1; pointer-events: auto; }
+  .wa-panel { left: 0; right: 0; top: auto; bottom: 0; width: auto; max-width: none; max-height: 85svh; border-radius: 1rem 1rem 0 0; transform: translateY(1.5rem); padding-bottom: env(safe-area-inset-bottom); }
+  .wa-panel.is-open { transform: none; }
+  .wa-panel_qr { display: none; }
+  .wa-panel_msg { font-size: 1rem; } /* 16px stops iOS zooming in on focus */
+}
+@media (prefers-reduced-motion: reduce) { .wa-panel, .wa-panel_backdrop { transition: none; } }
+@media print { .wa-panel, .wa-panel_backdrop { display: none; } }
 
