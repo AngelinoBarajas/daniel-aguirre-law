@@ -580,6 +580,14 @@
   object-position: center;
 }
 .section_logo6 .logo6_list { grid-column-gap: 1rem; grid-row-gap: 1rem; }
+/* 2026-11-12: seven badges (AILA added first). A 3-column grid left AILA alone on a
+   third row, so the list is a centred flex row: 4 + 3 on desktop, 3 + 3 + 1 on tablet,
+   2-up on phones, the short row always centred. Wrappers carry Webflow w-node grid
+   placements; those are ignored once the parent is flex. */
+.section_logo6 .logo6_list { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+.section_logo6 .logo6_wrapper { flex: 0 0 calc((100% - 3rem) / 4); }
+@media (max-width: 991px) { .section_logo6 .logo6_wrapper { flex-basis: calc((100% - 2rem) / 3); } }
+@media (max-width: 479px) { .section_logo6 .logo6_wrapper { flex-basis: calc((100% - 1rem) / 2); } }
 @media (prefers-reduced-motion: no-preference) {
   .section_logo6 .logo6_wrapper:hover {
     transform: translateY(-4px);
