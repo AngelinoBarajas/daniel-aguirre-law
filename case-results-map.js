@@ -62,29 +62,96 @@
       close: 'Close', down: 'Map unavailable — check connection.'
     };
     var TYPES_ES = { 'Asylum': 'Asilo', 'Family-Based': 'Familiar', 'Removal Defense': 'Defensa contra la Deportación',
-      'Work Visa': 'Visa de Trabajo', 'Work Authorization': 'Permiso de Trabajo', 'Employment-Based': 'Por Empleo', 'Humanitarian': 'Humanitario' };
+      'Work Visa': 'Visa de Trabajo', 'Work Authorization': 'Permiso de Trabajo', 'Employment-Based': 'Por Empleo', 'Humanitarian': 'Humanitario',
+      'Green Cards & Citizenship': 'Green Card y Ciudadanía' };
     function typeLabel(t) { return (ES && TYPES_ES[t]) || t; }
     // No "Loading map…" text — the map zooms + fades in on its own (entrance animation in draw()).
     setText('loadingMsg', ''); setText('loading-msg', '');
 
     // ── Case data (CMS-ready) ──────────────────────────────
+    // Fallback for pages WITHOUT a CMS source list (/old-home, /reviews as of 2026-11-12).
+    // The 15 REAL matters Daniel submitted 2026-11-05 (review #1), same text as the Case Results CMS.
+    // Keep in step with the CMS until those pages get their own hidden source list, then empty it.
     var INLINE_CASES = [
-      { id:0,  lat:34.05, lng:-118.24, title:"Family Reunification — H-4 Dependent Visa",        type:"Family-Based",       city:"Los Angeles", state:"CA", outcome:"Visa Approved",        year:2024, summary:"Spouse and two children reunited after a 3-year separation caused by administrative delays and a Request for Evidence.",                                  slug:"/cases/family-reunification-la" },
-      { id:7,  lat:34.05, lng:-118.24, title:"Asylum — Salvadoran Family Fleeing Gang Violence", type:"Asylum",             city:"Los Angeles", state:"CA", outcome:"Asylum Granted",       year:2024, summary:"Family of four secured asylum after presenting country-conditions evidence on MS-13 retaliation; previous counsel had filed late.",                        slug:"/cases/asylum-la-salvadoran" },
-      { id:8,  lat:34.05, lng:-118.24, title:"H-1B Cap Petition — Software Engineer",            type:"Work Visa",          city:"Los Angeles", state:"CA", outcome:"Petition Approved",    year:2023, summary:"Selected in lottery and approved on first review for a senior engineer transitioning from F-1 OPT at a Series B startup.",                                 slug:"/cases/h1b-la-engineer" },
-      { id:9,  lat:34.05, lng:-118.24, title:"Removal Defense — 22-Year Resident",               type:"Removal Defense",    city:"Los Angeles", state:"CA", outcome:"Cancellation Granted", year:2023, summary:"Cancellation of removal granted for a long-term resident with two U.S.-citizen children after demonstrating exceptional and extremely unusual hardship.",  slug:"/cases/removal-la-longterm" },
-      { id:1,  lat:40.71, lng:-74.01,  title:"Asylum Application — Central American Family",      type:"Asylum",             city:"New York",    state:"NY", outcome:"Asylum Granted",       year:2023, summary:"Asylum granted to a family fleeing gang-based persecution after the judge reversed an initial denial on appeal.",                                          slug:"/cases/asylum-ny" },
-      { id:2,  lat:41.85, lng:-87.65,  title:"Employment Authorization — DACA Renewal",          type:"Work Authorization", city:"Chicago",     state:"IL", outcome:"EAD Renewed",          year:2024, summary:"Successful renewal for a DACA recipient facing lapse in work authorization during university enrollment.",                                                slug:"/cases/ead-chicago" },
-      { id:3,  lat:25.77, lng:-80.19,  title:"Removal Defense — Emergency Stay Granted",         type:"Removal Defense",    city:"Miami",       state:"FL", outcome:"Deportation Halted",   year:2024, summary:"Emergency stay obtained for a 14-year resident with three U.S.-born children, pending full merits appeal.",                                                slug:"/cases/removal-miami" },
-      { id:4,  lat:29.76, lng:-95.37,  title:"EB-2 National Interest Waiver",                    type:"Employment-Based",   city:"Houston",     state:"TX", outcome:"Green Card Approved",  year:2023, summary:"NIW petition approved for a medical researcher whose public health work was certified as substantially beneficial to the U.S.",                            slug:"/cases/eb2-niw-houston" },
-      { id:5,  lat:47.61, lng:-122.33, title:"TN Visa — Canadian Tech Professional",             type:"Work Visa",          city:"Seattle",     state:"WA", outcome:"TN Status Granted",    year:2024, summary:"Canadian software engineer granted TN status at port of entry after a prior CBP denial due to documentation deficiencies.",                               slug:"/cases/tn-visa-seattle" },
-      { id:6,  lat:33.75, lng:-84.39,  title:"U-Visa — Crime Victim Certification",              type:"Humanitarian",       city:"Atlanta",     state:"GA", outcome:"U-Visa Approved",      year:2023, summary:"Obtained law enforcement certification and USCIS approval of U nonimmigrant status for a domestic violence survivor.",                                    slug:"/cases/uvisa-atlanta" },
-      { id:10, lat:33.45, lng:-112.07, title:"DACA — Reopened After Initial Denial",             type:"Work Authorization", city:"Phoenix",     state:"AZ", outcome:"Status Reinstated",    year:2024, summary:"Motion to reopen succeeded for a DACA recipient whose renewal was wrongly denied for missing employment-history records.",                                slug:"/cases/daca-phoenix" },
-      { id:11, lat:32.78, lng:-96.80,  title:"I-130 — Petition for Aging Parents",               type:"Family-Based",       city:"Dallas",      state:"TX", outcome:"Green Cards Approved", year:2023, summary:"Both parents (ages 71 and 68) approved for permanent residence after consular processing in Mexico City; affidavits of support handled in-house.",        slug:"/cases/i130-dallas" },
-      { id:12, lat:42.36, lng:-71.06,  title:"VAWA Self-Petition — Domestic Abuse Survivor",     type:"Humanitarian",       city:"Boston",      state:"MA", outcome:"Petition Approved",    year:2024, summary:"VAWA self-petition approved for a survivor whose abusive U.S.-citizen spouse had threatened immigration consequences as a control tactic.",               slug:"/cases/vawa-boston" },
-      { id:13, lat:39.74, lng:-104.99, title:"TPS Extension — Venezuelan Designation",           type:"Humanitarian",       city:"Denver",      state:"CO", outcome:"TPS Extended",         year:2024, summary:"Re-registered TPS protection plus EAD extension for a family of three under the Venezuela 2023 designation.",                                              slug:"/cases/tps-denver" },
-      { id:14, lat:44.98, lng:-93.27,  title:"Refugee Family Reunification — Form I-730",        type:"Humanitarian",       city:"Minneapolis", state:"MN", outcome:"Family Reunited",      year:2023, summary:"Spouse and three minor children of a Somali refugee approved for derivative status and travel after 4 years of separation.",                               slug:"/cases/i730-minneapolis" },
-    ];
+      { id:0, lat:33.94, lng:-84.21, type:"Work Authorization", city:"Norcross", state:"GA", year:2026, slug:"#",
+        title:"Employment Authorization — Form I-765", outcome:"Work Permit Approved",
+        summary:"Our firm successfully assisted a client in obtaining approval of Form I-765, Application for Employment Authorization, allowing the client to obtain authorization to work legally in the United States.",
+        es:{ title:"Permiso de Trabajo — Formulario I-765", outcome:"Permiso de Trabajo Aprobado",
+          summary:"Nuestra firma ayudó con éxito a un cliente a obtener la aprobación del Formulario I-765, Solicitud de Autorización de Empleo, lo que le permitió obtener autorización para trabajar legalmente en los Estados Unidos." } },
+      { id:1, lat:29.62, lng:-95.54, type:"Family-Based", city:"Missouri City", state:"TX", year:2026, slug:"#",
+        title:"Removal of Conditions — Form I-751", outcome:"Conditions Removed",
+        summary:"Our firm successfully assisted a married couple in obtaining approval of Form I-751, Petition to Remove Conditions on Residence, allowing the beneficiary to secure permanent resident status without conditions.",
+        es:{ title:"Eliminación de Condiciones — Formulario I-751", outcome:"Condiciones Eliminadas",
+          summary:"Nuestra firma ayudó con éxito a un matrimonio a obtener la aprobación del Formulario I-751, Petición para Eliminar las Condiciones de Residencia, lo que permitió al beneficiario asegurar su residencia permanente sin condiciones." } },
+      { id:2, lat:38.96, lng:-77.36, type:"Family-Based", city:"Reston", state:"VA", year:2026, slug:"#",
+        title:"Removal of Conditions — Form I-751", outcome:"Conditions Removed",
+        summary:"Our firm successfully assisted a married couple in obtaining approval of Form I-751, Petition to Remove Conditions on Residence, allowing the beneficiary to become a lawful permanent resident without conditions.",
+        es:{ title:"Eliminación de Condiciones — Formulario I-751", outcome:"Condiciones Eliminadas",
+          summary:"Nuestra firma ayudó con éxito a un matrimonio a obtener la aprobación del Formulario I-751, Petición para Eliminar las Condiciones de Residencia, lo que permitió al beneficiario convertirse en residente permanente legal sin condiciones." } },
+      { id:3, lat:40.26, lng:-74.27, type:"Family-Based", city:"Freehold", state:"NJ", year:2026, slug:"#",
+        title:"Provisional Unlawful Presence Waiver — Form I-601A", outcome:"Waiver Approved",
+        summary:"Our firm successfully obtained approval of an I-601A provisional unlawful presence waiver in March 2026, allowing the client to move forward with immigrant visa processing through the National Visa Center and prepare for a consular interview in Ciudad Juárez, Mexico.",
+        es:{ title:"Perdón Provisional por Presencia Ilegal — Formulario I-601A", outcome:"Perdón Aprobado",
+          summary:"Nuestra firma obtuvo con éxito la aprobación de un perdón provisional por presencia ilegal (I-601A) en marzo de 2026, lo que permitió al cliente avanzar con el trámite de su visa de inmigrante a través del Centro Nacional de Visas (NVC) y prepararse para su entrevista consular en Ciudad Juárez, México." } },
+      { id:4, lat:41.46, lng:-72.82, type:"Family-Based", city:"Wallingford", state:"CT", year:2026, slug:"#",
+        title:"Adjustment of Status After Military Parole", outcome:"Green Card Granted",
+        summary:"Our firm successfully assisted a client in obtaining lawful permanent residence through adjustment of status following military parole. The client's green card was approved in April 2026, marking a significant milestone for the family.",
+        es:{ title:"Ajuste de Estatus tras un Parole Militar", outcome:"Green Card Otorgada",
+          summary:"Nuestra firma ayudó con éxito a un cliente a obtener la residencia permanente legal mediante el ajuste de estatus tras un parole militar. La green card del cliente fue aprobada en abril de 2026, un logro importante para la familia." } },
+      { id:5, lat:41.76, lng:-72.69, type:"Removal Defense", city:"Hartford", state:"CT", year:2026, slug:"#",
+        title:"Removal Proceedings — Hartford Immigration Court", outcome:"Proceedings Terminated",
+        summary:"Our firm successfully defended a client facing deportation proceedings before the Immigration Court in Hartford, Connecticut. Through effective legal representation and advocacy, we secured a favorable outcome that prevented the client's deportation.",
+        es:{ title:"Proceso de Deportación — Corte de Inmigración de Hartford", outcome:"Proceso Terminado",
+          summary:"Nuestra firma defendió con éxito a un cliente que enfrentaba un proceso de deportación ante la Corte de Inmigración de Hartford, Connecticut. Gracias a una representación legal eficaz, logramos un resultado favorable que evitó la deportación del cliente." } },
+      { id:6, lat:41.18, lng:-73.13, type:"Green Cards & Citizenship", city:"Stratford", state:"CT", year:2026, slug:"#",
+        title:"Naturalization — Form N-400", outcome:"Naturalization Approved",
+        summary:"Our firm assisted a client with the naturalization process through Form N-400, Application for Naturalization, helping the client pursue the goal of becoming a United States citizen.",
+        es:{ title:"Naturalización — Formulario N-400", outcome:"Naturalización Aprobada",
+          summary:"Nuestra firma ayudó a un cliente con el proceso de naturalización mediante el Formulario N-400, Solicitud de Naturalización, para alcanzar su meta de convertirse en ciudadano de los Estados Unidos." } },
+      { id:7, lat:34.05, lng:-118.24, type:"Green Cards & Citizenship", city:"Los Angeles", state:"CA", year:2026, slug:"#",
+        title:"Naturalization — Form N-400", outcome:"Naturalization Approved",
+        summary:"Our firm assisted a lawful permanent resident with Form N-400, Application for Naturalization, helping the client obtain United States citizenship.",
+        es:{ title:"Naturalización — Formulario N-400", outcome:"Naturalización Aprobada",
+          summary:"Nuestra firma ayudó a un residente permanente legal con el Formulario N-400, Solicitud de Naturalización, y el cliente obtuvo la ciudadanía estadounidense." } },
+      { id:8, lat:41.62, lng:-72.75, type:"Humanitarian", city:"Berlin", state:"CT", year:2026, slug:"#",
+        title:"VAWA Self-Petition", outcome:"VAWA Approved",
+        summary:"Our firm assisted a client pursuing lawful permanent residence through the Violence Against Women Act (VAWA), based on a qualifying marriage to a U.S. citizen. Our representation focused on helping the client navigate the immigration process independently and pursue a more secure future.",
+        es:{ title:"Autopetición VAWA", outcome:"VAWA Aprobada",
+          summary:"Nuestra firma ayudó a un cliente a tramitar la residencia permanente legal mediante la Ley de Violencia contra la Mujer (VAWA), con base en su matrimonio con un ciudadano estadounidense. Nuestra representación se enfocó en ayudar al cliente a avanzar en su proceso migratorio de manera independiente y construir un futuro más seguro." } },
+      { id:9, lat:28.29, lng:-81.41, type:"Green Cards & Citizenship", city:"Kissimmee", state:"FL", year:2025, slug:"#",
+        title:"Green Card Renewal — Form I-90", outcome:"Green Card Renewed",
+        summary:"Our firm assisted a lawful permanent resident with Form I-90, Application to Replace Permanent Resident Card, to renew their green card and maintain current evidence of their permanent resident status.",
+        es:{ title:"Renovación de Green Card — Formulario I-90", outcome:"Green Card Renovada",
+          summary:"Nuestra firma ayudó a un residente permanente legal con el Formulario I-90, Solicitud para Reemplazar la Tarjeta de Residente Permanente, para renovar su green card y mantener vigente la prueba de su estatus de residente permanente." } },
+      { id:10, lat:40.17, lng:-80.25, type:"Work Authorization", city:"Washington", state:"PA", year:2025, slug:"#",
+        title:"Employment Authorization — Section 245(i) Adjustment", outcome:"Work Permit Approved",
+        summary:"Our firm successfully assisted a client pursuing adjustment of status under Section 245(i) with obtaining employment authorization, allowing the client to work legally in the United States while their immigration process continued.",
+        es:{ title:"Permiso de Trabajo — Ajuste bajo la Sección 245(i)", outcome:"Permiso de Trabajo Aprobado",
+          summary:"Nuestra firma ayudó con éxito a un cliente que tramitaba el ajuste de estatus bajo la Sección 245(i) a obtener su permiso de trabajo, lo que le permitió trabajar legalmente en los Estados Unidos mientras continuaba su proceso migratorio." } },
+      { id:11, lat:41.98, lng:-72.59, type:"Family-Based", city:"Enfield", state:"CT", year:2025, slug:"#",
+        title:"Family-Based Petitions — Two Children Abroad", outcome:"Petitions Approved",
+        summary:"Our firm successfully assisted a lawful permanent resident in obtaining approval of family-based immigrant visa petitions for two children residing in Syria. The approvals allowed the family to advance to consular processing, bringing them one step closer to reunification in the United States.",
+        es:{ title:"Peticiones Familiares — Dos Hijos en el Extranjero", outcome:"Peticiones Aprobadas",
+          summary:"Nuestra firma ayudó con éxito a un residente permanente legal a obtener la aprobación de peticiones familiares de visa de inmigrante para sus dos hijos que residen en Siria. Las aprobaciones permitieron que la familia avanzara al proceso consular, un paso más cerca de reunirse en los Estados Unidos." } },
+      { id:12, lat:31.03, lng:-96.12, type:"Family-Based", city:"Normangee", state:"TX", year:2025, slug:"#",
+        title:"K-1 Fiancé Visa", outcome:"K-1 Visa Approved",
+        summary:"Our firm successfully assisted a couple in obtaining a K-1 fiancé visa, allowing the foreign national fiancé to enter the United States and marry their U.S. citizen partner. Following their marriage, our office prepared and filed the adjustment of status application.",
+        es:{ title:"Visa K-1 de Prometido", outcome:"Visa K-1 Aprobada",
+          summary:"Nuestra firma ayudó con éxito a una pareja a obtener una visa K-1 de prometido, lo que permitió al prometido extranjero entrar a los Estados Unidos y casarse con su pareja ciudadana estadounidense. Después de la boda, nuestra oficina preparó y presentó la solicitud de ajuste de estatus." } },
+      { id:13, lat:41.50, lng:-72.90, type:"Work Authorization", city:"Cheshire", state:"CT", year:2024, slug:"#",
+        title:"Advance Parole — Travel Authorization", outcome:"Advance Parole Approved",
+        summary:"Our firm successfully assisted a client in obtaining approval of Advance Parole, allowing the client to travel internationally for an authorized purpose and seek reentry into the United States while maintaining their immigration process.",
+        es:{ title:"Advance Parole — Permiso de Viaje", outcome:"Advance Parole Aprobado",
+          summary:"Nuestra firma ayudó con éxito a un cliente a obtener la aprobación de un Advance Parole, lo que le permitió viajar al extranjero por un motivo autorizado y solicitar su reingreso a los Estados Unidos sin afectar su proceso migratorio." } },
+      { id:14, lat:41.39, lng:-73.45, type:"Asylum", city:"Danbury", state:"CT", year:2023, slug:"#",
+        title:"Asylum — Protection from Deportation", outcome:"Asylum Granted",
+        summary:"Our firm successfully represented a client in an asylum case, securing approval in 2023. This favorable outcome granted the client protection from deportation and the opportunity to build a safer, more stable future in the United States.",
+        es:{ title:"Asilo — Protección contra la Deportación", outcome:"Asilo Otorgado",
+          summary:"Nuestra firma representó con éxito a un cliente en un caso de asilo y obtuvo la aprobación en 2023. Este resultado favorable le otorgó al cliente protección contra la deportación y la oportunidad de construir un futuro más seguro y estable en los Estados Unidos." } }
+    ].map(function (c) {
+      if (ES && c.es) { c.title = c.es.title; c.outcome = c.es.outcome; c.summary = c.es.summary; }
+      return c;
+    });
     // CMS source (wired 2026-09-18). A hidden Collection List renders one
     // .case-map_item per case inside a .case-map_source / .case-map_source-cms div.
     // TWO shapes are supported, because the Webflow MCP can bind CMS values to an
@@ -569,6 +636,31 @@
     // is an identity transform. (setZoomAt/clampPan/resetView remain defined but idle.)
 
     // Filter chips
+    // Chips follow the cases (2026-11-12): a chip whose type has no case is hidden, and a type
+    // with cases but no chip gets one, cloned from an existing chip so it keeps the Webflow class.
+    (function syncChips() {
+      var have = {}; CASES.forEach(function (c) { if (c.type) have[c.type] = true; });
+      var existing = document.querySelectorAll('.filter_chip');
+      if (!existing.length) return;
+      var shown = {}, rows = [];
+      Array.prototype.forEach.call(existing, function (ch) {
+        if (rows.indexOf(ch.parentNode) < 0) rows.push(ch.parentNode);
+        var t = ch.dataset.type;
+        if (t === 'all') return;
+        if (!have[t]) { ch.hidden = true; ch.style.display = 'none'; } else { shown[t] = true; }
+      });
+      Object.keys(have).forEach(function (t) {
+        if (shown[t]) return;
+        rows.forEach(function (row) {
+          var src = row.querySelector('.filter_chip:not([data-type="all"])');
+          if (!src) return;
+          var n = src.cloneNode(true);
+          n.hidden = false; n.style.display = ''; n.classList.remove('is-active');
+          n.dataset.type = t; n.textContent = typeLabel(t);
+          row.appendChild(n);
+        });
+      });
+    })();
     var chips = document.querySelectorAll('.filter_chip');
     for (var ci = 0; ci < chips.length; ci++) {
       chips[ci].addEventListener('click', function () {
