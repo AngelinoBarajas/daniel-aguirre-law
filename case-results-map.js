@@ -692,8 +692,9 @@
         '<div class="popup-title">' + escHtml(c.title) + '</div>' +
         '<div class="popup-location">' + SVG_LOC + '<span>' + escHtml(c.city) + ', ' + escHtml(c.state) + ' &middot; ' + c.year + '</span></div>' +
         '<div class="popup-outcome"><div class="check-mark">&check;</div><span>' + escHtml(c.outcome) + '</span></div>' +
-        '<div class="popup-summary">' + escHtml(c.summary) + '</div><div class="popup-divider"></div>' +
-        '<a class="popup-link" href="' + escHtml(c.slug) + '"><span>' + TX.read + '</span>' + SVG_ARROW + '</a>';
+        '<div class="popup-summary">' + escHtml(c.summary) + '</div>' +
+        // "Read full case" only when the case has its own page (2026-11-12: none do, so it's hidden).
+        (c.slug && c.slug !== '#' ? '<div class="popup-divider"></div><a class="popup-link" href="' + escHtml(c.slug) + '"><span>' + TX.read + '</span>' + SVG_ARROW + '</a>' : '');
     }
     function renderClusterList(cl) {
       var rows = cl.cases.map(function (c) {
