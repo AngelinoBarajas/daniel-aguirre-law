@@ -588,6 +588,11 @@
 .section_logo6 .logo6_wrapper { flex: 0 0 calc((100% - 3rem) / 4); }
 @media (max-width: 991px) { .section_logo6 .logo6_wrapper { flex-basis: calc((100% - 2rem) / 3); } }
 @media (max-width: 479px) { .section_logo6 .logo6_wrapper { flex-basis: calc((100% - 1rem) / 2); } }
+/* AILA is a tall portrait badge; in the shared 74px box it read at half the weight of
+   the wide wordmarks. Taller box for it only; the card height is unchanged. */
+.section_logo6 .logo6_logo[src*="cred-aila"] { height: 92px; margin: -9px 0; }
+@media (max-width: 991px) { .section_logo6 .logo6_logo[src*="cred-aila"] { height: 74px; margin: -8px 0; } }
+@media (max-width: 479px) { .section_logo6 .logo6_logo[src*="cred-aila"] { height: 64px; margin: -7px 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .section_logo6 .logo6_wrapper:hover {
     transform: translateY(-4px);
